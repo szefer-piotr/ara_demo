@@ -75,7 +75,7 @@ if not plan:
             for ln in filter(None, lines)
         ]
         st.success("Draft created. Review and accept.")
-        st.experimental_rerun()
+        st.rerun()
     st.stop()
 
 if not hypo["plan_accepted"]:
@@ -103,11 +103,11 @@ if not hypo["plan_accepted"]:
     col_regen, col_accept = st.columns(2)
     if col_regen.button("Regenerate plan"):
         hypo["analysis_plan"].clear()
-        st.experimental_rerun()
+        st.rerun()
     if col_accept.button("Accept plan", type="primary"):
         hypo["plan_accepted"] = True
         st.session_state["selected_step_id"] = hypo["analysis_plan"][0]["step_id"]
-        st.experimental_rerun()
+        st.rerun()
 
     st.stop()
 
@@ -115,7 +115,7 @@ if not hypo["plan_accepted"]:
 if st.button("Edit plan (re-draft)"):
     hypo["plan_accepted"] = False
     st.session_state["selected_step_id"] = None
-    st.experimental_rerun()
+    st.rerun()
 
 sid = st.session_state.get("selected_step_id")  # may be None (Overview)
 
@@ -162,18 +162,18 @@ with main:
     if step["finished"]:
         if st.button("Edit step"):
             step["finished"] = False
-            st.experimental_rerun()
+            st.rerun()
     else:
         col_run, col_finish = st.columns(2)
         if col_run.button("Run step"):
             chunks = mock_llm(step["code"], tools=["code interpreter"])
             record_run(step, chunks, step["code"])
             st.success("Run stored.")
-            st.experimental_rerun()
+            st.rerun()
         if step["runs"] and col_finish.button("Finish step", type="primary"):
             step["finished"] = True
             st.success("Step marked as finished.")
-            st.experimental_rerun()
+            st.rerun()
 
     # latest run display
     if step["runs"]:
@@ -206,7 +206,7 @@ with main:
                 code_chunk = first_chunk(chunks, "code")
                 record_run(step, chunks, code_input=code_chunk)
                 st.success("Run stored from chat.")
-                st.experimental_rerun()
+                st.rerun()
 
 # ---------------- ARTIFACT SIDEBAR ----------------
 with arte:
@@ -219,7 +219,7 @@ with arte:
                 col_rm, col_ct = st.columns([1, 4])
                 if col_rm.button("🗑️", key=f"del_{r['run_id']}"):
                     step["runs"] = [x for x in step["runs"] if x["run_id"] != r["run_id"]]
-                    st.experimental_rerun()
+                    st.rerun()
                 col_ct.code(r["code_input"], language="python")
                 for html in r["images"]:
                     col_ct.markdown(html, unsafe_allow_html=True)

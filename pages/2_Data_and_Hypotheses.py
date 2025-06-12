@@ -83,10 +83,20 @@ with st.form(key="txt_hypothesis"):
 render_sidebar()
 
 # ── STEP 3 ─ Build / edit analysis plan for the selected hypothesis ────────────
-chosen = next(
-    h for h in st.session_state["analyses"]
-    if h["hypothesis_id"] == st.session_state["selected_hypothesis_id"]
-)
+selected_id = st.session_state.get("selected_hypothesis_id")
+analyses = st.session_state["analyses"]
+
+if not selected_id:
+    st.warning("No hypothesis selected.")
+    st.stop()
+
+matched = [h for h in analyses if h["hypothesis_id"] == selected_id]
+if not matched:
+    st.warning(f"Hypothesis ID '{selected_id}' not found.")
+    st.stop()
+
+chosen = matched[0]
+
 # st.header(f"3. Analysis plan – {chosen['title']}")
 
 # Add new step

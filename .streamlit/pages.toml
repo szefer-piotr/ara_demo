@@ -1,0 +1,17 @@
+# Define visible pages in sidebar
+
+[[pages]]
+path = "pages/1_Welcome.py"
+name = "Welcome"
+
+[[pages]]
+path = "pages/2_Data_and_Hypotheses.py"
+name = "Data and Hypotheses"
+
+[[pages]]
+path = "pages/3_Analysis_Plan.py"
+name = "Analysis plan"
+
+[[pages]]
+path = "pages/4_Final_Report.py"
+name = "Report"
