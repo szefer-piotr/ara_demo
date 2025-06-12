@@ -18,7 +18,7 @@ if "current_data" not in st.session_state:
 
 if st.session_state["current_data"] is None:
     st.write("Choose a CSV file")
-    data_file = st.file_uploader(label="", type="csv")
+    data_file = st.file_uploader(label="Upload data", type="csv")
     if data_file:
         df = pd.read_csv(data_file)
         st.session_state["current_data"] = df
@@ -36,150 +36,79 @@ st.markdown("#### Add hypotheses")
 
 st.write("Type a hypothesis then click Add")
 # Forms allow us to avoid partial reruns while typing
-with st.form(key="typed_hypothesis"):
-    text = st.text_input("")
+with st.form(key="typed_hypothesis", clear_on_submit=True):
+    text = st.text_input(label="Type a new hypothesis", key="hypothesis_input", label_visibility="collapsed")
     submitted = st.form_submit_button("Add")
     if submitted and text.strip():
-        st.session_state["analyses"].append(
-            {
-                "hypothesis_id": uuid.uuid4().hex[:8],
-                "title": text.strip(),
-                "data": st.session_state["current_data"],
-                "analysis_plan": [],
-            }
-        )
+        new_hypothesis = {
+            "hypothesis_id": uuid.uuid4().hex[:8],
+            "title": text.strip(),
+            "data": st.session_state["current_data"],
+            "analysis_plan": [],
+        }
+        st.session_state["analyses"].append(new_hypothesis)
+        st.session_state["selected_hypothesis_id"] = new_hypothesis["hypothesis_id"]
         st.success("Hypothesis added.")
 
 st.write("…or upload a .txt file (one hypothesis per line)")
 
 with st.form(key="txt_hypothesis"):    
-    txt_file = st.file_uploader("",
-                                type="txt")
+    txt_file = st.file_uploader("Uploas a TXT file with one hypothesis per line", 
+                                type="txt",
+                                label_visibility="collapsed")
     uploaded = st.form_submit_button("Import")
     if uploaded and txt_file:
         raw = StringIO(txt_file.getvalue().decode()).read().splitlines()
         lines = [l.strip() for l in raw if l.strip()]
+        last_id = None
         for line in lines:
-            st.session_state["analyses"].append(
-                {
-                    "hypothesis_id": uuid.uuid4().hex[:8],
-                    "title": line,
-                    "data": st.session_state["current_data"],
-                    "analysis_plan": [],
-                }
-            )
+            new_hypothesis = {
+                "hypothesis_id": uuid.uuid4().hex[:8],
+                "title": line,
+                "data": st.session_state["current_data"],
+                "analysis_plan": [],
+            }
+            st.session_state["analyses"].append(new_hypothesis)
+            last_id = new_hypothesis["hypothesis_id"]
+        if last_id:
+            st.session_state["selected_hypothesis_id"] = last_id
         st.success(f"Imported {len(lines)} hypotheses.")
 
 # ── List current hypotheses ────────────────────────────────────────────────────
-# if st.session_state["analyses"]:
-#     st.subheader("Existing hypotheses")
-#     for a in st.session_state["analyses"]:
-#         st.write(f"{a['hypothesis_id']}: {a['title']}")
-# else:
-#     st.info("None yet – add at least one before proceeding.")
-#     st.stop()
+if st.session_state["analyses"]:
+    st.subheader("Existing hypotheses")
+
+    for idx, a in enumerate(st.session_state["analyses"]):
+        col1, col2 = st.columns([9, 1])          # wide text · narrow icon
+        with col1:
+            st.write(f"**{a['hypothesis_id']}** — {a['title']}")
+        with col2:
+            pressed = st.button(
+                "🗑️",                           # trash-can emoji
+                key=f"del_{a['hypothesis_id']}",
+                help="Delete this hypothesis",
+            )
+            if pressed:
+                # remove the hypothesis
+                st.session_state["analyses"].pop(idx)
+
+                # keep selection sensible
+                if st.session_state.get("selected_hypothesis_id") == a["hypothesis_id"]:
+                    if st.session_state["analyses"]:
+                        st.session_state["selected_hypothesis_id"] = (
+                            st.session_state["analyses"][-1]["hypothesis_id"]
+                        )
+                    else:
+                        st.session_state["selected_hypothesis_id"] = None
+
+                st.rerun()          # refresh the page
+
+else:
+    st.info("None yet – add at least one before proceeding.")
+    st.stop()
 
 # ── Sidebar navigation (must come after at least one hypothesis exists) ────────
-render_sidebar()
-
-# ── STEP 3 ─ Build / edit analysis plan for the selected hypothesis ────────────
-selected_id = st.session_state.get("selected_hypothesis_id")
-analyses = st.session_state["analyses"]
-
-if not selected_id:
-    st.warning("No hypothesis selected.")
-    st.stop()
-
-matched = [h for h in analyses if h["hypothesis_id"] == selected_id]
-if not matched:
-    st.warning(f"Hypothesis ID '{selected_id}' not found.")
-    st.stop()
-
-chosen = matched[0]
-
-# st.header(f"3. Analysis plan – {chosen['title']}")
-
-# Add new step
-# if st.button("Add analysis step"):
-#     step = {
-#         "step_id": uuid.uuid4().hex[:8],
-#         "code": "",
-#         "images": [],     # list of {"img_id": str, "html": str}
-#         "text": "",
-#     }
-#     chosen["analysis_plan"].append(step)
-#     st.session_state["selected_step_id"] = step["step_id"]
-
-# If there is at least one step, show the editor
-if chosen["analysis_plan"]:
-    step = next(s for s in chosen["analysis_plan"]
-                if s["step_id"] == st.session_state["selected_step_id"])
-
-    st.subheader(f"Editing step {step['step_id']}")
-
-    # ——— Editable text description ———
-    step["text"] = st.text_area("Narrative / observations", value=step["text"])
-
-    # ——— Editable code ———
-    step["code"] = st.text_area(
-        "Python code to execute",
-        value=step["code"],
-        height=200,
-        help="This is a stub – execution is mocked."
-    )
-
-    # ——— Images list ———
-    st.write("Images (HTML snippets)")
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        for idx, img in enumerate(step["images"]):
-            st.markdown(f"{idx+1}. {img['html']}", unsafe_allow_html=True)
-    with col2:
-        new_html = st.text_input("Add image (HTML)")
-        if st.button("Add"):
-            if new_html.strip():
-                step["images"].append(
-                    {"img_id": uuid.uuid4().hex[:8], "html": new_html.strip()}
-                )
-                st.rerun()
-
-    st.divider()
-
-    # ── Chat to refine this step (mocked) ───────────────────
-    if "chat_history" not in step:
-        step["chat_history"] = []   # [(role, message)]
-
-    for role, msg in step["chat_history"]:
-        st.chat_message(role).write(msg)
-
-    prompt = st.chat_input("Ask the LLM about this step")
-    
-    if prompt:
-        # Record the user turn
-        step["chat_history"].append(("user", prompt))
-
-        # One unified mock-LLM call – show a spinner while it “thinks”
-        with st.spinner("LLM is thinking…"):
-            chunks = mock_llm(
-                prompt,
-                history=[{"type": "text", "content": m} for _, m in step["chat_history"]],
-            )
-
-    # Extract the first text chunk to display
-    reply_text = next(c["content"] for c in chunks if c["type"] == "text")
-    step["chat_history"].append(("assistant", reply_text))
-    st.chat_message("assistant").write(reply_text)
-
-
-    
-
-    # ── Run / save button (mock execution) ──────────────────
-    if st.button("Run & save"):
-        # In a real app this would execute `step['code']` and
-        # attach outputs to `step['images']` / `step['text']`.
-        st.success("Mock execution complete – results saved.")
-# else:
-    # st.info("Add at least one analysis step to begin editing.")
+render_sidebar(show_steps=False)
 
 # Ready to move on?
 ready = ("current_data" in st.session_state
