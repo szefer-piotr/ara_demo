@@ -10,13 +10,20 @@ Analysis-Plan workflow
 from __future__ import annotations
 
 import uuid
-from typing import Dict, List
-
+import os
 import streamlit as st
 
-from utils import mock_llm
+from typing import Dict, List
+from utils import mock_llm, create_web_search_tool, create_code_interpreter_tool, get_llm_response
 from sidebar import render_sidebar
+from openai import OpenAI
+from dotenv import load_dotenv
+from instructions import analysis_steps_generation_instructions
 
+load_dotenv()
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+# if "openai_client" not in st.session_state:
+#     st.session_state.openai_client = OpenAI()
 
 # ───────────────────────── helpers ──────────────────────────
 def first_chunk(
@@ -44,6 +51,12 @@ if "analyses" not in st.session_state or not st.session_state["analyses"]:
     st.error("You need to create a hypothesis first.")
     st.stop()
 
+if "images" not in st.session_state:
+    st.session_state.images = {}
+
+if "container" not in st.session_state:
+    st.session_state.container = None
+
 # left-hand navigation (steps visible on this page)
 render_sidebar()
 
@@ -58,27 +71,41 @@ plan      = hypo.setdefault("analysis_plan", [])
 st.title("Analysis plan")
 st.header(hypo["title"])
 
+tools = [create_code_interpreter_tool(st.session_state.container), create_web_search_tool()]
+
 # ─────────────────────── DRAFT-PLAN FLOW ─────────────────────
 if not plan:
     if st.button("Generate draft plan"):
         with st.spinner("LLM drafting…"):
             lines = first_chunk(
-                mock_llm(f"Generate analysis plan for: {hypo['title']}"), "text"
-            ).splitlines()
+                get_llm_response(
+                    client=st.session_state.openai_client,
+                    model="gpt-4o-mini",
+                    prompt=f"Generate analysis plan for: {hypo['title']}",
+                    instructions=analysis_steps_generation_instructions,
+                    tools=[],
+                    context=st.session_state.data_summary,
+                ), _type = "text"
+            )
+                # mock_llm(f"Generate analysis plan for: {hypo['title']}"), "text").splitlines()
 
-        hypo["analysis_plan"] = [
-            {
-                "step_id": uuid.uuid4().hex[:8],
-                "title":  ln.strip(),
-                "code":   "# write code here\n",
-                "runs":   [],
-                "chat_history": [],
-                "finished": False,
-                "text":    "",      # ensure keys exist
-                "images":  [],
-            }
-            for ln in filter(None, lines)
-        ]
+        hypo["analysis_plan"] = lines
+
+
+        # hypo["analysis_plan"] = [
+        #     {
+        #         "step_id": uuid.uuid4().hex[:8],
+        #         "title":  ln.strip(),
+        #         "code":   "# write code here\n",
+        #         "runs":   [],
+        #         "chat_history": [],
+        #         "finished": False,
+        #         "text":    "",      # ensure keys exist
+        #         "images":  [],
+        #     }
+        #     for ln in filter(None, lines)
+        # ]
+
         st.success("Draft created. Review and accept.")
         st.rerun()
 
