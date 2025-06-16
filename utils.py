@@ -191,7 +191,7 @@ def get_llm_response(
 
         response = client.responses.parse(**create_kwargs)
 
-        print(response)
+        print(response.output_parsed)
 
 
         # if text_format is None:

@@ -27,8 +27,8 @@ if "analyses" not in st.session_state:
 if "openai_client" not in st.session_state:
     st.session_state.openai_client = OpenAI()
 
-if "data_summary" not in st.session_state:
-    st.session_state.data_summary = []
+# if "data_summary" not in st.session_state:
+#     st.session_state.data_summary = []
 
 if "edit_mode" not in st.session_state:
     st.session_state.edit_mode = False
@@ -101,7 +101,7 @@ with st.container():
             if st.session_state.edit_mode:
                 edit_column_summaries()             # ← always render the form when editing
             else:
-                if st.button("✏️ Edit column metadata", key="edit_metadata"):
+                if st.button("Edit column metadata", key="edit_metadata"):
                     st.session_state.edit_mode = True
                     st.rerun()
 
@@ -110,8 +110,8 @@ st.divider()
 
 
 # ── List current hypotheses ────────────────────────────────────────────────────
+st.markdown("#### Existing hypotheses")
 if st.session_state["analyses"]:
-    st.markdown("#### Existing hypotheses")
 
     for idx, a in enumerate(st.session_state["analyses"]):
         col1, col2 = st.columns([9, 1])          # wide text · narrow icon
@@ -140,7 +140,6 @@ if st.session_state["analyses"]:
 
 else:
     st.info("None yet – add at least one before proceeding.")
-    st.stop()
 
 # ── STEP 2 ─ Add hypotheses ────────────────────────────────────────────────────
 st.divider()

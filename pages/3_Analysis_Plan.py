@@ -19,6 +19,8 @@ from sidebar import render_sidebar
 from openai import OpenAI
 from dotenv import load_dotenv
 from instructions import analysis_steps_generation_instructions
+from schemas import AnalysisStep, AnalysisPlan
+
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -73,23 +75,36 @@ st.header(hypo["title"])
 
 tools = [create_code_interpreter_tool(st.session_state.container), create_web_search_tool()]
 
+client = st.session_state.openai_client
+
 # ─────────────────────── DRAFT-PLAN FLOW ─────────────────────
 if not plan:
     if st.button("Generate draft plan"):
+        
+        context = str(st.session_state.column_summaries)
+
         with st.spinner("LLM drafting…"):
-            lines = first_chunk(
-                get_llm_response(
-                    client=st.session_state.openai_client,
+            
+            response = client.responses.parse(
                     model="gpt-4o-mini",
-                    prompt=f"Generate analysis plan for: {hypo['title']}",
+                    tools=[create_web_search_tool()],
+                    input=[
+                        {"role": "system", "content": context},
+                        {"role": "user", "content": f"Considerig the attached data summary generate analysis plan for: {hypo['title']}"}
+                    ],
                     instructions=analysis_steps_generation_instructions,
-                    tools=[],
-                    context=st.session_state.data_summary,
-                ), _type = "text"
-            )
+                    text_format=AnalysisPlan,
+                )
+            
                 # mock_llm(f"Generate analysis plan for: {hypo['title']}"), "text").splitlines()
 
-        hypo["analysis_plan"] = lines
+        print(f"\n\nThe ANALYSIS PLAN PARSED RESPONSE:\n\n{response}")
+
+        st.stop()
+
+        # hypo["analysis_plan"] = response
+
+
 
 
         # hypo["analysis_plan"] = [
@@ -107,6 +122,7 @@ if not plan:
         # ]
 
         st.success("Draft created. Review and accept.")
+        
         st.rerun()
 
     st.stop()
