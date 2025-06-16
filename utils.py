@@ -11,9 +11,54 @@ import io
 import requests
 import openai
 from openai import OpenAI
-
+import uuid
 
 Chunk = Dict[str, str]
+
+
+from typing import List, Dict
+from openai.types.responses import (
+    Response,
+    ResponseCodeInterpreterToolCall,
+    ResponseOutputMessage,
+    ResponseOutputText,
+)
+
+from openai.types.responses.response_output_text import AnnotationContainerFileCitation
+
+
+def to_mock_chunks(resp: Response) -> List[Chunk]:
+    """
+    Convert an `openai.Response` into the mock-LLM chunk list:
+
+        [{"type": "text",  "content": ...},
+         {"type": "code",  "content": ...},
+         {"type": "image", "content": <file_id>}, ...]
+    """
+    chunks: List[Chunk] = []
+
+    for item in resp.output:
+
+        # ── Code interpreter blocks ────────────────────────────────────────
+        if isinstance(item, ResponseCodeInterpreterToolCall):
+            if item.code:
+                chunks.append({"type": "code", "content": item.code})
+
+        # ── Regular assistant messages ─────────────────────────────────────
+        elif isinstance(item, ResponseOutputMessage):
+            for block in item.content:
+                if isinstance(block, ResponseOutputText):
+                    chunks.append({"type": "text", "content": block.text})
+
+                # Scan for image annotations on this text block
+                for anno in getattr(block, "annotations", []):
+                    if isinstance(anno, AnnotationContainerFileCitation):
+                        chunks.append({
+                            "type": "image",
+                            "content": anno.file_id          # <── ONLY the ID
+                        })
+
+    return chunks
 
 
 def mock_llm(
@@ -220,34 +265,98 @@ def get_llm_response(
 
 
 
-data_summary_tool = {
-    "name": "return_dataset_summary",
-    "type": "function",
-    "function": {
-        "description": "Return a structured summary of the dataset",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "columns": {
-                    "type": "object",
-                    "description": "Dictionary of column summaries",
-                    "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                            "column_name": {"type": "string"},
-                            "description": {"type": "string"},
-                            "type": {"type": "string"},
-                            "unique_value_count": {"type": "integer"},
-                        },
-                        "required": ["column_name", "description", "type", "unique_value_count"]
-                    },
-                }
-            },
-            "required": ["columns"]
-        }
-    }
-}
+# data_summary_tool = {
+#     "name": "return_dataset_summary",
+#     "type": "function",
+#     "function": {
+#         "description": "Return a structured summary of the dataset",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "columns": {
+#                     "type": "object",
+#                     "description": "Dictionary of column summaries",
+#                     "additionalProperties": {
+#                         "type": "object",
+#                         "properties": {
+#                             "column_name": {"type": "string"},
+#                             "description": {"type": "string"},
+#                             "type": {"type": "string"},
+#                             "unique_value_count": {"type": "integer"},
+#                         },
+#                         "required": ["column_name", "description", "type", "unique_value_count"]
+#                     },
+#                 }
+#             },
+#             "required": ["columns"]
+#         }
+#     }
+# }
 
+# ───────────────────────── helpers ──────────────────────────
+def first_chunk(
+    chunks: List[Dict[str, str]], _type: str, default: str = ""
+) -> str:
+    """Return first chunk of given type (e.g. 'text', 'code')."""
+    return next((c["content"] for c in chunks if c["type"] == _type), default)
+
+
+def ordered_to_bullets(md: str) -> str:
+    """
+    Turn leading '1.', '2.' … into '-'.
+    Works line-by-line, keeps the rest of the text untouched.
+    """
+    return re.sub(r"^\s*\d+\.", "", md, flags=re.MULTILINE)
+
+
+def record_run(step: Dict, chunks: List[Dict[str, str]]) -> Dict:
+    """Create a run dict from LLM chunks and append to step['runs']."""    
+    run = {
+        "run_id": uuid.uuid4().hex[:8],
+        "code_input": [c["content"] for c in chunks if c["type"] == "code"],
+        "images":  [c["content"] for c in chunks if c["type"] == "image"],
+        "tables":  [c["content"] for c in chunks if c["type"] == "table"],
+        "summary": [c["content"] for c in chunks if c["type"] == "text"],
+    }
+    step["runs"].append(run)
+    return run
+
+
+def serialize_step(step: dict) -> str:
+    """
+    Turn one item from hypo['analysis_plan'] into a single prompt string.
+    Keeps the fields: title, text, code, chat_history, images.
+    """
+
+    # — 1.   Title -----------------------------------------------------------
+    parts = [f"## Title\n{step['title'].strip()}"]
+
+    # — 2.   Description / free-text ----------------------------------------
+    if step.get("text"):
+        parts.append(f"## Description\n{step['text'].rstrip()}")
+
+    # — 3.   Code stub -------------------------------------------------------
+    if step.get("code") is not None:
+        parts.append("## Code\n```python\n" + step["code"].rstrip() + "\n```")
+
+    # — 4.   Prior dialogue --------------------------------------------------
+    if step.get("chat_history"):
+        chat = "\n".join(
+            f"{turn['role']}: {turn['content']}"
+            for turn in step["chat_history"]
+        )
+        parts.append(f"## Chat history\n{chat}")
+
+    # — 5.   Images ----------------------------------------------------------
+    # *Option A:* send image URLs or base-64 strings directly:
+    if step.get("images"):
+        parts.append(
+            "## Images (one per line)\n" + "\n".join(step["images"])
+        )
+    # *Option B:* if the API you’re calling accepts a separate medium for
+    #            images, strip them here and attach them with the request.
+
+    return "\n\n".join(parts)
 
 
 def edit_column_summaries() -> None:

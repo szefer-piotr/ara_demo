@@ -14,38 +14,35 @@ import os
 import streamlit as st
 
 from typing import Dict, List
-from utils import mock_llm, create_web_search_tool, create_code_interpreter_tool, get_llm_response
+
+from utils import (
+    mock_llm,
+    serialize_step,
+    create_web_search_tool, 
+    create_code_interpreter_tool, 
+    get_llm_response,
+    to_mock_chunks,
+    ordered_to_bullets,
+    first_chunk,
+    record_run
+
+)
+
 from sidebar import render_sidebar
 from openai import OpenAI
 from dotenv import load_dotenv
-from instructions import analysis_steps_generation_instructions
+from instructions import (
+    analysis_steps_generation_instructions,
+    analysis_step_execution_instructions
+)
 from schemas import AnalysisStep, AnalysisPlan
-
+import re
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 # if "openai_client" not in st.session_state:
 #     st.session_state.openai_client = OpenAI()
 
-# ───────────────────────── helpers ──────────────────────────
-def first_chunk(
-    chunks: List[Dict[str, str]], _type: str, default: str = ""
-) -> str:
-    """Return first chunk of given type (e.g. 'text', 'code')."""
-    return next((c["content"] for c in chunks if c["type"] == _type), default)
-
-
-def record_run(step: Dict, chunks: List[Dict[str, str]], code_input: str) -> Dict:
-    """Create a run dict from LLM chunks and append to step['runs']."""    
-    run = {
-        "run_id": uuid.uuid4().hex[:8],
-        "code_input": code_input,
-        "images":  [c["content"] for c in chunks if c["type"] == "image"],
-        "tables":  [c["content"] for c in chunks if c["type"] == "table"],
-        "summary": first_chunk(chunks, "text"),
-    }
-    step["runs"].append(run)
-    return run
 
 
 # ───────────────────────── guards ───────────────────────────
@@ -98,31 +95,23 @@ if not plan:
             
                 # mock_llm(f"Generate analysis plan for: {hypo['title']}"), "text").splitlines()
 
-        print(f"\n\nThe ANALYSIS PLAN PARSED RESPONSE:\n\n{response}")
-
-        st.stop()
-
-        # hypo["analysis_plan"] = response
-
-
-
-
-        # hypo["analysis_plan"] = [
-        #     {
-        #         "step_id": uuid.uuid4().hex[:8],
-        #         "title":  ln.strip(),
-        #         "code":   "# write code here\n",
-        #         "runs":   [],
-        #         "chat_history": [],
-        #         "finished": False,
-        #         "text":    "",      # ensure keys exist
-        #         "images":  [],
-        #     }
-        #     for ln in filter(None, lines)
-        # ]
+        plan_schema: AnalysisPlan = response.output_parsed      # pick one
+        
+        hypo["analysis_plan"] = [
+            {
+                "step_id": uuid.uuid4().hex[:8],
+                "title":   step.step_title.strip(),
+                "text":    step.step_text.rstrip(),
+                "code":    "# write code here\n",
+                "runs":    [],
+                "chat_history": [],
+                "finished": False,
+                "images":  [],
+            }
+            for step in plan_schema.steps
+        ]
 
         st.success("Draft created. Review and accept.")
-        
         st.rerun()
 
     st.stop()
@@ -132,6 +121,7 @@ if not hypo["plan_accepted"]:
     st.subheader("Draft plan (not yet accepted)")
     for i, s in enumerate(plan, 1):
         st.markdown(f"{i}. **{s['title']}**")
+        st.markdown(ordered_to_bullets(s['text']))
 
     st.divider()
     st.markdown("#### Discuss plan")
@@ -222,10 +212,33 @@ with main:
     else:
         col_run, col_finish = st.columns(2)
         if col_run.button("Run step"):
-            chunks = mock_llm(step["code"], tools=["code interpreter"])
-            record_run(step, chunks, step["code"])
+            
+            # TODO
+
+            prompt = serialize_step(step)
+
+            with st.spinner("Runing the step..."):
+                response = client.responses.create(
+                    model="gpt-4o-mini",
+                    tools=tools,
+                    instructions=analysis_step_execution_instructions,
+                    input=[
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": "Execute the provided ananlysis step in python from ther beginning to the end."}
+                    ],
+                    temperature=0,
+                    stream=False,
+                )
+
+            chunks = to_mock_chunks(response)
+            
+            record_run(step, chunks)
+
+            print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
+
             st.success("Run stored.")
             st.rerun()
+        
         if step["runs"] and col_finish.button("Finish step", type="primary"):
             step["finished"] = True
             st.success("Step marked as finished.")
@@ -236,13 +249,13 @@ with main:
         latest = step["runs"][-1]
         st.markdown(f"##### Latest run `{latest['run_id']}`")
         if latest["summary"]:
-            st.write(latest["summary"])
+            st.write("".join(latest["summary"]))
         for img in latest["images"]:
             st.markdown(img, unsafe_allow_html=True)
         for tbl in latest["tables"]:
             st.markdown(tbl, unsafe_allow_html=True)
         with st.expander("Code"):
-            st.code(latest["code_input"], language="python")
+            st.code("".join(latest["code_input"]), language="python")
     else:
         st.info("No runs yet – click **Run step** or chat.")
 

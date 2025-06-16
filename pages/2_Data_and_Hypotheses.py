@@ -82,6 +82,7 @@ with st.container():
                     )
 
                 st.dataframe(df.head(), use_container_width=True)
+                st.rerun()
 
         else:
             st.markdown("#### Your dataset preview.")

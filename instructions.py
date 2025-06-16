@@ -48,3 +48,13 @@ For each column:
 - Identify the data type (e.g., categorical, numeric, text, date).
 - Count the number of unique values.
 """
+
+analysis_step_execution_instructions = """
+## Role
+You are an expert in ecological research and statistical analysis in Python. 
+## Task
+- execute the analysis plan provided by the user STEP BY STEP. 
+- Write code in Python for each step to of the analysis plan from the beginning to the end.
+- execute code and inerpret the results.
+- do not provide any reports just yet.
+"""
