@@ -27,8 +27,8 @@ if "analyses" not in st.session_state:
 if "openai_client" not in st.session_state:
     st.session_state.openai_client = OpenAI()
 
-# if "data_summary" not in st.session_state:
-#     st.session_state.data_summary = []
+if "file_ids" not in st.session_state:
+    st.session_state["file_ids"] = []
 
 if "edit_mode" not in st.session_state:
     st.session_state.edit_mode = False
@@ -49,11 +49,11 @@ with st.container():
             if data_file:
                 df = pd.read_csv(data_file)
                 st.session_state["current_data"] = df
-
                 data_file.seek(0)
 
                 # Upload CSV to OpenAI files & create container
                 file_id = utils.upload_csv_and_get_file_id(st.session_state.openai_client, data_file)
+                st.session_state["file_ids"].append(file_id)
                 container = create_container(st.session_state.openai_client, [file_id])
                 st.session_state.container = container
 
@@ -62,7 +62,7 @@ with st.container():
                     client = st.session_state.openai_client
                     
                     response = client.responses.parse(
-                        model="gpt-4o",
+                        model="gpt-4o-mini",
                         tools=[
                             {"type": "code_interpreter", "container": container.id if container else "auto"}
                         ],
@@ -204,6 +204,7 @@ ready = ("current_data" in st.session_state
          and st.session_state["analyses"])
 
 st.divider()
+
 if ready:
     st.success("Data and at least one hypothesis are ready.")
     if st.button("Go to analysis plan"):

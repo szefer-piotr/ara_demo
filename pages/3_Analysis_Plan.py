@@ -12,19 +12,24 @@ from __future__ import annotations
 import uuid
 import os
 import streamlit as st
+import openai
 
 from typing import Dict, List
 
+import utils
 from utils import (
-    mock_llm,
-    serialize_step,
+    create_container,
+    upload_csv_and_get_file_id,
     create_web_search_tool, 
     create_code_interpreter_tool, 
     get_llm_response,
     to_mock_chunks,
     ordered_to_bullets,
     first_chunk,
-    record_run
+    record_run,
+    serialize_previous_steps,
+    plan_to_string,
+    history_to_string,
 
 )
 
@@ -33,16 +38,15 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from instructions import (
     analysis_steps_generation_instructions,
-    analysis_step_execution_instructions
+    analysis_step_execution_instructions,
+    run_execution_prompt,
+    run_execution_chat_instructions
 )
 from schemas import AnalysisStep, AnalysisPlan
 import re
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-# if "openai_client" not in st.session_state:
-#     st.session_state.openai_client = OpenAI()
-
 
 
 # ───────────────────────── guards ───────────────────────────
@@ -65,6 +69,8 @@ hypo = next(a for a in st.session_state["analyses"] if a["hypothesis_id"] == hid
 # ensure extra fields exist
 hypo.setdefault("plan_accepted", False)
 plan_chat = hypo.setdefault("plan_chat", [])
+
+# Plan is assigned to hypo['analysis_plan']
 plan      = hypo.setdefault("analysis_plan", [])
 
 st.title("Analysis plan")
@@ -118,36 +124,102 @@ if not plan:
 
 # ─────────────────────── REVIEW-AND-ACCEPT ───────────────────
 if not hypo["plan_accepted"]:
+    # Plan is not yet accepted, so we display the draft.
     st.subheader("Draft plan (not yet accepted)")
+    
+    # Display the plan
     for i, s in enumerate(plan, 1):
         st.markdown(f"{i}. **{s['title']}**")
         st.markdown(ordered_to_bullets(s['text']))
 
     st.divider()
+
     st.markdown("#### Discuss plan")
+    
+    # Display the chat history
     for role, msg in plan_chat:
-        st.chat_message(role).write(msg)
+        if role == "user":
+            st.chat_message(role).write(msg)
+        elif role == "assistant":
+            # print(msg)
+            for i, s in enumerate(msg.steps):
+                # print(f"\n\nSINGLE STEP:\n\n{s}")
+                st.markdown(f"{i+1}. **{s.step_title}**")
+                st.markdown(ordered_to_bullets(s.step_text))
 
+    # When prompt is sent, then save the parsed output in teh chat_history, and display it in the chat history.
     prompt = st.chat_input("Talk about the plan")
-    if prompt:
-        plan_chat.append(("user", prompt))
-        chunks = mock_llm(
-            prompt,
-            history=[{"type": "text", "content": m} for _, m in plan_chat],
-        )
-        reply = first_chunk(chunks, "text", "[No response]")
-        plan_chat.append(("assistant", reply))
-        st.chat_message("assistant").write(reply)
 
-        if any(c["type"] == "code" for c in chunks):
-            st.toast("Code chunk detected – stored for reference.", icon="💾")
+    if prompt:
+        
+        plan_chat.append(("user", prompt))
+
+        with st.spinner("Thinking..."):
+            # Original plan
+            original_plan = hypo["analysis_plan"]
+            # Available chat history
+            plan_chat_history=[{"type": "input_text", "content": m} for _, m in plan_chat]
+            
+            # Convert plan an history to strings for context.
+            plan_str = plan_to_string(original_plan)
+            history_str = history_to_string(plan_chat_history)
+
+            final_string = f"Original Plan:\n\n{plan_str}\n\nChat History:\n\n{history_str}"
+            
+            # print(f"\n\nFinal string:\n\n{final_string}")
+            # print(f"\n\nOriginal plan:\n\n{original_plan}.\n\nThe history:\n\n{plan_chat_history}")
+            
+            response = client.responses.parse(
+                model="gpt-4o-mini",
+                tools=[create_web_search_tool()],
+                instructions=run_execution_chat_instructions,
+                input=[
+                    {"role": "system", "content": final_string},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0,
+                text_format=AnalysisPlan,
+            )
+
+        # Assistant response parsed as AnalysisPlan
+        plan_schema: AnalysisPlan = response.output_parsed
+
+        plan_chat.append(("assistant", plan_schema))
+
+        # print(f"Response generated:\n\n{response.output_parsed}")
+
+        st.rerun()
 
     col_regen, col_accept = st.columns(2)
+    
     if col_regen.button("Regenerate plan"):
         hypo["analysis_plan"].clear()
         st.rerun()
+    
     if col_accept.button("Accept plan", type="primary"):
+
+        print(f"\n\nACCEPTED PLAN:\n\n{plan_chat[-1][1]}")
+
+
+        plan_schema: AnalysisPlan = plan_chat[-1][1]
+
+
+        hypo["analysis_plan"] = [
+            {
+                "step_id": uuid.uuid4().hex[:8],
+                "title":   step.step_title.strip(),
+                "text":    step.step_text.rstrip(),
+                "code":    "# write code here\n",
+                "runs":    [],
+                "chat_history": [],
+                "finished": False,
+                "images":  [],
+            }
+            for step in plan_schema.steps
+        ]
+        
         hypo["plan_accepted"] = True
+
         st.session_state["selected_step_id"] = hypo["analysis_plan"][0]["step_id"]
         st.rerun()
 
@@ -166,6 +238,7 @@ if sid is None:
     st.subheader("Overview – every step & run")
     for idx, s in enumerate(plan, 1):
         st.markdown(f"### {idx}. {s['title']}")
+        st.markdown(f"{s['text']}")
         if not s["runs"]:
             st.info("No runs yet for this step.")
             st.divider()
@@ -203,6 +276,7 @@ main, arte = st.columns([3, 1], gap="medium")
 # ---------------- MAIN PANEL ----------------
 with main:
     st.subheader(step["title"])
+    st.write(step["text"])
 
     # action buttons
     if step["finished"]:
@@ -213,31 +287,64 @@ with main:
         col_run, col_finish = st.columns(2)
         if col_run.button("Run step"):
             
-            # TODO
+            # TODO: reactivate the container if expired            
+            current = step["step_id"]
 
-            prompt = serialize_step(step)
+            context_for_llm = serialize_previous_steps(
+                hypo["analysis_plan"],
+                current_step_id=current,
+                include_current=False  # usually you exclude the one you’re about to run
+            )
 
             with st.spinner("Runing the step..."):
-                response = client.responses.create(
-                    model="gpt-4o-mini",
-                    tools=tools,
-                    instructions=analysis_step_execution_instructions,
-                    input=[
-                        {"role": "system", "content": prompt},
-                        {"role": "user", "content": "Execute the provided ananlysis step in python from ther beginning to the end."}
-                    ],
-                    temperature=0,
-                    stream=False,
-                )
+                try:
+                    response = client.responses.create(
+                        model="gpt-4o-mini",
+                        tools=tools,
+                        instructions=analysis_step_execution_instructions,
+                        input=[
+                            {"role": "system", "content": context_for_llm},
+                            {"role": "user", 
+                            "content": run_execution_prompt}
+                        ],
+                        temperature=0,
+                        stream=False,
+                    )
+                    chunks = to_mock_chunks(response)
+                    record_run(step, chunks)
+                    print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
+                    st.success("Run stored.")
+                    st.rerun()
 
-            chunks = to_mock_chunks(response)
-            
-            record_run(step, chunks)
-
-            print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
-
-            st.success("Run stored.")
-            st.rerun()
+                except openai.BadRequestError as e:
+                    if 'expired' in str(e).lower():
+                        # Container expired, create a new one
+                        new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
+                        print((f"Container expired, created a new one: {new_container.id}"))
+                        st.session_state.container = new_container
+                        
+                        # Re-run the step with the new container
+                        tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
+                        
+                        response = client.responses.create(
+                        model="gpt-4o-mini",
+                        tools=tools,
+                        instructions=analysis_step_execution_instructions,
+                        input=[
+                                {"role": "system", "content": context_for_llm},
+                                {"role": "user", 
+                                "content": run_execution_prompt}
+                            ],
+                            temperature=0,
+                            stream=False,
+                        )
+                        chunks = to_mock_chunks(response)
+                        record_run(step, chunks)
+                        print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
+                        st.success("Run stored.")
+                        st.rerun()
+                    else:
+                        raise
         
         if step["runs"] and col_finish.button("Finish step", type="primary"):
             step["finished"] = True
@@ -261,23 +368,47 @@ with main:
 
     # step-level chat (only if unlocked)
     if not step["finished"]:
+        # Display the 
         for role, msg in step["chat_history"]:
             st.chat_message(role).write(msg)
+        
         prompt = st.chat_input("Discuss this step")
         if prompt:
             step["chat_history"].append(("user", prompt))
-            chunks = mock_llm(
-                prompt,
-                history=[{"type": "text", "content": m} for _, m in step["chat_history"]],
+
+            # TODO - discuss the step allow to run the run and register it, 
+            # display chat history but display overview for the run results.
+
+            print(f"\n\nRAW History{step['chat_history']}")
+
+            history=[{"type": "text", "content": m} for _, m in step["chat_history"]]
+
+            print(f"\n\nPARSED History{history}")
+
+            response = client.responses.create(
+                model="gpt-4o-mini",
+                tools=tools,
+                instructions=run_execution_chat_instructions,
+                input=[
+                    {"role": "system", "content": history},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0,
+                stream=False,
             )
-            assistant_text = first_chunk(chunks, "text", "[No response]")
-            step["chat_history"].append(("assistant", assistant_text))
-            st.chat_message("assistant").write(assistant_text)
+
+            chunks = to_mock_chunks(response)
+
+            print(f"\n\nCHUNKS: {chunks}")
+
+            step["chat_history"].append(("assistant", chunks))
+            
+            st.chat_message("assistant").write(chunks)
 
             # auto-run code chunks
             if any(c["type"] == "code" for c in chunks):
                 code_chunk = first_chunk(chunks, "code")
-                record_run(step, chunks, code_input=code_chunk)
+                record_run(step, chunks)
                 st.success("Run stored from chat.")
                 st.rerun()
 

@@ -12,6 +12,7 @@ import requests
 import openai
 from openai import OpenAI
 import uuid
+import re
 
 Chunk = Dict[str, str]
 
@@ -117,7 +118,13 @@ def mock_llm(
 
 
 def create_container(client: OpenAI, file_ids: List[str], name: str = "user-container"):
-    container = client.containers.create(name=name, file_ids=file_ids)
+    container = client.containers.create(
+        name=name, 
+        file_ids=file_ids, 
+        expires_after={
+        "anchor": "last_active_at",
+        "minutes": 20
+    })
     print(f"Created container {container.id} for code interpreter runs.")
     return container
 
@@ -264,35 +271,6 @@ def get_llm_response(
 
 
 
-
-# data_summary_tool = {
-#     "name": "return_dataset_summary",
-#     "type": "function",
-#     "function": {
-#         "description": "Return a structured summary of the dataset",
-#         "parameters": {
-#             "type": "object",
-#             "properties": {
-#                 "columns": {
-#                     "type": "object",
-#                     "description": "Dictionary of column summaries",
-#                     "additionalProperties": {
-#                         "type": "object",
-#                         "properties": {
-#                             "column_name": {"type": "string"},
-#                             "description": {"type": "string"},
-#                             "type": {"type": "string"},
-#                             "unique_value_count": {"type": "integer"},
-#                         },
-#                         "required": ["column_name", "description", "type", "unique_value_count"]
-#                     },
-#                 }
-#             },
-#             "required": ["columns"]
-#         }
-#     }
-# }
-
 # ───────────────────────── helpers ──────────────────────────
 def first_chunk(
     chunks: List[Dict[str, str]], _type: str, default: str = ""
@@ -357,6 +335,50 @@ def serialize_step(step: dict) -> str:
     #            images, strip them here and attach them with the request.
 
     return "\n\n".join(parts)
+
+
+def serialize_previous_steps(
+    analysis_plan: List[Dict],
+    current_step_id: Optional[str] = None,   # or use an int for index
+    include_current: bool = False,
+) -> str:
+    """
+    Build a prompt that contains **all finished steps** (or up to the specified
+    step) in execution order.
+
+    Parameters
+    ----------
+    analysis_plan : list[dict]
+        The list stored at `hypo['analysis_plan']`.
+    current_step_id : str | None
+        If provided, only steps **before** this one are included
+        (unless `include_current=True`).
+    include_current : bool
+        If True and `current_step_id` is given, the current step is included.
+
+    Returns
+    -------
+    str
+        A prompt string ready to be sent to the LLM.
+    """
+    prompt_sections = []
+
+    for step in analysis_plan:
+        # Skip unfinished steps
+        if not step.get("finished", False):
+            continue
+
+        # Stop once we reach the current step (unless we also want it)
+        if current_step_id and step["step_id"] == current_step_id:
+            if include_current:
+                prompt_sections.append(serialize_step(step))
+            break
+
+        prompt_sections.append(serialize_step(step))
+
+    # Join individual step prompts with a visible separator
+    return "\n\n---\n\n".join(prompt_sections)
+
 
 
 def edit_column_summaries() -> None:
@@ -434,3 +456,16 @@ def edit_column_summaries() -> None:
         st.session_state.edit_mode = False
         st.info("No changes saved.")
         st.rerun()
+
+
+def plan_to_string(plan):
+    out = []
+    for i, step in enumerate(plan, 1):
+        out.append(f"{i}. {step['title']}\n{step['text']}\n")
+    return "\n".join(out)
+
+def history_to_string(history):
+    out = []
+    for i, msg in enumerate(history, 1):
+        out.append(f"User: {msg['content']}")
+    return "\n".join(out)

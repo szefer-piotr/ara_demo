@@ -58,3 +58,16 @@ You are an expert in ecological research and statistical analysis in Python.
 - execute code and inerpret the results.
 - do not provide any reports just yet.
 """
+
+run_execution_prompt = """
+Execute the provided ananlysis step in python from ther beginning to the end. Refer to previous steps if necessary.
+"""
+
+run_execution_chat_instructions = """
+## Role
+You are an expert in ecological research and statistical analysis in Python. 
+## Task
+- respond to the users queries about the elements of the analysis execution.
+- write Python code as a response to the user query.
+- execute code, write description and short summary as a response to the user query.
+"""
