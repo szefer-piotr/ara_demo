@@ -59,9 +59,6 @@ You are an expert in ecological research and statistical analysis in Python.
 - do not provide any reports just yet.
 """
 
-run_execution_prompt = """
-Execute the provided ananlysis step in python from ther beginning to the end. Refer to previous steps if necessary.
-"""
 
 run_execution_chat_instructions = """
 ## Role

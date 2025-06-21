@@ -13,6 +13,7 @@ import openai
 from openai import OpenAI
 import uuid
 import re
+import os
 
 Chunk = Dict[str, str]
 
@@ -27,6 +28,8 @@ from openai.types.responses import (
 
 from openai.types.responses.response_output_text import AnnotationContainerFileCitation
 
+load_dotenv()
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 def to_mock_chunks(resp: Response) -> List[Chunk]:
     """
@@ -171,7 +174,7 @@ def render_llm_response(response):
                             if ann.type == "container_file_citation":
                                 elements.append({"type": "image", "filename": ann.filename, "content": ann.file_id})
                                 container = st.session_state.container
-                                image = load_image_from_openai_container(OPENAI_API_KEY, container.id, ann.file_id)
+                                image = load_image_from_openai_container(OPENAI_API_KEY, container.id, ann.file_id) # type: ignore
                                 img_bytes = io.BytesIO()
                                 image.save(img_bytes, format='PNG')
                                 st.session_state.images[ann.file_id] = img_bytes.getvalue()
@@ -319,6 +322,7 @@ def serialize_step(step: dict) -> str:
 
     # — 4.   Prior dialogue --------------------------------------------------
     if step.get("chat_history"):
+        print(f"\nIn serialize_step this is the step's chat hitory {step['chat_history']}")
         chat = "\n".join(
             f"{turn['role']}: {turn['content']}"
             for turn in step["chat_history"]
