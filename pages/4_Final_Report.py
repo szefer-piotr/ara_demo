@@ -1,11 +1,19 @@
 # pages/4_Final_Report.py
 import streamlit as st
-from utils import mock_llm
+import openai
+
+from utils import create_code_interpreter_tool, create_web_search_tool, create_container, to_mock_chunks, mock_llm
+from instructions import report_generation_instructions, report_chat_instructions
+
+
 
 # ───────────────────────── guards ────────────────────────────────
 if "analyses" not in st.session_state or not st.session_state["analyses"]:
     st.error("No hypotheses or runs available.")
     st.stop()
+
+if "report_chat" not in st.session_state:
+    st.session_state["report_chat"] = []  # Initialize chat history for report
 
 # persistent selections
 selected_runs: set[str] = st.session_state.setdefault("report_selected_runs", set())
@@ -16,9 +24,13 @@ st.title("📑 Final report builder")
 if st.button("← Back to plan execution"):
     st.switch_page("pages/3_Analysis_Plan.py")
 
-# ══════════════════ layout: sidebar • main • preview ═════════════
+
+
+# layout: sidebar • main • preview
 run_picker = st.sidebar
 main_col, preview_col = st.columns([3, 1], gap="medium")
+
+
 
 # ───────────────────────── 1. Run picker (left sidebar) ──────────
 with run_picker:
@@ -86,6 +98,8 @@ with preview_col:
 with main_col:
     st.subheader("Generate report")
 
+    client = st.session_state.openai_client
+
     if st.button("Generate final report"):
         if not selected_runs:
             st.warning("Select at least one run first.")
@@ -107,35 +121,119 @@ with main_col:
                         f"Summary: {run['summary'] or 'N/A'}"
                     )
 
-            prompt = "Draft a final report from this context:\n" + "\n".join(ctx_lines)
+            context = "Draft a final report from this context:\n" + "\n".join(ctx_lines)
+            
+            print(f"\n\nSELECTED RUNS for context:\n\n{selected_runs}")
+            
             with st.spinner("LLM composing report…"):
-                chunks = mock_llm(prompt)
 
-            report_txt = next(c["content"] for c in chunks if c["type"] == "text")
-            st.session_state["final_report"] = report_txt
-            st.session_state["report_chat"] = [("assistant", report_txt)]
+                tools = [# Create tools for code execution and web search
+                    create_code_interpreter_tool(st.session_state.container),
+                    create_web_search_tool()
+                ]
+                
+                
+                # -------------------------------------
+
+                try:
+                    response = client.responses.create(
+                        model="gpt-4o-mini",
+                        tools=tools,
+                        instructions=report_generation_instructions,
+                        input=[
+                            {"role": "system", "content": context},
+                            {"role": "user", "content": "Draft a final report from the provided context."}
+                        ],
+                        temperature=0,
+                        stream=False,
+                    )
+                    
+                    chunks = to_mock_chunks(response)
+                    report_txt = next(c["content"] for c in chunks if c["type"] == "text")
+                    print(f"\n\nFINAL REPORT:\n\n{report_txt}")
+                    st.session_state["final_report"] = report_txt
+                    st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
+                    # st.success("Report generated!")
+                    # st.rerun()
+
+                except openai.BadRequestError as e:
+                    if 'expired' in str(e).lower():
+                        # Container expired, create a new one
+                        new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
+                        print((f"Container expired, created a new one: {new_container.id}"))
+                        st.session_state.container = new_container
+                        
+                        # Re-run the step with the new container
+                        tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
+                        
+                        response = client.responses.create(
+                        model="gpt-4o-mini",
+                        tools=tools,
+                        instructions=report_generation_instructions,
+                        input=[
+                            {"role": "system", "content": context},
+                            {"role": "user", "content": "Draft a final report from the provided context."}
+                        ],
+                            temperature=0,
+                            stream=False,
+                        )
+                        chunks = to_mock_chunks(response)
+                        report_txt = next(c["content"] for c in chunks if c["type"] == "text")
+                        st.session_state["final_report"] = report_txt
+                        st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
+                        
+                        # st.rerun()
+
+                    else:
+                        raise
+
+                # -------------------------------------
+
+            # What with the chunks?
             st.success("Report generated!")
+            st.rerun()
 
     # ---------- show report & chat ----------
     if "final_report" in st.session_state:
         st.markdown("## Final report")
         st.write(st.session_state["final_report"])
         st.divider()
+        
         st.markdown("### Discuss report")
-
-        for role, msg in st.session_state["report_chat"]:
-            st.chat_message(role).write(msg)
+        for message in st.session_state["report_chat"]:
+            st.chat_message(message["role"]).write(message["content"])
 
         prompt = st.chat_input("Ask about this report")
+
         if prompt:
-            st.session_state["report_chat"].append(("user", prompt))
-            chunks = mock_llm(
-                prompt,
-                history=[
-                    {"type": "text", "content": m}
-                    for _, m in st.session_state["report_chat"]
-                ],
-            )
-            reply = next(c["content"] for c in chunks if c["type"] == "text")
-            st.session_state["report_chat"].append(("assistant", reply))
-            st.chat_message("assistant").write(reply)
+            
+            st.session_state["report_chat"].append({"role": "user", "content": prompt})
+            st.chat_message("user").write(prompt)
+
+            context = f""" {st.session_state["final_report"]} + {st.session_state["report_chat"]} """
+
+            print(f"\n\n{'*****' * 10}\nREPORT CHAT CONTEXT:\n\n{context}\n\n{'*****' * 10}")
+
+            with st.spinner("LLM generating response…"):
+                response = client.responses.create(
+                    model="gpt-4o-mini",
+                    instructions=report_chat_instructions,
+                    tools=[
+                        create_code_interpreter_tool(st.session_state.container),
+                        create_web_search_tool()
+                    ],
+                    input=[
+                        {"role": "system", "content": context},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0,
+                    stream=False,
+                )
+
+                chunks = to_mock_chunks(response)
+                
+                reply = next(c["content"] for c in chunks if c["type"] == "text")
+                print(f"\n\n{'*****' * 10}\nREPORT CHAT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
+                st.session_state["report_chat"].append({'role': 'assistant', 'content': chunks})
+                st.chat_message("assistant").write(reply)
+                st.rerun()

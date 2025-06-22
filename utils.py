@@ -322,7 +322,7 @@ def serialize_step(step: dict) -> str:
 
     # — 4.   Prior dialogue --------------------------------------------------
     if step.get("chat_history"):
-        print(f"\nIn serialize_step this is the step's chat hitory {step['chat_history']}")
+        # print(f"\nIn serialize_step this is the step's chat history {step['chat_history']}")
         chat = "\n".join(
             f"{turn['role']}: {turn['content']}"
             for turn in step["chat_history"]
@@ -473,3 +473,19 @@ def history_to_string(history):
     for i, msg in enumerate(history, 1):
         out.append(f"User: {msg['content']}")
     return "\n".join(out)
+
+def render_assistant_message(elements):
+    with st.chat_message("assistant"):
+        for item in elements:
+            if item["type"] == "code":
+                st.code(item["content"], language="python")
+            elif item["type"] == "text":
+                st.markdown(item["content"])
+            elif item["type"] == "image":
+
+                # TODO: Handle image rendering
+                # item['content'] should be a valid image path, URL, or bytes
+                # st.image(item["content"])
+                pass
+            else:
+                st.warning(f"Unknown element type: {item['type']}")

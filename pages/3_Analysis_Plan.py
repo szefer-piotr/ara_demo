@@ -22,7 +22,7 @@ from utils import (
     upload_csv_and_get_file_id,
     create_web_search_tool, 
     create_code_interpreter_tool, 
-    get_llm_response,
+    render_assistant_message,
     to_mock_chunks,
     ordered_to_bullets,
     first_chunk,
@@ -288,7 +288,9 @@ with main:
     else:
         col_run, col_finish = st.columns(2)
         if col_run.button("Run step"):
-            
+
+            print(f"\n\n{'***' * 10}\n\nRunning step {step['step_id']}:\n\n{step}")
+
             current = step["step_id"]
 
             context_for_llm = serialize_previous_steps(
@@ -297,7 +299,7 @@ with main:
                 include_current=False
             )
 
-            print(f"\n\nContext for the current run {current}:\n\n{context_for_llm}")
+            print(f"\n\n{'---'*10}\n\nContext for the current run {current}:\n\n{context_for_llm}.\n\n{'---'*10} End of context\n\n")
 
             run_execution_prompt = f"""
             Run the following step in Python, using the provided context and instructions:\n
@@ -387,20 +389,21 @@ with main:
             if msg['role'] == 'user':
                 st.chat_message(msg['role']).write(msg['content'])
             elif msg['role'] == 'assistant':
-                latest = msg['content']                
-                if latest["summary"]:\
-                    st.write("".join(latest["summary"]))
-                for img in latest["images"]:
-                    st.markdown(img, unsafe_allow_html=True)
-                for tbl in latest["tables"]:
-                    st.markdown(tbl, unsafe_allow_html=True)
-                with st.expander("Code"):
-                    st.code("".join(latest["code_input"]), language="python")
-        
+                render_assistant_message(msg['content'])
+                
         prompt = st.chat_input("Discuss this step")
+        
+        # Also parsed previous steps for context
+        previous_steps = serialize_previous_steps(
+            hypo["analysis_plan"],
+            current_step_id=step["step_id"],
+            include_current=False
+        )
         
         if prompt:
             # step["chat_history"].append(("user", prompt))
+
+            st.chat_message('user').write(prompt)
 
             step["chat_history"].append({"role": "user", "content": prompt})
 
@@ -411,71 +414,78 @@ with main:
 
             history= "".join(f"{m['role']}: {m['content']}" for m in step["chat_history"])
 
+            
+
+            print(f"\n\nPREVIOUS STEPS:\n\n{previous_steps}")
             print(f"\n\nPARSED History{history}")
 
+            context_for_a_run = f"""
+                Chat history for the current step:\n
+                {history}\n\n
+                Previous Steps:\n
+                {previous_steps}
+            """
 
-            try:
-                response = client.responses.create(
-                    model="gpt-4o-mini",
-                    tools=tools,
-                    instructions=run_execution_chat_instructions,
-                    input=[
-                        {"role": "system", "content": history},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0,
-                    stream=False,
-                )
-
-
-            except openai.BadRequestError as e:
-                    if 'expired' in str(e).lower():
-                        # Container expired, create a new one
-                        new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
-                        print((f"Container expired, created a new one: {new_container.id}"))
-                        st.session_state.container = new_container
-                        
-                        # Re-run the step with the new container
-                        tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
-                        
-                        response = client.responses.create(
+            with st.spinner("Thinking..."):
+                try:
+                    response = client.responses.create(
                         model="gpt-4o-mini",
                         tools=tools,
-                        instructions=analysis_step_execution_instructions,
+                        instructions=run_execution_chat_instructions,
                         input=[
-                            {"role": "system", "content": history},
+                            {"role": "system", "content": context_for_a_run},
                             {"role": "user", "content": prompt}
                         ],
-                            temperature=0,
-                            stream=False,
-                        )
+                        temperature=0,
+                        stream=False,
+                    )
+
+
+                except openai.BadRequestError as e:
+                        if 'expired' in str(e).lower():
+                            # Container expired, create a new one
+                            new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
+                            print((f"Container expired, created a new one: {new_container.id}"))
+                            st.session_state.container = new_container
+                            
+                            # Re-run the step with the new container
+                            tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
+                            
+                            response = client.responses.create(
+                            model="gpt-4o-mini",
+                            tools=tools,
+                            instructions=analysis_step_execution_instructions,
+                            input=[
+                                {"role": "system", "content": history},
+                                {"role": "user", "content": prompt}
+                            ],
+                                temperature=0,
+                                stream=False,
+                            )
+                            
+                            # This has to b ethe same as outside the try block
+                            print(f"\n\nLLM RESPONSE:\n\n{response}")
+                            chunks = to_mock_chunks(response)
+                            print(f"\n\nCHUNKS: {chunks}")
+                            # input("Press Enter to continue...")
+                            
+                            # Add the response to the chat history
+                            step["chat_history"].append({'role': 'assistant', 'content': chunks})
+                            
+                            # record a run ate every interaction
+                            record_run(step, chunks)
+                            st.success("Run stored from chat.")
+                            st.rerun()
                         
-                        # This has to b ethe same as outside the try block
-                        print(f"\n\nLLM RESPONSE:\n\n{response}")
-                        chunks = to_mock_chunks(response)
-                        print(f"\n\nCHUNKS: {chunks}")
-                        input("Press Enter to continue...")
-                        
-                        # Add the response to the chat history
-                        step["chat_history"].append({'role': 'assistant', 'content': chunks})
-                        
-                        # record a run ate every interaction
-                        record_run(step, chunks)
-                        st.success("Run stored from chat.")
-                        st.rerun()
-                    
-                    else:
-                        raise
+                        else:
+                            raise
 
             print(f"\n\nLLM RESPONSE:\n\n{response}")
             chunks = to_mock_chunks(response)
             print(f"\n\nCHUNKS: {chunks}")
-            input("Press Enter to continue...")
-            
             # Add the response to the chat history
             step["chat_history"].append({'role': 'assistant', 'content': chunks})
-            
-            # record a run ate every interaction
+            # record a run at every interaction
             record_run(step, chunks)
             st.success("Run stored from chat.")
             st.rerun()
