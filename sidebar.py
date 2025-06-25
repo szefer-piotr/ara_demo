@@ -71,9 +71,10 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
 
             radio_options, label_to_step = ["Overview"], {}
             if hypo.get("plan_accepted", False):
+                
                 for s in hypo["analysis_plan"]:
                     icon = "🟢" if s.get("finished", False) else "🔵"
-                    lbl  = f"{icon} {s['title']}"
+                    lbl  = f"{icon} {s['title']}" 
                     radio_options.append(lbl)
                     label_to_step[lbl] = s["step_id"]
 

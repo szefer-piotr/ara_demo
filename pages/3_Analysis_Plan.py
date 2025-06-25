@@ -19,6 +19,7 @@ from typing import Dict, List
 import utils
 from utils import (
     create_container,
+    load_image_from_openai_container,
     upload_csv_and_get_file_id,
     create_web_search_tool, 
     create_code_interpreter_tool, 
@@ -151,6 +152,7 @@ if not hypo["plan_accepted"]:
 
     if prompt:
         
+        # TODO this uses tuple as a chat message, but it should be a dict with role and content.
         plan_chat.append(("user", prompt))
 
         with st.spinner("Thinking..."):
@@ -174,7 +176,7 @@ if not hypo["plan_accepted"]:
                 instructions=run_execution_chat_instructions,
                 input=[
                     {"role": "system", "content": final_string},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": f"Update the original plan considering this request: {prompt}"}
                 ],
                 temperature=0,
                 text_format=AnalysisPlan,
@@ -192,7 +194,7 @@ if not hypo["plan_accepted"]:
     col_regen, col_accept = st.columns(2)
     
     if col_regen.button("Regenerate plan"):
-        hypo["analysis_plan"].clear()
+        hypo["analysis_plan"] = []
         st.rerun()
     
     if col_accept.button("Accept plan", type="primary"):
@@ -218,7 +220,7 @@ if not hypo["plan_accepted"]:
                 }
                 for step in plan_schema.steps
             ]
-            
+
             hypo["plan_accepted"] = True
             st.session_state["selected_step_id"] = hypo["analysis_plan"][0]["step_id"]
             st.rerun()
@@ -239,20 +241,24 @@ if sid is None:
     for idx, s in enumerate(plan, 1):
         st.markdown(f"### {idx}. {s['title']}")
         st.markdown(f"{s['text']}")
+        
         if not s["runs"]:
             st.info("No runs yet for this step.")
             st.divider()
             continue
+        
         for r in s["runs"]:
             st.markdown(f"**Run `{r['run_id']}`**")
+            print(f"Run:, {r}")
             if r["summary"]:
-                st.write(r["summary"])
+                for i in r["summary"]:
+                    st.write(i)
             for img in r["images"]:
-                st.markdown(img, unsafe_allow_html=True)
-            for tbl in r["tables"]:
-                st.markdown(tbl, unsafe_allow_html=True)
-            with st.expander("Code"):
-                st.code(r["code_input"], language="python")
+                st.markdown(st.session_state.images[img], unsafe_allow_html=True)
+            # for tbl in r["tables"]:
+            #     st.markdown(tbl, unsafe_allow_html=True)
+            for cd in r["code_input"]:
+                st.code(cd, language="python")
             st.markdown("---")
         st.divider()
     st.stop()
@@ -290,6 +296,19 @@ with main:
         if col_run.button("Run step"):
 
             print(f"\n\n{'***' * 10}\n\nRunning step {step['step_id']}:\n\n{step}")
+
+            # It losts the connection to the container file
+            container = st.session_state.get("container")
+            
+            if not container:
+                container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
+                st.session_state.container = container
+                tools = [create_code_interpreter_tool(st.session_state.container), create_web_search_tool()]
+                print(f"Created a new container: {container.id}")
+            
+            else:
+                tools = [create_code_interpreter_tool(container), create_web_search_tool()]
+                print(f"CONTAINER: {container.id}")
 
             current = step["step_id"]
 
@@ -370,13 +389,13 @@ with main:
         latest = step["runs"][-1]
         st.markdown(f"##### Latest run `{latest['run_id']}`")
         if latest["summary"]:
-            st.write("".join(latest["summary"]))
+            st.write("".join(latest["summary"])) # we only have this...
         for img in latest["images"]:
-            st.markdown(img, unsafe_allow_html=True)
+            st.image(st.session_state.images[img])
         for tbl in latest["tables"]:
             st.markdown(tbl, unsafe_allow_html=True)
         with st.expander("Code"):
-            st.code("".join(latest["code_input"]), language="python")
+            st.code("".join(latest["code_input"]), language="python") # ... and this
     else:
         st.info("No runs yet – click **Run step** or chat.")
 
@@ -404,7 +423,8 @@ with main:
             # step["chat_history"].append(("user", prompt))
 
             st.chat_message('user').write(prompt)
-
+            
+            step["chat_history"].append({"role": "user", "content": prompt})
             step["chat_history"].append({"role": "user", "content": prompt})
 
             # TODO - discuss the step allow to run the run and register it, 
@@ -491,6 +511,7 @@ with main:
             st.rerun()
 
 # ---------------- ARTIFACT SIDEBAR ----------------
+small_css = "font-size:0.8rem;"
 with arte:
     st.subheader("Artifacts")
     if not step["runs"]:
@@ -504,10 +525,27 @@ with arte:
                         x for x in step["runs"] if x["run_id"] != r["run_id"]
                     ]
                     st.rerun()
-                col_ct.code(r["code_input"], language="python")
-                for html in r["images"]:
-                    col_ct.markdown(html, unsafe_allow_html=True)
-                for tbl in r["tables"]:
-                    col_ct.markdown(tbl, unsafe_allow_html=True)
-                if r["summary"]:
-                    col_ct.markdown(r["summary"])
+                print(f"\n\nRUN:\n\n{r}")
+                
+                for code in r["code_input"]:
+                    print(f"\n\nCODE:\n\n{code}")
+                    st.code(code, language="python")
+
+                for img in r["images"]:
+                    image_to_display = st.session_state.images.get(img, None)
+                    if image_to_display:
+                        col_ct.image(st.session_state.images[img])
+                    else:
+                        print(f"\n\nIMAGE ID:\n\n{img}")
+                        # container = st.session_state.get("container")
+                        # if not container:
+                        #     st.error("No container available. Please run the step first.")
+                        #     continue
+                        # # Load image from OpenAI container if not in session state
+                        # image_to_display = load_image_from_openai_container(OPENAI_API_KEY, container.id, file_id=img)
+                        # st.session_state.images[img] = image_to_display
+                        # col_ct.image(image_to_display)
+                
+                for text in r['summary']:
+                    col_ct.markdown(f"<p style='font-size:0.8rem;'>{text}</p>",
+                    unsafe_allow_html=True)

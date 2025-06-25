@@ -2,7 +2,13 @@
 import streamlit as st
 import openai
 
-from utils import create_code_interpreter_tool, create_web_search_tool, create_container, to_mock_chunks, mock_llm
+from utils import (
+    create_code_interpreter_tool, 
+    create_web_search_tool, 
+    create_container, 
+    to_mock_chunks, 
+    render_assistant_message
+)
 from instructions import report_generation_instructions, report_chat_instructions
 
 
@@ -101,6 +107,9 @@ with main_col:
     client = st.session_state.openai_client
 
     if st.button("Generate final report"):
+        #Clean the chat history before generating a new report
+        st.session_state["report_chat"] = []
+
         if not selected_runs:
             st.warning("Select at least one run first.")
         else:
@@ -152,7 +161,7 @@ with main_col:
                     report_txt = next(c["content"] for c in chunks if c["type"] == "text")
                     print(f"\n\nFINAL REPORT:\n\n{report_txt}")
                     st.session_state["final_report"] = report_txt
-                    st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
+                    # st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
                     # st.success("Report generated!")
                     # st.rerun()
 
@@ -178,9 +187,10 @@ with main_col:
                             stream=False,
                         )
                         chunks = to_mock_chunks(response)
+                        # TODO handle chunks properly
                         report_txt = next(c["content"] for c in chunks if c["type"] == "text")
                         st.session_state["final_report"] = report_txt
-                        st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
+                        # st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
                         
                         # st.rerun()
 
@@ -200,8 +210,14 @@ with main_col:
         st.divider()
         
         st.markdown("### Discuss report")
+
         for message in st.session_state["report_chat"]:
-            st.chat_message(message["role"]).write(message["content"])
+            if message['role'] == 'user':
+                st.chat_message("user").write(message['content'])
+            elif message['role'] == 'assistant':
+                # Use the custom render function to handle the assistant's message
+                render_assistant_message(message['content'])
+            # st.chat_message(message["role"]).write(message["content"])
 
         prompt = st.chat_input("Ask about this report")
 
@@ -210,7 +226,7 @@ with main_col:
             st.session_state["report_chat"].append({"role": "user", "content": prompt})
             st.chat_message("user").write(prompt)
 
-            context = f""" {st.session_state["final_report"]} + {st.session_state["report_chat"]} """
+            context = f""" Here is the final report":\n{st.session_state["final_report"]}.\n\n Here is the chat history:\n{st.session_state["report_chat"]} """
 
             print(f"\n\n{'*****' * 10}\nREPORT CHAT CONTEXT:\n\n{context}\n\n{'*****' * 10}")
 
@@ -234,6 +250,39 @@ with main_col:
                 
                 reply = next(c["content"] for c in chunks if c["type"] == "text")
                 print(f"\n\n{'*****' * 10}\nREPORT CHAT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
+                
                 st.session_state["report_chat"].append({'role': 'assistant', 'content': chunks})
-                st.chat_message("assistant").write(reply)
+
+                # st.chat_message("assistant").write(reply)
+
+                if st.button("Update report"):
+
+                    context = f""" Here is the final report":\n{st.session_state["final_report"]}.\n\n Here is the chat history:\n{st.session_state["report_chat"]} """
+
+                    with st.spinner("LLM generating response…"):
+                        response = client.responses.create(
+                            model="gpt-4o-mini",
+                            instructions=report_chat_instructions,
+                            tools=[
+                                create_code_interpreter_tool(st.session_state.container),
+                                create_web_search_tool()
+                            ],
+                            input=[
+                                {"role": "system", "content": context},
+                                {"role": "user", "content": "Update the final report based on the chat discussion."}
+                            ],
+                            temperature=0,
+                            stream=False,
+                        )
+
+                        chunks = to_mock_chunks(response)
+                        reply = next(c["content"] for c in chunks if c["type"] == "text")
+                        print(f"\n\n{'*****' * 10}\nUPDATED REPORT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
+
+                    st.session_state["final_report"] = reply
+
+                    st.session_state["report_chat"].append({'role': 'assistant', 'content': reply})
+                    
+                    st.success("Report updated!")
+
                 st.rerun()

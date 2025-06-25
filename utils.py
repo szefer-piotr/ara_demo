@@ -151,7 +151,7 @@ def upload_csv_and_get_file_id(client: OpenAI, uploaded_file: UploadedFile):
     return openai_file.id
 
 
-def load_image_from_openai_container(api_key: str, container_id: str, file_id: str) -> Image.Image:
+def load_image_from_openai_container(api_key: str | None, container_id: str, file_id: str) -> Image.Image:
     url = f"https://api.openai.com/v1/containers/{container_id}/files/{file_id}/content"
     headers = {"Authorization": f"Bearer {api_key}"}
     response = requests.get(url, headers=headers)
@@ -299,7 +299,20 @@ def record_run(step: Dict, chunks: List[Dict[str, str]]) -> Dict:
         "tables":  [c["content"] for c in chunks if c["type"] == "table"],
         "summary": [c["content"] for c in chunks if c["type"] == "text"],
     }
+    
     step["runs"].append(run)
+
+    container = st.session_state.get('container')
+    
+    for img in run['images']:
+        # Load the image from OpenAI container and store it in session state
+        st.session_state.images[img] = load_image_from_openai_container(OPENAI_API_KEY, container.id, img)
+
+        print(f"Image {img} loaded from container {container.id} and stored in session state.")
+
+        if 'container' not in st.session_state:
+            st.session_state.container = None
+    
     return run
 
 
@@ -316,10 +329,9 @@ def serialize_step(step: dict) -> str:
     if step.get("text"):
         parts.append(f"## Description\n{step['text'].rstrip()}")
 
-    # — 3.   Code stub -------------------------------------------------------
-    if step.get("code") is not None:
-        parts.append("## Code\n```python\n" + step["code"].rstrip() + "\n```")
-
+    for run in step.get("runs", []):
+        parts.append(f"Step {step['step_id']}.\n\nCode: {run['code_input']}.\n\nsummary: {run['summary']}")
+        
     # — 4.   Prior dialogue --------------------------------------------------
     if step.get("chat_history"):
         # print(f"\nIn serialize_step this is the step's chat history {step['chat_history']}")
@@ -330,13 +342,11 @@ def serialize_step(step: dict) -> str:
         parts.append(f"## Chat history\n{chat}")
 
     # — 5.   Images ----------------------------------------------------------
-    # *Option A:* send image URLs or base-64 strings directly:
-    if step.get("images"):
-        parts.append(
-            "## Images (one per line)\n" + "\n".join(step["images"])
-        )
-    # *Option B:* if the API you’re calling accepts a separate medium for
-    #            images, strip them here and attach them with the request.
+    # TODO Attach only the image IDs, not the full URLs.
+    # if step.get("images"):
+    #     parts.append(
+    #         "## Images (one per line)\n" + "\n".join(step["images"])
+    #     )
 
     return "\n\n".join(parts)
 
@@ -482,10 +492,13 @@ def render_assistant_message(elements):
             elif item["type"] == "text":
                 st.markdown(item["content"])
             elif item["type"] == "image":
-
-                # TODO: Handle image rendering
-                # item['content'] should be a valid image path, URL, or bytes
-                # st.image(item["content"])
-                pass
+                print(f"Image ID: {item['content']}")
+                st.image(st.session_state.images.get(item["content"]), caption=item.get("filename", "Image"))
+                # st.write(f"Image:{item['content']}")
+                # img = item["content"]
+                # if img in st.session_state.images:
+                #     st.image(img, caption=item.get("filename", "Image"))
+                # else:
+                #     st.warning("Image not found in session state.")
             else:
                 st.warning(f"Unknown element type: {item['type']}")
