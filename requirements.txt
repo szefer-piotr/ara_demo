@@ -1,4 +1,6 @@
-streamlit>=1.30
+streamlit > 1.43
 pandas
 streamlit-tree-select
 streamlit_extras
+openai
+dotenv

@@ -10,10 +10,10 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
                 """
 | Icon | Meaning |
 |------|---------|
-| 📝 | Plan **not** accepted yet |
-| 🗂️ | Plan accepted, some runs still pending |
-| 🔄 | Step exists, run not finished |
-| ✅ | Everything finished |
+| ⚪ | Plan **not** accepted yet |
+| 🟡 | Plan accepted, some runs still pending |
+| 🔵 | Step exists, run not finished |
+| 🟢 | Everything finished |
 """,
                 unsafe_allow_html=True,
             )
@@ -44,9 +44,9 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
             runs_done = sum(1 for s in a["analysis_plan"] if s.get("finished", False))
             hypo_done = plan_ok and runs_tot and runs_tot == runs_done
 
-            if   hypo_done: icon = "✅"
-            elif plan_ok:   icon = "🗂️"
-            else:           icon = "📝"
+            if   hypo_done: icon = "🟢"
+            elif plan_ok:   icon = "🟡"
+            else:           icon = "⚪"
 
             labels.append(f"{icon} {a['hypothesis_id']} – {a['title'][:40]}")
             ids.append(a["hypothesis_id"])
@@ -71,9 +71,10 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
 
             radio_options, label_to_step = ["Overview"], {}
             if hypo.get("plan_accepted", False):
+                
                 for s in hypo["analysis_plan"]:
-                    icon = "✅" if s.get("finished", False) else "🔄"
-                    lbl  = f"{icon} {s['title']}"
+                    icon = "🟢" if s.get("finished", False) else "🔵"
+                    lbl  = f"{icon} {s['title']}" 
                     radio_options.append(lbl)
                     label_to_step[lbl] = s["step_id"]
 
