@@ -6,7 +6,8 @@ from utils import (
     create_code_interpreter_tool, 
     create_web_search_tool, 
     create_container, 
-    to_mock_chunks, 
+    to_mock_chunks,
+    explode_text_and_images,
     render_assistant_message
 )
 from instructions import report_generation_instructions, report_chat_instructions
@@ -89,14 +90,16 @@ with preview_col:
     run_obj = next((r["run"] for r in all_runs if r["id"] == preview_run_id), None)
 
     if run_obj:
-        if run_obj["summary"]:
-            st.markdown(run_obj["summary"])
-        for html in run_obj["images"]:
-            st.markdown(html, unsafe_allow_html=True)
-        for tbl in run_obj["tables"]:
-            st.markdown(tbl, unsafe_allow_html=True)
-        with st.expander("Code"):
-            st.code(run_obj["code_input"], language="python")
+        for img in run_obj["images"]:
+            image_to_display = st.session_state.images.get(img, None)
+            if image_to_display:
+                st.image(image_to_display)
+
+        for text in run_obj["summary"]:
+            st.markdown(text)
+        
+        for code in run_obj["code_input"]:
+            st.code(code, language="python")
     else:
         st.info("Tick a run to preview it here.")
 
@@ -125,77 +128,77 @@ with main_col:
                     continue
                 ctx_lines.append(f"### Hypothesis: {hypo['title']}")
                 for step, run in runs_in_hypo:
+                    # print(f"\n\nProcessing run {run['run_id']} for step {step['title']}")
+                    # print(f"Run OBJ: {run}")
+                    print(run['images'])
                     ctx_lines.append(
                         f"- Step: {step['title']} | Run {run['run_id']} | "
+                        f" Image ids: {', '.join(run['images']) if run['images'] else 'N/A'} | "
+                        f"Code: {', '.join(run['code_input']) if run['code_input'] else 'N/A'} | "
                         f"Summary: {run['summary'] or 'N/A'}"
                     )
 
             context = "Draft a final report from this context:\n" + "\n".join(ctx_lines)
             
-            print(f"\n\nSELECTED RUNS for context:\n\n{selected_runs}")
+            print(f"\n\nSELECTED RUNS for context:{selected_runs}")
             
-            with st.spinner("LLM composing report…"):
+            with st.spinner("Composing report…"):
 
                 tools = [# Create tools for code execution and web search
-                    create_code_interpreter_tool(st.session_state.container),
+                    # create_code_interpreter_tool(st.session_state.container),
                     create_web_search_tool()
                 ]
                 
                 
                 # -------------------------------------
 
-                try:
-                    response = client.responses.create(
-                        model="gpt-4o-mini",
-                        tools=tools,
-                        instructions=report_generation_instructions,
-                        input=[
-                            {"role": "system", "content": context},
-                            {"role": "user", "content": "Draft a final report from the provided context."}
-                        ],
-                        temperature=0,
-                        stream=False,
-                    )
-                    
-                    chunks = to_mock_chunks(response)
-                    report_txt = next(c["content"] for c in chunks if c["type"] == "text")
-                    print(f"\n\nFINAL REPORT:\n\n{report_txt}")
-                    st.session_state["final_report"] = report_txt
-                    # st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
-                    # st.success("Report generated!")
-                    # st.rerun()
+                # try:
+                response = client.responses.create(
+                    model="gpt-4o-mini",
+                    tools=tools,
+                    instructions=report_generation_instructions,
+                    input=[
+                        {"role": "system", "content": context},
+                        {"role": "user", "content": "Draft a final report from the provided context."}
+                    ],
+                    temperature=0,
+                    stream=False,
+                )
+                
+                chunks = to_mock_chunks(response)
+                st.session_state["final_report"] = chunks
 
-                except openai.BadRequestError as e:
-                    if 'expired' in str(e).lower():
-                        # Container expired, create a new one
-                        new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
-                        print((f"Container expired, created a new one: {new_container.id}"))
-                        st.session_state.container = new_container
+                # except openai.BadRequestError as e:
+                #     if 'expired' in str(e).lower():
+                #         # Container expired, create a new one
+                #         new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
+                #         print((f"Container expired, created a new one: {new_container.id}"))
+                #         st.session_state.container = new_container
                         
-                        # Re-run the step with the new container
-                        tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
+                #         # Re-run the step with the new container
+                #         tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
                         
-                        response = client.responses.create(
-                        model="gpt-4o-mini",
-                        tools=tools,
-                        instructions=report_generation_instructions,
-                        input=[
-                            {"role": "system", "content": context},
-                            {"role": "user", "content": "Draft a final report from the provided context."}
-                        ],
-                            temperature=0,
-                            stream=False,
-                        )
-                        chunks = to_mock_chunks(response)
-                        # TODO handle chunks properly
-                        report_txt = next(c["content"] for c in chunks if c["type"] == "text")
-                        st.session_state["final_report"] = report_txt
-                        # st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
+                #         response = client.responses.create(
+                #         model="gpt-4o-mini",
+                #         tools=tools,
+                #         instructions=report_generation_instructions,
+                #         input=[
+                #             {"role": "system", "content": context},
+                #             {"role": "user", "content": "Draft a final report from the provided context."}
+                #         ],
+                #             temperature=0,
+                #             stream=False,
+                #         )
                         
-                        # st.rerun()
+                #         chunks = to_mock_chunks(response)
+                        
+                #         st.session_state["final_report"] = chunks
+                        
+                #         # st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
+                #         # st.rerun()
 
-                    else:
-                        raise
+                #     else:
+                #         raise
 
                 # -------------------------------------
 
@@ -206,7 +209,25 @@ with main_col:
     # ---------- show report & chat ----------
     if "final_report" in st.session_state:
         st.markdown("## Final report")
-        st.write(st.session_state["final_report"])
+
+        # TODO display elements of the report in a more structured way
+        print(f"\n\nFINAL REPORT: {st.session_state['final_report']}")
+
+        new_chunks = explode_text_and_images(st.session_state["final_report"])
+
+        print(f"\n\nNEW CHUNKS: {new_chunks}")
+
+        for chunk in new_chunks:
+            if chunk["type"] == "text":
+                st.markdown(chunk["content"])
+            elif chunk["type"] == "image":
+                image_id = chunk["content"]           # ← your requested snippet
+                image_to_display = st.session_state.images.get(image_id, None)
+                if image_to_display:
+                    st.image(image_to_display)
+                else:
+                    st.warning(f"Image with {image_id} not found. Available images are: ")
+        
         st.divider()
         
         st.markdown("### Discuss report")
@@ -226,6 +247,7 @@ with main_col:
             st.session_state["report_chat"].append({"role": "user", "content": prompt})
             st.chat_message("user").write(prompt)
 
+            # TODO make each run available in the context
             context = f""" Here is the final report":\n{st.session_state["final_report"]}.\n\n Here is the chat history:\n{st.session_state["report_chat"]} """
 
             print(f"\n\n{'*****' * 10}\nREPORT CHAT CONTEXT:\n\n{context}\n\n{'*****' * 10}")
@@ -235,7 +257,7 @@ with main_col:
                     model="gpt-4o-mini",
                     instructions=report_chat_instructions,
                     tools=[
-                        create_code_interpreter_tool(st.session_state.container),
+                        # create_code_interpreter_tool(st.session_state.container),
                         create_web_search_tool()
                     ],
                     input=[
@@ -249,7 +271,7 @@ with main_col:
                 chunks = to_mock_chunks(response)
                 
                 reply = next(c["content"] for c in chunks if c["type"] == "text")
-                print(f"\n\n{'*****' * 10}\nREPORT CHAT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
+                # print(f"\n\n{'*****' * 10}\nREPORT CHAT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
                 
                 st.session_state["report_chat"].append({'role': 'assistant', 'content': chunks})
 
@@ -264,7 +286,7 @@ with main_col:
                             model="gpt-4o-mini",
                             instructions=report_chat_instructions,
                             tools=[
-                                create_code_interpreter_tool(st.session_state.container),
+                                # create_code_interpreter_tool(st.session_state.container),
                                 create_web_search_tool()
                             ],
                             input=[
@@ -277,7 +299,7 @@ with main_col:
 
                         chunks = to_mock_chunks(response)
                         reply = next(c["content"] for c in chunks if c["type"] == "text")
-                        print(f"\n\n{'*****' * 10}\nUPDATED REPORT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
+                        # print(f"\n\n{'*****' * 10}\nUPDATED REPORT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
 
                     st.session_state["final_report"] = reply
 

@@ -493,7 +493,11 @@ def render_assistant_message(elements):
                 st.markdown(item["content"])
             elif item["type"] == "image":
                 print(f"Image ID: {item['content']}")
-                st.image(st.session_state.images.get(item["content"]), caption=item.get("filename", "Image"))
+                image_to_display = st.session_state.images.get(item["content"])
+                if image_to_display:
+                    st.image(image_to_display, caption=item.get("filename", "Image"))
+                else:
+                    st.warning("Image not found in session state.")
                 # st.write(f"Image:{item['content']}")
                 # img = item["content"]
                 # if img in st.session_state.images:
@@ -502,3 +506,56 @@ def render_assistant_message(elements):
                 #     st.warning("Image not found in session state.")
             else:
                 st.warning(f"Unknown element type: {item['type']}")
+
+
+
+import re
+from typing import List, Dict
+
+# just the “cfile_…” token – no surrounding punctuation
+FILE_ID = re.compile(r"cfile_[A-Za-z0-9]+")
+
+def explode_text_and_images(chunks: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    """
+    Split every text-chunk on each cfile_… identifier so that
+    the returned list alternates between 'text' and 'image' items.
+
+    Parameters
+    ----------
+    chunks : list of {'type': str, 'content': str}
+
+    Returns
+    -------
+    list of {'type': 'text'|'image', 'content': str}
+    """
+    output: List[Dict[str, str]] = []
+
+    for chunk in chunks:
+        if chunk.get("type") != "text":
+            # keep non-text chunks exactly as they are
+            output.append(chunk)
+            continue
+
+        text = chunk["content"]
+        last = 0
+
+        for match in FILE_ID.finditer(text):
+            # 1️⃣ text before the file-ID
+            if match.start() > last:
+                output.append({"type": "text", "content": text[last : match.start()]})
+
+            # 2️⃣ the file-ID itself
+            output.append({"type": "image", "content": match.group(0)})
+
+            last = match.end()
+
+        # 3️⃣ trailing text after the final ID (or the whole string if none)
+        if last < len(text):
+            output.append({"type": "text", "content": text[last:]})
+
+        print("\nFUNCTION CALL!!!\n")
+
+    return output
+
+
+

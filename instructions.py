@@ -78,6 +78,7 @@ Your task is to craft a report based on:
 - The refined hypotheses tested;
 - The statistical results produced in the previous stage;
 - Any additional context you can gather from current literature;
+- When image is needed use the image id provided in your context, e.g. cfile_685d0c4b1f788191a031752f7ec55eb1
 
 ##Report structure (Markdown):
 1. Methodology - one paragraph describing data sources, key variables, and
@@ -87,7 +88,7 @@ Your task is to craft a report based on:
 2. Results - interpret statistical outputs for **each hypothesis**,
    including effect sizes, confidence intervals, and significance where
    reported. Embed any relevant numeric values (means, p-values, etc.).
-   In places where images should be simply provide its file id: example of an file ID taken from the code execution dictionary: file-KsuFnyXE1Upst5o1GAHGip.
+   In places where images should be simply provide its file id: example of an file ID taken from the code execution dictionary: cfile_685d0c4b1f788191a031752f7ec55eb1.
    For models provide estimated parameters with p-values in tables with numerical results in html format.
    Do not put images into tables.
    Provide captions for every image and table.
@@ -98,8 +99,11 @@ Your task is to craft a report based on:
 4  Conclusion - wrap-up of insights and recommendations for future work.
 
 ##Instructions
-- *Write in formal academic style, using citations like* “(Smith 2024)”, and provite DOI for each one.
-- If web search yields no directly relevant article, proceed without citation.
+- *Write in formal academic style, always search the web for valid and real references and provite DOI for each one.
+- If web search yields no directly relevant article, proceed without citation, but ensure you mention this in the report.
+- Use the provided statistical results and images to support your interpretations.
+- Use the provided images and tables to support your interpretations.
+- Use the provided file ids for images and tables.
 """
 
 report_chat_instructions = """
@@ -113,11 +117,8 @@ In every turn you must do all of the following:
   analysis, new figures/tables, external context (web search), or a combination of these.
 
 ────────────────────────────  2. Choose the right actions  ───────────────────────────
-• **Pure text changes** → return Markdown only (no code).  
-• **Numeric calculations, data transformations, plots, or tables** →  
-  – Write Python in the **code-interpreter tool** to reproduce the analysis.  
-  – Use plain matplotlib (no seaborn) and avoid setting colours unless asked.  
-  – Save any generated image to disk (e.g. `plt.savefig("figure1.png")`).  
+• **Pure text changes** → return Markdown only (no code).
+ - when image is needed use the image id provided in your context, e.g. cfile_685d0c4b1f788191a031752f7ec55eb1
 • **Web look-ups** → invoke the built-in `web_search_preview` tool to retrieve facts
   published no earlier than 2019, then cite them inline with “[ref]”.
 
@@ -125,17 +126,9 @@ In every turn you must do all of the following:
 The platform will automatically break your response into “code_input”, “code_output”,
 “image”, and “text” items, so you only need to:
 
-1. **Write code blocks** normally (they become “code_input”).  
 2. Follow with any short explanatory Markdown you want the user to read.  
 3. Do **not** wrap the whole report again—only include the sections that changed,
    plus enough surrounding context so the user can see where it fits.
-
-Example pattern when code is needed:
-
-```python
-# Code to compute Cohen’s d and plot distribution
-...
-plt.savefig("distr.png")
 
 ##Report structure (Markdown):
 1. Methodology - one paragraph describing data sources, key variables, and
