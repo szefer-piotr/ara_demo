@@ -70,7 +70,7 @@ with st.container():
                     client = st.session_state.openai_client
                     
                     response = client.responses.parse(
-                        model="gpt-4o-mini",
+                        model="gpt-4o",
                         tools=[
                             {"type": "code_interpreter", "container": container.id if container else "auto"}
                         ],

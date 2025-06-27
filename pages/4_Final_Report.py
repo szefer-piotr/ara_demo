@@ -154,7 +154,7 @@ with main_col:
 
                 # try:
                 response = client.responses.create(
-                    model="gpt-4o-mini",
+                    model="o3",
                     tools=tools,
                     instructions=report_generation_instructions,
                     input=[
@@ -276,7 +276,7 @@ with main_col:
 
             with st.spinner("LLM generating response…"):
                 response = client.responses.create(
-                    model="gpt-4o-mini",
+                    model="o3",
                     instructions=report_chat_instructions,
                     tools=[
                         # create_code_interpreter_tool(st.session_state.container),
@@ -305,7 +305,7 @@ with main_col:
 
             with st.spinner("LLM generating response…"):
                 response = client.responses.create(
-                    model="gpt-4o-mini",
+                    model="o3",
                     instructions=report_chat_instructions,
                     tools=[
                         # create_code_interpreter_tool(st.session_state.container),
