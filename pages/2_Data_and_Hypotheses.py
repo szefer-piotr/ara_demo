@@ -17,6 +17,8 @@ from utils import mock_llm, create_web_search_tool, create_code_interpreter_tool
 from schemas import ColumnSummary, DatasetSummary
 from instructions import data_summary_instructions
 
+st.set_page_config(layout="wide")
+
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
@@ -35,6 +37,12 @@ if "edit_mode" not in st.session_state:
 
 # ── STEP 1 ─ Upload data ───────────────────────────────────────────────────────
 st.markdown("#### Upload data (CSV)")
+
+st.markdown("""
+         Prepare your data in the CSV format. You can upload multiple CSV files, but you need to be sure to have a clear
+         connection between separate datasets: an id that connects rows in one table to another.\n\n
+         You should *confirm column **descriptions** and **types***, as these will be important during analyses execution.
+         """)
 
 # Put the CSV uploader in a centred, narrower container
 with st.container():
@@ -112,6 +120,7 @@ st.divider()
 
 # ── List current hypotheses ────────────────────────────────────────────────────
 st.markdown("#### Existing hypotheses")
+st.write("""Your hypotheses will appear here. You can remove them and add new ones below. When you are ready click Refine Hypotheses and the Assistant will refine you rhypotheses using your data, web search and knowledge""")
 if st.session_state["analyses"]:
 
     for idx, a in enumerate(st.session_state["analyses"]):

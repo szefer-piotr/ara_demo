@@ -18,6 +18,9 @@ If needed, consult current best practices and literature (including through web 
 
 ## Task
 You will assist users in performing and interpreting ecological data analyses. Always aim for the most accurate, professional, and insightful solution. Your suggestions should not only solve the task but also help users understand why they are doing each step.
+
+IMPORTANT: Refuse answerting question outside your role and expertise.
+IMPORTANT: NEVER provide unexisting citations. ALWAYS provide a link to your web serch when you cite any reasearch!
 """
 
 analysis_steps_generation_instructions = """
@@ -36,6 +39,8 @@ You have to generate an analysis plan for the provided hypothesis that can be te
 ## Instructions
 - As the `assistant_chat_response`, generate a plan that is readable for the user contains explanations and motivations for the methods used.
 - Keep a simpler version of the plan with clear and programmatically executable steps as `current_execution_plan` for further execution.
+
+IMPORTANT: Refuse answerting question outside your role and expertise.
 """
 
 data_summary_instructions = """
@@ -67,6 +72,8 @@ You are an expert in ecological research and statistical analysis in Python.
 - respond to the users queries about the elements of the analysis execution.
 - write Python code as a response to the user query.
 - execute code, write description and short summary as a response to the user query.
+
+IMPORTANT: Refuse answerting question outside your role and expertise.
 """
 
 
@@ -104,6 +111,8 @@ Your task is to craft a report based on:
 - Use the provided statistical results and images to support your interpretations.
 - Use the provided images and tables to support your interpretations.
 - Use the provided file ids for images and tables.
+
+IMPORTANT: NEVER provide unexisting citations. ALWAYS provide a link to your web serch when you cite any reasearch!
 """
 
 report_chat_instructions = """
@@ -147,5 +156,8 @@ The platform will automatically break your response into “code_input”, “co
    `web_search_preview`; highlight agreements, discrepancies, and plausible
    ecological mechanisms. Provide links and citations with DOI for scientific articles.
 4  Conclusion - wrap-up of insights and recommendations for future work.
+
+IMPORTANT: Refuse answerting question outside your role and expertise.
+IMPORTANT: NEVER provide unexisting citations. ALWAYS provide a link to your web serch when you cite any reasearch!
 
 """

@@ -12,7 +12,7 @@ from utils import (
 )
 from instructions import report_generation_instructions, report_chat_instructions
 
-
+from st_copy import copy_button
 
 # ───────────────────────── guards ────────────────────────────────
 if "analyses" not in st.session_state or not st.session_state["analyses"]:
@@ -227,6 +227,28 @@ with main_col:
                     st.image(image_to_display)
                 else:
                     st.warning(f"Image with {image_id} not found. Available images are: ")
+
+        wide, narrow = st.columns([95,5])
+        with wide:
+            st.markdown(
+                """
+                <div style="
+                    text-align: right;
+                    font-size: 0.8rem;     /* smaller than the normal body font   */
+                    font-style: italic;    /* italicise the whole sentence        */
+                ">
+                    Copy the report to clipboard <span style="opacity:.6">[experimental]</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with narrow: 
+            copy_button(
+                    f"{st.session_state['final_report']}",
+                    tooltip="Copy",
+                    copied_label="✔",
+                    icon="st",
+                    )
         
         st.divider()
         
@@ -277,34 +299,34 @@ with main_col:
 
                 # st.chat_message("assistant").write(reply)
 
-                if st.button("Update report"):
+        if st.button("Update report"):
 
-                    context = f""" Here is the final report":\n{st.session_state["final_report"]}.\n\n Here is the chat history:\n{st.session_state["report_chat"]} """
+            context = f""" Here is the final report":\n{st.session_state["final_report"]}.\n\n Here is the chat history:\n{st.session_state["report_chat"]} """
 
-                    with st.spinner("LLM generating response…"):
-                        response = client.responses.create(
-                            model="gpt-4o-mini",
-                            instructions=report_chat_instructions,
-                            tools=[
-                                # create_code_interpreter_tool(st.session_state.container),
-                                create_web_search_tool()
-                            ],
-                            input=[
-                                {"role": "system", "content": context},
-                                {"role": "user", "content": "Update the final report based on the chat discussion."}
-                            ],
-                            temperature=0,
-                            stream=False,
-                        )
+            with st.spinner("LLM generating response…"):
+                response = client.responses.create(
+                    model="gpt-4o-mini",
+                    instructions=report_chat_instructions,
+                    tools=[
+                        # create_code_interpreter_tool(st.session_state.container),
+                        create_web_search_tool()
+                    ],
+                    input=[
+                        {"role": "system", "content": context},
+                        {"role": "user", "content": "Update the final report based on the chat discussion."}
+                    ],
+                    temperature=0,
+                    stream=False,
+                )
 
-                        chunks = to_mock_chunks(response)
-                        reply = next(c["content"] for c in chunks if c["type"] == "text")
-                        # print(f"\n\n{'*****' * 10}\nUPDATED REPORT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
+                chunks = to_mock_chunks(response)
+                reply = next(c["content"] for c in chunks if c["type"] == "text")
+                # print(f"\n\n{'*****' * 10}\nUPDATED REPORT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
 
-                    st.session_state["final_report"] = reply
+            st.session_state["final_report"] = reply
 
-                    st.session_state["report_chat"].append({'role': 'assistant', 'content': reply})
-                    
-                    st.success("Report updated!")
+            st.session_state["report_chat"].append({'role': 'assistant', 'content': reply})
+            
+            st.success("Report updated!")
 
-                st.rerun()
+            st.rerun()
