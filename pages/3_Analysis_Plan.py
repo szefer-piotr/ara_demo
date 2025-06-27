@@ -74,7 +74,13 @@ plan_chat = hypo.setdefault("plan_chat", [])
 plan      = hypo.setdefault("analysis_plan", [])
 
 st.title("Analysis plan")
-st.header(hypo["title"])
+
+st.markdown("""Here the Assistant will heklp you develop a detailed analysis plan. After an initial plan is generated, if you have some specific analyses in mind that youy would like to perform ask the Assistant in the chat. You can always come back to refine the plan further.""")
+
+st.divider()
+
+
+st.markdown(f"##### Current hypothesis:\n ###### {hypo['title']}")
 
 tools = [create_code_interpreter_tool(st.session_state.container), create_web_search_tool()]
 
@@ -136,7 +142,7 @@ if not hypo["plan_accepted"]:
 
     st.markdown("#### Discuss plan")
     
-    # Display the chat history
+    # Display chat history
     for role, msg in plan_chat:
         if role == "user":
             st.chat_message(role).write(msg)
@@ -293,6 +299,7 @@ with main:
             st.rerun()
     else:
         col_run, col_finish = st.columns(2)
+        
         if col_run.button("Run step"):
 
             print(f"\n\n{'***' * 10}\n\nRunning step {step['step_id']}:\n\n{step}")
@@ -330,6 +337,9 @@ with main:
             print(f"\n\nRUN EXECUTION PROMPT:\n\n{run_execution_prompt}")
 
             with st.spinner("Runing the step..."):
+
+                print(f"\n\nHERE\n\n")
+                
                 try:
                     response = client.responses.create(
                         model="gpt-4o-mini",
@@ -337,19 +347,20 @@ with main:
                         instructions=analysis_step_execution_instructions,
                         input=[
                             {"role": "system", "content": context_for_llm},
-                            {"role": "user", 
-                            "content": run_execution_prompt}
+                            {"role": "user", "content": run_execution_prompt}
                         ],
                         temperature=0,
                         stream=False,
                     )
+                    
                     chunks = to_mock_chunks(response)
                     record_run(step, chunks)
                     print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
                     st.success("Run stored.")
                     st.rerun()
 
-                except openai.BadRequestError as e:
+                except openai.APIStatusError as e:
+                    print(f"\n\n ENCOUNTERED ERROR: {e}")
                     if 'expired' in str(e).lower():
                         # Container expired, create a new one
                         new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
@@ -377,6 +388,7 @@ with main:
                         st.success("Run stored.")
                         st.rerun()
                     else:
+                        print(f"\n\nSOMETHIG WENT WRONG...\n\n")
                         raise
         
         if step["runs"] and col_finish.button("Finish step", type="primary"):
@@ -409,7 +421,7 @@ with main:
                 st.chat_message(msg['role']).write(msg['content'])
             elif msg['role'] == 'assistant':
                 render_assistant_message(msg['content'])
-                
+        
         prompt = st.chat_input("Discuss this step")
         
         # Also parsed previous steps for context
@@ -424,7 +436,6 @@ with main:
 
             st.chat_message('user').write(prompt)
             
-            step["chat_history"].append({"role": "user", "content": prompt})
             step["chat_history"].append({"role": "user", "content": prompt})
 
             # TODO - discuss the step allow to run the run and register it, 
@@ -525,7 +536,6 @@ with arte:
                         x for x in step["runs"] if x["run_id"] != r["run_id"]
                     ]
                     st.rerun()
-                print(f"\n\nRUN:\n\n{r}")
                 
                 for code in r["code_input"]:
                     print(f"\n\nCODE:\n\n{code}")

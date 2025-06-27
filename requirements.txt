@@ -4,3 +4,4 @@ streamlit-tree-select
 streamlit_extras
 openai
 dotenv
+st_copy

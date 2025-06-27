@@ -3,6 +3,7 @@ import streamlit as st
 st.set_page_config(layout="wide")
 
 st.title("Welcome")
+
 st.write(
     """
     This minimal prototype lets you upload a dataset, create hypotheses,
