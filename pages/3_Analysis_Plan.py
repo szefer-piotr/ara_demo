@@ -95,7 +95,7 @@ if not plan:
         with st.spinner("LLM drafting…"):
             
             response = client.responses.parse(
-                    model="o3",
+                    model="gpt-4o",
                     tools=[create_web_search_tool()],
                     input=[
                         {"role": "system", "content": context},
@@ -177,7 +177,7 @@ if not hypo["plan_accepted"]:
             # print(f"\n\nOriginal plan:\n\n{original_plan}.\n\nThe history:\n\n{plan_chat_history}")
             
             response = client.responses.parse(
-                model="o3",
+                model="gpt-4o",
                 tools=[create_web_search_tool()],
                 instructions=run_execution_chat_instructions,
                 input=[
@@ -342,7 +342,7 @@ with main:
                 
                 try:
                     response = client.responses.create(
-                        model="o3",
+                        model="gpt-4o",
                         tools=tools,
                         instructions=analysis_step_execution_instructions,
                         input=[
@@ -371,7 +371,7 @@ with main:
                         tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
                         
                         response = client.responses.create(
-                        model="o3",
+                        model="gpt-4o",
                         tools=tools,
                         instructions=analysis_step_execution_instructions,
                         input=[
@@ -460,7 +460,7 @@ with main:
             with st.spinner("Thinking..."):
                 try:
                     response = client.responses.create(
-                        model="o3",
+                        model="gpt-4o",
                         tools=tools,
                         instructions=run_execution_chat_instructions,
                         input=[
@@ -483,7 +483,7 @@ with main:
                             tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
                             
                             response = client.responses.create(
-                            model="o3",
+                            model="gpt-4o",
                             tools=tools,
                             instructions=analysis_step_execution_instructions,
                             input=[
