@@ -1,6 +1,7 @@
 # pages/4_Final_Report.py
 import streamlit as st
 import openai
+import utils
 
 from utils import (
     create_code_interpreter_tool, 
@@ -13,6 +14,8 @@ from utils import (
 from instructions import report_generation_instructions, report_chat_instructions
 
 from st_copy import copy_button
+
+utils.inject_global_css()
 
 # ───────────────────────── guards ────────────────────────────────
 if "analyses" not in st.session_state or not st.session_state["analyses"]:

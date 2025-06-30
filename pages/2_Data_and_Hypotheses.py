@@ -19,6 +19,8 @@ from instructions import data_summary_instructions
 
 st.set_page_config(layout="wide")
 
+utils.inject_global_css()
+
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 

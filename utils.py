@@ -31,6 +31,33 @@ from openai.types.responses.response_output_text import AnnotationContainerFileC
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+
+def inject_global_css() -> None:
+    """Inject shared CSS to normalise headers and sidebar font sizes."""
+    st.markdown(
+        """
+        <style>
+            h1, h2, h3, h4 {
+                margin-top: 0.3rem;
+                margin-bottom: 0.3rem;
+            }
+
+            [data-testid="stSidebar"] h1,
+            [data-testid="stSidebar"] h2,
+            [data-testid="stSidebar"] h3,
+            [data-testid="stSidebar"] h4 {
+                font-size: 1rem;
+            }
+
+            [data-testid="stSidebar"] li,
+            [data-testid="stSidebar"] p {
+                font-size: 0.9rem;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def to_mock_chunks(resp: Response) -> List[Chunk]:
     """
     Convert an `openai.Response` into the mock-LLM chunk list:
