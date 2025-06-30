@@ -4,12 +4,13 @@ st.set_page_config(layout="wide")
 
 st.title("Welcome")
 
-st.write(
-    """
-    This minimal prototype lets you upload a dataset, create hypotheses,
-    and explore mock LLM-generated analyses. Click “Start” to begin.
-    """
-)
+st.markdown("""
+<div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+<h4>👋 Welcome to Your Research Assistant</h4>
+<p>This app helps you analyze your dataset, test hypotheses, and generate a final report — all with AI assistance.</p>
+<p>👉 Click <strong>Start</strong> to begin your analysis journey.</p>
+</div>
+""", unsafe_allow_html=True)
 
 if st.button("Start", use_container_width=True):
     st.switch_page("pages/2_Data_and_Hypotheses.py")

@@ -60,6 +60,20 @@ if "images" not in st.session_state:
 if "container" not in st.session_state:
     st.session_state.container = None
 
+if 'current_instruction' not in st.session_state:
+    st.session_state.current_instruction = """
+        <div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+        <h4>🧠 Step 2: Generate Analysis Plan</h4>
+        <ul>
+        <li>Select the hypothesis you'd like to analyze.</li>
+        <li>Click <strong>“Generate Draft Plan”</strong> to let the AI propose an analysis plan.</li>
+        <li>Review the steps and optionally refine them using chat.</li>
+        <li>Click <strong>“Accept Plan”</strong> when you're satisfied.</li>
+        </ul>
+        <p>💡 You can regenerate or update the plan before accepting.</p>
+        </div>
+    """
+
 # left-hand navigation (steps visible on this page)
 render_sidebar()
 
@@ -75,7 +89,9 @@ plan      = hypo.setdefault("analysis_plan", [])
 
 st.title("Analysis plan")
 
-st.markdown("""Here the Assistant will heklp you develop a detailed analysis plan. After an initial plan is generated, if you have some specific analyses in mind that youy would like to perform ask the Assistant in the chat. You can always come back to refine the plan further.""")
+
+
+st.markdown(st.session_state.current_instruction, unsafe_allow_html=True)
 
 st.divider()
 
@@ -228,6 +244,19 @@ if not hypo["plan_accepted"]:
             ]
 
             hypo["plan_accepted"] = True
+
+            st.session_state.current_instruction = """
+                <div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+                <h4>🔬 Step 3: Run Analysis Steps</h4>
+                <ul>
+                <li>Click <strong>“Run step”</strong> to execute the current analysis step.</li>
+                <li>The assistant may run Python code or perform web searches.</li>
+                <li>Review the output and optionally chat or re-run if needed.</li>
+                <li>Click <strong>“Mark as finished”</strong> once the step looks good.</li>
+                </ul>
+                <p>⏩ Repeat for all steps in your analysis plan.</p>
+                </div>
+            """     
             st.session_state["selected_step_id"] = hypo["analysis_plan"][0]["step_id"]
             st.rerun()
 

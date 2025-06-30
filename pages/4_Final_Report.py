@@ -28,6 +28,19 @@ preview_run_id: str | None = st.session_state.setdefault("preview_run_id", None)
 
 st.title("📑 Final report builder")
 
+st.markdown("""
+<div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+<h4>📄 Step 4: Generate Final Report</h4>
+<ul>
+<li>Select the <strong>runs (code and outputs)</strong> you want to include in the report.</li>
+<li>Click <strong>“Generate final report”</strong> to let the AI summarize your analysis.</li>
+<li>You can preview, copy, and refine the report through chat.</li>
+</ul>
+<p>🧾 The report is built from your completed analysis steps — reproducible and ready to publish!</p>
+</div>
+""", unsafe_allow_html=True)
+
+
 if st.button("← Back to plan execution"):
     st.switch_page("pages/3_Analysis_Plan.py")
 

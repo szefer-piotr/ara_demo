@@ -39,10 +39,17 @@ if "edit_mode" not in st.session_state:
 st.markdown("#### Upload data (CSV)")
 
 st.markdown("""
-         Prepare your data in the CSV format. You can upload multiple CSV files, but you need to be sure to have a clear
-         connection between separate datasets: an id that connects rows in one table to another.\n\n
-         You should *confirm column **descriptions** and **types***, as these will be important during analyses execution.
-         """)
+<div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+<h4>📊 Step 1: Upload Data & Add Hypotheses</h4>
+<ul>
+<li>Upload your <strong>CSV file</strong>. The app will automatically summarize your dataset.</li>
+<li>Edit column descriptions if needed.</li>
+<li>Add one or more <strong>hypotheses</strong> — type them in or import from a <code>.txt</code> file.</li>
+</ul>
+<p>✅ Once your data is uploaded <strong>and</strong> at least one hypothesis is added, click <em>“Go to analysis plan”</em> to continue.</p>
+</div>
+""", unsafe_allow_html=True)
+
 
 # Put the CSV uploader in a centred, narrower container
 with st.container():
