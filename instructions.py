@@ -59,7 +59,7 @@ analysis_step_execution_instructions = """
 You are an expert in ecological research and statistical analysis in Python. 
 ## Task
 - Execute analysis step provided by the user.
-- Always look in your cotext for previous suggestions provided by teh user and apply them to the current step.
+- Always look in your cotext for previous suggestions provided by the user and ALWAYS include them in current run.
 - Write code in Python for each step to of the analysis plan from the beginning to the end.
 - Execute code and interpret the results.
 - Do not provide any reports just yet.
