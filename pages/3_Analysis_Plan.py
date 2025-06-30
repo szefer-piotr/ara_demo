@@ -13,6 +13,7 @@ import uuid
 import os
 import streamlit as st
 import openai
+import copy
 
 from typing import Dict, List
 
@@ -69,6 +70,8 @@ hypo = next(a for a in st.session_state["analyses"] if a["hypothesis_id"] == hid
 # ensure extra fields exist
 hypo.setdefault("plan_accepted", False)
 plan_chat = hypo.setdefault("plan_chat", [])
+# keep history of all previous plans with runs
+hypo.setdefault("plan_history", [])
 
 # Plan is assigned to hypo['analysis_plan']
 plan      = hypo.setdefault("analysis_plan", [])
@@ -197,13 +200,49 @@ if not hypo["plan_accepted"]:
 
         st.rerun()
 
+    # show confirmation warning if needed
+    confirm_needed = bool(hypo.get("plan_history"))
+    if st.session_state.get("confirm_plan_accept") and confirm_needed:
+        st.warning("Accepting this new plan will discard runs from the previous plan.")
+        if st.button("Confirm plan acceptance", key="confirm_accept_btn", type="primary"):
+            st.session_state.confirm_plan_accept = False
+            if not plan_chat:
+                hypo["plan_accepted"] = True
+                st.session_state["selected_step_id"] = hypo["analysis_plan"][0]["step_id"]
+                st.rerun()
+            else:
+                plan_schema: AnalysisPlan = plan_chat[-1][1]
+                hypo["analysis_plan"] = [
+                    {
+                        "step_id": uuid.uuid4().hex[:8],
+                        "title":   step.step_title.strip(),
+                        "text":    step.step_text.rstrip(),
+                        "code":    "# write code here\n",
+                        "runs":    [],
+                        "chat_history": [],
+                        "finished": False,
+                        "images":  [],
+                    }
+                    for step in plan_schema.steps
+                ]
+                hypo["plan_accepted"] = True
+                st.session_state["selected_step_id"] = hypo["analysis_plan"][0]["step_id"]
+                st.rerun()
+        st.stop()
+
     col_regen, col_accept = st.columns(2)
-    
+
     if col_regen.button("Regenerate plan"):
+        # archive current plan before clearing it
+        hypo.setdefault("plan_history", []).append(copy.deepcopy(hypo["analysis_plan"]))
         hypo["analysis_plan"] = []
+        st.warning("Previous plan stored. Generate a new draft.")
         st.rerun()
-    
+
     if col_accept.button("Accept plan", type="primary"):
+        if confirm_needed:
+            st.session_state.confirm_plan_accept = True
+            st.rerun()
 
         if not plan_chat:
             hypo["plan_accepted"] = True
