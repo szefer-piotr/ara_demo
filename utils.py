@@ -33,24 +33,21 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 
 def inject_global_css() -> None:
-    """Inject shared CSS to normalise headers and sidebar font sizes."""
+    """Inject shared CSS to normalise headers and font sizes."""
     st.markdown(
         """
         <style>
-            h1, h2, h3, h4 {
+            h1,
+            h2,
+            h3,
+            h4 {
                 margin-top: 0.3rem;
                 margin-bottom: 0.3rem;
-            }
-
-            [data-testid="stSidebar"] h1,
-            [data-testid="stSidebar"] h2,
-            [data-testid="stSidebar"] h3,
-            [data-testid="stSidebar"] h4 {
                 font-size: 1rem;
             }
 
-            [data-testid="stSidebar"] li,
-            [data-testid="stSidebar"] p {
+            p,
+            li {
                 font-size: 0.9rem;
             }
         </style>

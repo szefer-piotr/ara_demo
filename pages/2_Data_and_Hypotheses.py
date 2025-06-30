@@ -38,7 +38,6 @@ if "edit_mode" not in st.session_state:
     st.session_state.edit_mode = False
 
 # ── STEP 1 ─ Upload data ───────────────────────────────────────────────────────
-st.markdown("#### Upload data (CSV)")
 
 st.markdown("""
 <div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
@@ -61,7 +60,7 @@ with st.container():
             st.session_state["current_data"] = None
 
         if st.session_state["current_data"] is None:
-            st.write("Choose a CSV file")
+
             data_file = st.file_uploader(label="Upload data", type="csv")
             if data_file:
                 df = pd.read_csv(data_file)
@@ -124,11 +123,6 @@ with st.container():
                     st.rerun()
 
 
-st.divider()
-
-
-
-
 st.markdown("#### Add hypotheses")
 
 # Put the hypothesis inputs in the same centred, narrower container
@@ -180,13 +174,16 @@ with st.container():
 
 # ── List current hypotheses ────────────────────────────────────────────────────
 st.markdown("#### Existing hypotheses")
-st.write("""Your hypotheses will appear here. You can remove them and add new ones below. When you are ready click Refine Hypotheses and the Assistant will refine you rhypotheses using your data, web search and knowledge""")
+st.write("""
+Your hypotheses will appear here. You can remove them or add new ones below.
+When you're ready, click Refine Hypotheses — the Assistant will improve your hypotheses using your data, web search, and its knowledge.
+""")
 if st.session_state["analyses"]:
 
     for idx, a in enumerate(st.session_state["analyses"]):
         col1, col2 = st.columns([9, 1])          # wide text · narrow icon
         with col1:
-            st.write(f"**{a['hypothesis_id']}** — {a['title']}")
+            st.write(f"- **{a['title']}** — (ID: {a['hypothesis_id']})")
         with col2:
             pressed = st.button(
                 "🗑️",                           # trash-can emoji
@@ -210,9 +207,6 @@ if st.session_state["analyses"]:
 
 else:
     st.info("None yet – add at least one before proceeding.")
-
-# ── STEP 2 ─ Add hypotheses ────────────────────────────────────────────────────
-st.divider()
 
 # ── Sidebar navigation (must come after at least one hypothesis exists) ────────
 render_sidebar(show_steps=False)

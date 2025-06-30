@@ -16,17 +16,19 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
             </div>
         """, unsafe_allow_html=True)
 
+        st.markdown("\n")
+
         # ───── Legend of status icons ─────
         with st.expander("Legend of icons", expanded=False):
             st.markdown(
                 """
-| Icon | Meaning |
-|------|---------|
-| ⚪ | Plan **not** accepted yet |
-| 🟡 | Plan accepted, some runs still pending |
-| 🔵 | Step exists, run not finished |
-| 🟢 | Everything finished |
-""",
+                    | Icon | Meaning |
+                    |------|---------|
+                    | ⚪ | Plan **not** accepted yet |
+                    | 🟡 | Plan accepted, some runs still pending |
+                    | 🔵 | Step exists, run not finished |
+                    | 🟢 | Everything finished |
+                """,
                 unsafe_allow_html=True,
             )
 
@@ -60,7 +62,7 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
             elif plan_ok:   icon = "🟡"
             else:           icon = "⚪"
 
-            labels.append(f"{icon} {a['hypothesis_id']} – {a['title'][:40]}")
+            labels.append(f"{icon} {a['title'][:40]} - (ID: {a['hypothesis_id']})")
             ids.append(a["hypothesis_id"])
 
         # choose hypothesis
