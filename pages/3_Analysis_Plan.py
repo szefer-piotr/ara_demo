@@ -49,6 +49,8 @@ import re
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+utils.inject_global_css()
+
 
 # ───────────────────────── guards ───────────────────────────
 if "analyses" not in st.session_state or not st.session_state["analyses"]:

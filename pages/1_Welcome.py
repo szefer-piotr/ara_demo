@@ -1,6 +1,9 @@
 import streamlit as st
+import utils
 
 st.set_page_config(layout="wide")
+
+utils.inject_global_css()
 
 st.title("Welcome")
 
