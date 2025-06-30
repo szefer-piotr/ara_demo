@@ -302,16 +302,22 @@ def record_run(step: Dict, chunks: List[Dict[str, str]]) -> Dict:
     
     step["runs"].append(run)
 
-    container = st.session_state.get('container')
-    
-    for img in run['images']:
-        # Load the image from OpenAI container and store it in session state
-        st.session_state.images[img] = load_image_from_openai_container(OPENAI_API_KEY, container.id, img)
+    container = st.session_state.get("container")
 
-        print(f"Image {img} loaded from container {container.id} and stored in session state.")
-
-        if 'container' not in st.session_state:
+    if not container:
+        if "container" not in st.session_state:
             st.session_state.container = None
+        print("No container available. Images won't be loaded.")
+    else:
+        for img in run["images"]:
+            # Load the image from OpenAI container and store it in session state
+            st.session_state.images[img] = load_image_from_openai_container(
+                OPENAI_API_KEY, container.id, img
+            )
+
+            print(
+                f"Image {img} loaded from container {container.id} and stored in session state."
+            )
     
     return run
 
