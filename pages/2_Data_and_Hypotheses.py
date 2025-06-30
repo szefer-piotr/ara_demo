@@ -123,6 +123,58 @@ with st.container():
                     st.rerun()
 
 
+st.divider()
+
+
+# ── List current hypotheses ────────────────────────────────────────────────────
+with st.container():
+    st.markdown(
+        """
+        <div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("#### Existing hypotheses")
+    st.write(
+        """Your hypotheses will appear here. You can remove them and add new ones below. When you are ready click Refine Hypotheses and the Assistant will refine you rhypotheses using your data, web search and knowledge"""
+    )
+    if st.session_state["analyses"]:
+
+        for idx, a in enumerate(st.session_state["analyses"]):
+            col1, col2 = st.columns([9, 1])          # wide text · narrow icon
+            with col1:
+                st.write(f"**{a['hypothesis_id']}** — {a['title']}")
+            with col2:
+                pressed = st.button(
+                    "🗑️",                           # trash-can emoji
+                    key=f"del_{a['hypothesis_id']}",
+                    help="Delete this hypothesis",
+                )
+                if pressed:
+                    # remove the hypothesis
+                    st.session_state["analyses"].pop(idx)
+
+                    # keep selection sensible
+                    if st.session_state.get("selected_hypothesis_id") == a["hypothesis_id"]:
+                        if st.session_state["analyses"]:
+                            st.session_state["selected_hypothesis_id"] = (
+                                st.session_state["analyses"][-1]["hypothesis_id"]
+                            )
+                        else:
+                            st.session_state["selected_hypothesis_id"] = None
+
+                    st.rerun()          # refresh the page
+
+    else:
+        st.info("None yet – add at least one before proceeding.")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ── STEP 2 ─ Add hypotheses ────────────────────────────────────────────────────
+st.divider()
+
+
 st.markdown("#### Add hypotheses")
 
 # Put the hypothesis inputs in the same centred, narrower container
