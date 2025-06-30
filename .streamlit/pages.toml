@@ -15,3 +15,7 @@ name = "Analysis plan"
 [[pages]]
 path = "pages/4_Final_Report.py"
 name = "Report"
+
+[[pages]]
+path = "main.py"
+is_hidden = true

@@ -4,6 +4,18 @@ import streamlit as st
 def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
     with st.sidebar:
 
+        st.markdown("""
+            <div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+            <h4>🧭 Navigation Tips</h4>
+            <ul>
+            <li>Switch between analysis steps</li>
+            <li>Select different hypotheses</li>
+            <li>Generate or revisit your report</li>
+            <li>Start a new analysis anytime</li>
+            </ul>
+            </div>
+        """, unsafe_allow_html=True)
+
         # ───── Legend of status icons ─────
         with st.expander("Legend of icons", expanded=False):
             st.markdown(
