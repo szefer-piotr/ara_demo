@@ -15,5 +15,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("""\n\n""")
+
 if st.button("Start", use_container_width=True):
     st.switch_page("pages/2_Data_and_Hypotheses.py")

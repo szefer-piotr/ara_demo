@@ -53,15 +53,19 @@ st.markdown("""
 
 
 # Put the CSV uploader in a centred, narrower container
+st.markdown("""\n""")
+st.markdown("##### Upload your data")
+
 with st.container():
-    col_left, col_mid, col_right = st.columns([1, 2, 1])
+    col_left, col_mid, col_right = st.columns([1, 28, 1])
     with col_mid:
+        
         if "current_data" not in st.session_state:
             st.session_state["current_data"] = None
 
         if st.session_state["current_data"] is None:
 
-            data_file = st.file_uploader(label="Upload data", type="csv")
+            data_file = st.file_uploader(label="Simply drag and drop or use the Browse files button.", type="csv",label_visibility="collapsed")
             if data_file:
                 df = pd.read_csv(data_file)
                 st.session_state["current_data"] = df
@@ -101,12 +105,12 @@ with st.container():
                 st.rerun()
 
         else:
-            st.markdown("#### Your dataset preview.")
+            st.markdown("##### Your dataset preview.")
             st.dataframe(st.session_state["current_data"].head(), use_container_width=True)
             # st.json(st.session_state.column_summaries)
             
             # ---------- Column list / Edit button ----------
-            st.markdown("#### Dataset summary")
+            st.markdown("##### Dataset summary")
             st.write("Edit individual column descriptions if necessary.")
             for col in st.session_state.column_summaries:
                 st.markdown(
@@ -123,65 +127,58 @@ with st.container():
                     st.rerun()
 
 
-st.divider()
+# # ── List current hypotheses ────────────────────────────────────────────────────
+# with st.container():
+#     st.markdown(
+#         """
+#         <div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>
+#         """,
+#         unsafe_allow_html=True,
+#     )
+
+#     st.markdown("#### Existing hypotheses")
+#     st.write(
+#         """Your hypotheses will appear here. You can remove them and add new ones below. When you are ready click Refine Hypotheses and the Assistant will refine you rhypotheses using your data, web search and knowledge"""
+#     )
+#     if st.session_state["analyses"]:
+
+#         for idx, a in enumerate(st.session_state["analyses"]):
+#             col1, col2 = st.columns([9, 1])          # wide text · narrow icon
+#             with col1:
+#                 st.write(f"**{a['hypothesis_id']}** — {a['title']}")
+#             with col2:
+#                 pressed = st.button(
+#                     "🗑️",                           # trash-can emoji
+#                     key=f"del_{a['hypothesis_id']}",
+#                     help="Delete this hypothesis",
+#                 )
+#                 if pressed:
+#                     # remove the hypothesis
+#                     st.session_state["analyses"].pop(idx)
+
+#                     # keep selection sensible
+#                     if st.session_state.get("selected_hypothesis_id") == a["hypothesis_id"]:
+#                         if st.session_state["analyses"]:
+#                             st.session_state["selected_hypothesis_id"] = (
+#                                 st.session_state["analyses"][-1]["hypothesis_id"]
+#                             )
+#                         else:
+#                             st.session_state["selected_hypothesis_id"] = None
+
+#                     st.rerun()          # refresh the page
+
+#     else:
+#         st.info("None yet – add at least one before proceeding.")
+
+#     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── List current hypotheses ────────────────────────────────────────────────────
-with st.container():
-    st.markdown(
-        """
-        <div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("#### Existing hypotheses")
-    st.write(
-        """Your hypotheses will appear here. You can remove them and add new ones below. When you are ready click Refine Hypotheses and the Assistant will refine you rhypotheses using your data, web search and knowledge"""
-    )
-    if st.session_state["analyses"]:
-
-        for idx, a in enumerate(st.session_state["analyses"]):
-            col1, col2 = st.columns([9, 1])          # wide text · narrow icon
-            with col1:
-                st.write(f"**{a['hypothesis_id']}** — {a['title']}")
-            with col2:
-                pressed = st.button(
-                    "🗑️",                           # trash-can emoji
-                    key=f"del_{a['hypothesis_id']}",
-                    help="Delete this hypothesis",
-                )
-                if pressed:
-                    # remove the hypothesis
-                    st.session_state["analyses"].pop(idx)
-
-                    # keep selection sensible
-                    if st.session_state.get("selected_hypothesis_id") == a["hypothesis_id"]:
-                        if st.session_state["analyses"]:
-                            st.session_state["selected_hypothesis_id"] = (
-                                st.session_state["analyses"][-1]["hypothesis_id"]
-                            )
-                        else:
-                            st.session_state["selected_hypothesis_id"] = None
-
-                    st.rerun()          # refresh the page
-
-    else:
-        st.info("None yet – add at least one before proceeding.")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ── STEP 2 ─ Add hypotheses ────────────────────────────────────────────────────
-st.divider()
-
-
-st.markdown("#### Add hypotheses")
+st.markdown("##### Add hypotheses")
 
 # Put the hypothesis inputs in the same centred, narrower container
 with st.container():
-    col_left, col_mid, col_right = st.columns([1, 2, 1])
+    col_left, col_mid, col_right = st.columns([1, 28, 1])
     with col_mid:
-        st.write("Type a hypothesis then click Add")
         # Forms allow us to avoid partial reruns while typing
         with st.form(key="typed_hypothesis", clear_on_submit=True):
             text = st.text_input(label="Type a new hypothesis", key="hypothesis_input", label_visibility="collapsed")
@@ -197,8 +194,6 @@ with st.container():
                 st.session_state["selected_hypothesis_id"] = new_hypothesis["hypothesis_id"]
                 st.success("Hypothesis added.")
                 st.rerun()
-
-        st.write("…or upload a .txt file (one hypothesis per line)")
 
         with st.form(key="txt_hypothesis"):
             txt_file = st.file_uploader("Upload a TXT file with one hypothesis per line", 
@@ -225,7 +220,7 @@ with st.container():
 
 
 # ── List current hypotheses ────────────────────────────────────────────────────
-st.markdown("#### Existing hypotheses")
+st.markdown("##### Your hypotheses")
 st.write("""
 Your hypotheses will appear here. You can remove them or add new ones below.
 When you're ready, click Refine Hypotheses — the Assistant will improve your hypotheses using your data, web search, and its knowledge.
@@ -235,7 +230,7 @@ if st.session_state["analyses"]:
     for idx, a in enumerate(st.session_state["analyses"]):
         col1, col2 = st.columns([9, 1])          # wide text · narrow icon
         with col1:
-            st.write(f"- **{a['title']}** — (ID: {a['hypothesis_id']})")
+            st.write(f"📝 **{a['title']}** — (ID: {a['hypothesis_id']})")
         with col2:
             pressed = st.button(
                 "🗑️",                           # trash-can emoji
@@ -267,8 +262,6 @@ render_sidebar(show_steps=False)
 ready = ("current_data" in st.session_state
          and st.session_state["current_data"] is not None
          and st.session_state["analyses"])
-
-st.divider()
 
 if ready:
     st.success("Data and at least one hypothesis are ready.")

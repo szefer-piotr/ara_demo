@@ -32,20 +32,20 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
                 unsafe_allow_html=True,
             )
 
-        st.header("Context")
+        st.header("Your items")
 
         # ────────────────── Data preview ──────────────────
         df = st.session_state.get("current_data")
+        st.subheader("Data")
         if df is not None:
-            st.subheader("Data")
+            
             st.write(f"{df.shape[0]:,} rows × {df.shape[1]} cols")
         else:
-            st.info("No dataset")
+            st.info("No dataset uploaded yet.")
 
         # ────────────────── Hypotheses list & status ──────
         analyses   = st.session_state.get("analyses", [])
         st.subheader("Hypotheses")
-        st.markdown(f"**Total added:** {len(analyses)}")
 
         if not analyses:
             st.info("No hypotheses yet")
@@ -75,9 +75,11 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
             options=labels,
             index=ids.index(hid_current),
             key="hypothesis_select",
+            label_visibility='collapsed'
         )
         hid = ids[labels.index(choice_label)]
         st.session_state["selected_hypothesis_id"] = hid
+        st.markdown(f"**Total added:** {len(analyses)}")
 
         # ────────────────── Step radio (only if allowed) ───
         if show_steps:
