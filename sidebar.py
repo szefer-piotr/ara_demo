@@ -118,7 +118,12 @@ def render_sidebar(*, show_steps: bool = True) -> None:   # ← new arg
                 and all(s.get("finished", False) for s in h["analysis_plan"])
                 for h in analyses
             )
+
             if all_complete:
+                if st.session_state["selected_step_id"] is not None:
+                    st.session_state["selected_step_id"] = None
+                    st.rerun()
                 st.success("🎉 All hypotheses have completed runs!")
+                # Jump to overview when all steps are ready
                 if st.button("➡️ Build Final Report"):
                     st.switch_page("pages/4_Final_Report.py")

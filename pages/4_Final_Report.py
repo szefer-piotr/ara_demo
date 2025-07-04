@@ -2,6 +2,8 @@
 import streamlit as st
 import openai
 import utils
+import base64
+from io import BytesIO
 
 from utils import (
     create_code_interpreter_tool, 
@@ -211,26 +213,44 @@ with main_col:
         st.markdown("## Final report")
         print(f"\n\nFINAL REPORT: {st.session_state['final_report']}")
 
-        # Display the report inside a light grey container
-        st.markdown(
-            "<div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>",
-            unsafe_allow_html=True,
-        )
-
         new_chunks = explode_text_and_images(st.session_state["final_report"])
+
+
+        def image_to_base64(image):
+            buffered = BytesIO()
+            image.save(buffered, format="PNG")
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            return img_str
+
+        html = "<div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>"
 
         for chunk in new_chunks:
             if chunk["type"] == "text":
-                st.markdown(chunk["content"])
+                html += f"<p>{chunk['content']}</p>"
             elif chunk["type"] == "image":
-                image_id = chunk["content"]           # ← your requested snippet
+                image_id = chunk["content"]
                 image_to_display = st.session_state.images.get(image_id, None)
                 if image_to_display:
-                    st.image(image_to_display)
+                    # Convert PIL Image to base64
+                    img_str = image_to_base64(image_to_display)
+                    html += f"<img src='data:image/png;base64,{img_str}' style='max-width:100%; margin: 1em 0;'/>"
                 else:
-                    st.warning(f"Image with {image_id} not found. Available images are: ")
+                    html += f"<div style='color:#856404;'>Image with ID {image_id} not found.</div>"
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        html += "</div>"
+
+        st.markdown(html, unsafe_allow_html=True)
+
+        # for chunk in new_chunks:
+        #     if chunk["type"] == "text":
+        #         st.markdown(chunk["content"])
+        #     elif chunk["type"] == "image":
+        #         image_id = chunk["content"]           # ← your requested snippet
+        #         image_to_display = st.session_state.images.get(image_id, None)
+        #         if image_to_display:
+        #             st.image(image_to_display)
+        #         else:
+        #             st.warning(f"Image with {image_id} not found. Available images are: ")
 
         wide, narrow = st.columns([95,5])
         
@@ -349,8 +369,6 @@ with main_col:
                 print(f"\n\n{'*****' * 10}\n")
 
             st.session_state["final_report"] = chunks
-
-            st.session_state["report_chat"].append({'role': 'assistant', 'content': chunks})
             
             st.success("Report updated!")
 

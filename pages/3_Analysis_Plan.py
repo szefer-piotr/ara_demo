@@ -336,7 +336,7 @@ if sid is None:
             for cd in r["code_input"]:
                 st.code(cd, language="python")
             st.markdown("---")
-        st.divider()
+
     st.stop()
 
 # ─────────────────────── SINGLE-STEP MODE ───────────────────
