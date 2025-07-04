@@ -381,19 +381,75 @@ def serialize_step(step: dict) -> str:
     return "\n\n".join(parts)
 
 
+
+
+# def serialize_previous_steps(
+#     analysis_plan: List[Dict],
+#     current_step_id: Optional[str] = None,   # or use an int for index
+#     include_current: bool = False,
+# ) -> str:
+#     """
+#     Build a prompt that contains **all finished steps** (or up to the specified
+#     step) in execution order.
+
+#     Parameters
+#     ----------
+#     analysis_plan : list[dict]
+#         The list stored at `hypo['analysis_plan']`.
+#     current_step_id : str | None
+#         If provided, only steps **before** this one are included
+#         (unless `include_current=True`).
+#     include_current : bool
+#         If True and `current_step_id` is given, the current step is included.
+
+#     Returns
+#     -------
+#     str
+#         A prompt string ready to be sent to the LLM.
+#     """
+#     prompt_sections = []
+
+#     for step in analysis_plan:
+#         # Skip unfinished steps
+#         if not step.get("finished", False):
+#             continue
+
+#         # Stop once we reach the current step (unless we also want it)
+#         if current_step_id and step["step_id"] == current_step_id:
+#             if include_current:
+#                 prompt_sections.append(serialize_step(step))
+#             break
+
+#         prompt_sections.append(serialize_step(step))
+
+#     # Join individual step prompts with a visible separator
+#     return "\n\n---\n\n".join(prompt_sections)
+
+
+
+from typing import List, Dict, Optional
+
 def serialize_previous_steps(
     analysis_plan: List[Dict],
+    current_hypothesis: str,
+    current_hypothesis_plan: List[Dict],
     current_step_id: Optional[str] = None,   # or use an int for index
     include_current: bool = False,
 ) -> str:
     """
-    Build a prompt that contains **all finished steps** (or up to the specified
-    step) in execution order.
+    Build a prompt that contains:
+    - The current hypothesis
+    - An overview of the analysis plan (step titles and texts)
+    - All finished steps (or up to the specified step) in execution order.
 
     Parameters
     ----------
     analysis_plan : list[dict]
         The list stored at `hypo['analysis_plan']`.
+    current_hypothesis : str
+        The hypothesis to include at the beginning.
+    current_hypothesis_plan : list[dict]
+        The list of analysis plan steps to summarize.
     current_step_id : str | None
         If provided, only steps **before** this one are included
         (unless `include_current=True`).
@@ -405,23 +461,33 @@ def serialize_previous_steps(
     str
         A prompt string ready to be sent to the LLM.
     """
-    prompt_sections = []
 
+    # 1. Hypothesis section
+    prompt_sections = [f"## Hypothesis\n{current_hypothesis}"]
+
+    # 2. Analysis plan overview section
+    plan_lines = []
+    for idx, step in enumerate(current_hypothesis_plan, 1):
+        # Show just the title and the first line of text for clarity
+        first_line = step['text'].strip().split('\n')[0]
+        plan_lines.append(f"{idx}. {step.get('title', f'Step {idx}')}: {first_line}")
+    plan_overview = "## Analysis Plan\n" + "\n".join(plan_lines)
+    prompt_sections.append(plan_overview)
+
+    # 3. Finished steps section (as before)
+    finished_sections = []
     for step in analysis_plan:
-        # Skip unfinished steps
         if not step.get("finished", False):
             continue
-
-        # Stop once we reach the current step (unless we also want it)
         if current_step_id and step["step_id"] == current_step_id:
             if include_current:
-                prompt_sections.append(serialize_step(step))
+                finished_sections.append(serialize_step(step))
             break
+        finished_sections.append(serialize_step(step))
+    if finished_sections:
+        prompt_sections.append("## Finished Steps\n" + "\n\n---\n\n".join(finished_sections))
 
-        prompt_sections.append(serialize_step(step))
-
-    # Join individual step prompts with a visible separator
-    return "\n\n---\n\n".join(prompt_sections)
+    return "\n\n".join(prompt_sections)
 
 
 
@@ -582,8 +648,6 @@ def explode_text_and_images(chunks: List[Dict[str, str]]) -> List[Dict[str, str]
         # 3️⃣ trailing text after the final ID (or the whole string if none)
         if last < len(text):
             output.append({"type": "text", "content": text[last:]})
-
-        print("\nFUNCTION CALL!!!\n")
 
     return output
 

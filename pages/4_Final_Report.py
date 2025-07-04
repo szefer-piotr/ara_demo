@@ -42,9 +42,9 @@ st.markdown("""
 <p>🧾 The report is built from your completed analysis steps — reproducible and ready to publish!</p>
 </div>
 """, unsafe_allow_html=True)
+st.markdown("""\n\n""")
 
-
-if st.button("← Back to plan execution"):
+if st.button("Back to plan execution"):
     st.switch_page("pages/3_Analysis_Plan.py")
 
 
@@ -57,6 +57,22 @@ main_col, preview_col = st.columns([3, 1], gap="medium")
 
 # ───────────────────────── 1. Run picker (left sidebar) ──────────
 with run_picker:
+
+    st.markdown("""
+        <div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
+        <h4>🧭 Run Selection Tips</h4>
+        <ul style="margin-bottom:0;">
+            <li><b>Browse all runs:</b> Expand each hypothesis and step to see the runs you've executed.</li>
+            <li><b>Select runs to include:</b> Tick checkboxes to select the runs you want in your final report or for deeper review.</li>
+            <li><b>Preview details:</b> Click a run's checkbox to instantly preview its results, code, and images on the right.</li>
+            <li><b>Multi-select:</b> You can select any combination of runs across all hypotheses and steps.</li>
+            <li><b>Live sync:</b> Your current selection is always reflected in the preview and saved for report generation.</li>
+            <li><b>Unselect to remove:</b> Untick a run to remove it from your selection and preview.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    
     st.header("Select runs")
 
     run_clicked: str | None = None  # track which checkbox toggled to ON
@@ -121,6 +137,7 @@ with preview_col:
 
 # ───────────────────────── 3. Main panel – report & chat ─────────
 with main_col:
+    
     st.subheader("Generate report")
 
     client = st.session_state.openai_client
@@ -184,40 +201,6 @@ with main_col:
                 chunks = to_mock_chunks(response)
                 st.session_state["final_report"] = chunks
 
-                # except openai.BadRequestError as e:
-                #     if 'expired' in str(e).lower():
-                #         # Container expired, create a new one
-                #         new_container = create_container(st.session_state.openai_client, st.session_state["file_ids"])
-                #         print((f"Container expired, created a new one: {new_container.id}"))
-                #         st.session_state.container = new_container
-                        
-                #         # Re-run the step with the new container
-                #         tools = [create_code_interpreter_tool(new_container), create_web_search_tool()]
-                        
-                #         response = client.responses.create(
-                #         model="gpt-4o-mini",
-                #         tools=tools,
-                #         instructions=report_generation_instructions,
-                #         input=[
-                #             {"role": "system", "content": context},
-                #             {"role": "user", "content": "Draft a final report from the provided context."}
-                #         ],
-                #             temperature=0,
-                #             stream=False,
-                #         )
-                        
-                #         chunks = to_mock_chunks(response)
-                        
-                #         st.session_state["final_report"] = chunks
-                        
-                #         # st.session_state["report_chat"].append({'role': 'assistant', 'content': report_txt})
-                #         # st.rerun()
-
-                #     else:
-                #         raise
-
-                # -------------------------------------
-
             # What with the chunks?
             st.success("Report generated!")
             st.rerun()
@@ -225,13 +208,9 @@ with main_col:
     # ---------- show report & chat ----------
     if "final_report" in st.session_state:
         st.markdown("## Final report")
-
-        # TODO display elements of the report in a more structured way
         print(f"\n\nFINAL REPORT: {st.session_state['final_report']}")
 
         new_chunks = explode_text_and_images(st.session_state["final_report"])
-
-        print(f"\n\nNEW CHUNKS: {new_chunks}")
 
         for chunk in new_chunks:
             if chunk["type"] == "text":
@@ -245,6 +224,7 @@ with main_col:
                     st.warning(f"Image with {image_id} not found. Available images are: ")
 
         wide, narrow = st.columns([95,5])
+        
         with wide:
             st.markdown(
                 """
@@ -274,9 +254,20 @@ with main_col:
             if message['role'] == 'user':
                 st.chat_message("user").write(message['content'])
             elif message['role'] == 'assistant':
-                # Use the custom render function to handle the assistant's message
-                render_assistant_message(message['content'])
-            # st.chat_message(message["role"]).write(message["content"])
+                
+                
+                new_chunks = explode_text_and_images(message['content'])
+
+                for chunk in new_chunks:
+                    if chunk["type"] == "text":
+                        st.markdown(chunk["content"])
+                    elif chunk["type"] == "image":
+                        image_id = chunk["content"]           # ← your requested snippet
+                        image_to_display = st.session_state.images.get(image_id, None)
+                        if image_to_display:
+                            st.image(image_to_display)
+                        else:
+                            st.warning(f"Image with {image_id} not found. Available images are: ")
 
         prompt = st.chat_input("Ask about this report")
 
@@ -313,13 +304,20 @@ with main_col:
                 
                 st.session_state["report_chat"].append({'role': 'assistant', 'content': chunks})
 
+                st.rerun()
+
                 # st.chat_message("assistant").write(reply)
 
         if st.button("Update report"):
 
+            print(f"\n\nUpdated report button pressed {'***' * 10}")
+
             context = f""" Here is the final report":\n{st.session_state["final_report"]}.\n\n Here is the chat history:\n{st.session_state["report_chat"]} """
 
-            with st.spinner("LLM generating response…"):
+            print(f"\n\nHere is the collected context:\n{context}")
+
+            with st.spinner("Updating report…"):
+                
                 response = client.responses.create(
                     model="gpt-4o",
                     instructions=report_chat_instructions,
@@ -329,19 +327,21 @@ with main_col:
                     ],
                     input=[
                         {"role": "system", "content": context},
-                        {"role": "user", "content": "Update the final report based on the chat discussion."}
+                        {"role": "user", "content": "Return an updated the final report based on the provided context."}
                     ],
                     temperature=0,
                     stream=False,
                 )
 
                 chunks = to_mock_chunks(response)
-                reply = next(c["content"] for c in chunks if c["type"] == "text")
-                # print(f"\n\n{'*****' * 10}\nUPDATED REPORT RESPONSE:\n\n{reply}\n\n{'*****' * 10}")
 
-            st.session_state["final_report"] = reply
+                print(f"\n\nChunks created: {chunks}")
 
-            st.session_state["report_chat"].append({'role': 'assistant', 'content': reply})
+                print(f"\n\n{'*****' * 10}\n")
+
+            st.session_state["final_report"] = chunks
+
+            st.session_state["report_chat"].append({'role': 'assistant', 'content': chunks})
             
             st.success("Report updated!")
 

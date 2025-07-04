@@ -135,7 +135,7 @@ if not plan:
                 "step_id": uuid.uuid4().hex[:8],
                 "title":   step.step_title.strip(),
                 "text":    step.step_text.rstrip(),
-                "code":    "# write code here\n",
+                # "code":    "# write code here\n",
                 "runs":    [],
                 "chat_history": [],
                 "finished": False,
@@ -372,7 +372,7 @@ with main:
         
         if col_run.button("Run step"):
 
-            print(f"\n\n{'***' * 10}\n\nRunning step {step['step_id']}:\n\n{step}")
+            print(f"\n\nSTART <------------\n\n{'***' * 10}\n\nRunning step {step['step_id']}:\n\n{step}")
 
             # It losts the connection to the container file
             container = st.session_state.get("container")
@@ -391,24 +391,25 @@ with main:
 
             context_for_llm = serialize_previous_steps(
                 hypo["analysis_plan"],
-                # current_step_id=current,
+                current_hypothesis=hypo['title'],
+                current_hypothesis_plan=hypo['analysis_plan'],
                 include_current=False
             )
-
+            
+            # print(f"\n\nCurrent hypothesis: {current_hypothesis}")
+            # print(f"\n\nCurrent analysis plan: {current_hypothesis_plan}")
             print(f"\n\n{'---'*10}\n\nContext for the current run {current}:\n\n{context_for_llm}.\n\n{'---'*10} End of context\n\n")
 
             run_execution_prompt = f"""
-            Run the following step in Python, using the provided context and instructions:\n
-            step_id: `{current}`\n
-            step_title: `{step['title']}`\n
-            step_text: `{step['text']}`\n
+            Run the following step in Python, in the context of provided hypohtesies and full plan of the alysis:\n
+            step_id: `{current}`
+            step_title: `{step['title']}`
+            step_text: `{step['text']}`
             """
 
-            print(f"\n\nRUN EXECUTION PROMPT:\n\n{run_execution_prompt}")
+            print(f"\n\nRUN EXECUTION PROMPT:\n\n{run_execution_prompt}\n\n{'---'*10}")
 
             with st.spinner("Runing the step..."):
-
-                print(f"\n\nHERE\n\n")
                 
                 try:
                     response = client.responses.create(
@@ -425,7 +426,7 @@ with main:
                     
                     chunks = to_mock_chunks(response)
                     record_run(step, chunks)
-                    print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
+                    # print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}\n\n{'---'*10}")
                     st.success("Run stored.")
                     st.rerun()
 
@@ -454,7 +455,7 @@ with main:
                         )
                         chunks = to_mock_chunks(response)
                         record_run(step, chunks)
-                        print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}")
+                        print(f"\n\nRun for a {step['step_id']} RECORDED:\n\n{step}\n\n{'---'*10}")
                         st.success("Run stored.")
                         st.rerun()
                     else:
@@ -497,6 +498,8 @@ with main:
         # Also parsed previous steps for context
         previous_steps = serialize_previous_steps(
             hypo["analysis_plan"],
+            current_hypothesis=hypo['title'],
+            current_hypothesis_plan=hypo['analysis_plan'],
             current_step_id=step["step_id"],
             include_current=False
         )
@@ -518,7 +521,7 @@ with main:
             
 
             print(f"\n\nPREVIOUS STEPS:\n\n{previous_steps}")
-            print(f"\n\nPARSED History{history}")
+            print(f"\n\nPARSED HISTORY\n{history}")
 
             context_for_a_run = f"""
                 Chat history for the current step:\n
@@ -608,7 +611,7 @@ with arte:
                     st.rerun()
                 
                 for code in r["code_input"]:
-                    print(f"\n\nCODE:\n\n{code}")
+                    # print(f"\n\nCODE:\n\n{code}")
                     st.code(code, language="python")
 
                 for img in r["images"]:

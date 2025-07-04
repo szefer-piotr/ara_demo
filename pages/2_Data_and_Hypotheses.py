@@ -187,7 +187,7 @@ with st.container():
                 new_hypothesis = {
                     "hypothesis_id": uuid.uuid4().hex[:8],
                     "title": text.strip(),
-                    "data": st.session_state["current_data"],
+                    "data": st.session_state.column_summaries,
                     "analysis_plan": [],
                 }
                 st.session_state["analyses"].append(new_hypothesis)
@@ -208,7 +208,7 @@ with st.container():
                     new_hypothesis = {
                         "hypothesis_id": uuid.uuid4().hex[:8],
                         "title": line,
-                        "data": st.session_state["current_data"],
+                        "data_summary": st.session_state["current_data"],
                         "analysis_plan": [],
                     }
                     st.session_state["analyses"].append(new_hypothesis)
