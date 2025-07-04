@@ -356,7 +356,7 @@ with main_col:
                     ],
                     input=[
                         {"role": "system", "content": context},
-                        {"role": "user", "content": "Return an updated the final report based on the provided context."}
+                        {"role": "user", "content": "Return only an updated the final report based on the provided context."}
                     ],
                     temperature=0,
                     stream=False,
