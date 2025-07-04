@@ -44,7 +44,7 @@ st.markdown("""
 <h4>📊 Step 1: Upload Data & Add Hypotheses</h4>
 <ul>
 <li>Upload your <strong>CSV file</strong>. The app will automatically summarize your dataset.</li>
-<li>Edit column descriptions if needed.</li>
+<li>Edit column descriptions if needed. **Be sure to provide accurate variable type**. For example, is it an integer, continuos or a categorical variable.</li>
 <li>Add one or more <strong>hypotheses</strong> — type them in or import from a <code>.txt</code> file.</li>
 </ul>
 <p>✅ Once your data is uploaded <strong>and</strong> at least one hypothesis is added, click <em>“Go to analysis plan”</em> to continue.</p>

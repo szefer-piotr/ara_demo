@@ -38,6 +38,7 @@ st.markdown("""
 <li>Select the <strong>runs (code and outputs)</strong> you want to include in the report.</li>
 <li>Click <strong>“Generate final report”</strong> to let the AI summarize your analysis.</li>
 <li>You can preview, copy, and refine the report through chat.</li>
+<li>When you are happy with the refinements click **Update report** button.</li>
 </ul>
 <p>🧾 The report is built from your completed analysis steps — reproducible and ready to publish!</p>
 </div>
