@@ -211,6 +211,12 @@ with main_col:
         st.markdown("## Final report")
         print(f"\n\nFINAL REPORT: {st.session_state['final_report']}")
 
+        # Display the report inside a light grey container
+        st.markdown(
+            "<div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>",
+            unsafe_allow_html=True,
+        )
+
         new_chunks = explode_text_and_images(st.session_state["final_report"])
 
         for chunk in new_chunks:
@@ -223,6 +229,8 @@ with main_col:
                     st.image(image_to_display)
                 else:
                     st.warning(f"Image with {image_id} not found. Available images are: ")
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
         wide, narrow = st.columns([95,5])
         
