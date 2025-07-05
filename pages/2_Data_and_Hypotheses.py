@@ -67,7 +67,7 @@ with st.container():
 
             data_file = st.file_uploader(label="Simply drag and drop or use the Browse files button.", type="csv",label_visibility="collapsed")
             if data_file:
-                df = pd.read_csv(data_file)
+                df = pd.read_csv(data_file, sep=None, engine='python', on_bad_lines='skip')
                 st.session_state["current_data"] = df
                 data_file.seek(0)
 
