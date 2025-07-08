@@ -167,7 +167,7 @@ def create_web_search_tool():
 def upload_csv_and_get_file_id(client: OpenAI, uploaded_file: UploadedFile):
     if uploaded_file.type != "text/csv":
         raise ValueError("Uploaded file is not a CSV file.")
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(uploaded_file, sep=None, engine='python')
     csv_buffer = io.BytesIO()
     df.to_csv(csv_buffer, index=False)
     csv_buffer.seek(0)
