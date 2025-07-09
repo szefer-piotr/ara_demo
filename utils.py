@@ -14,6 +14,7 @@ from openai import OpenAI
 import uuid
 import re
 import os
+import csv
 
 Chunk = Dict[str, str]
 
@@ -164,10 +165,26 @@ def create_web_search_tool():
     return {"type": "web_search_preview"}
 
 
-def upload_csv_and_get_file_id(client: OpenAI, uploaded_file: UploadedFile):
+def upload_csv_and_get_file_id(client, uploaded_file):
     if uploaded_file.type != "text/csv":
         raise ValueError("Uploaded file is not a CSV file.")
-    df = pd.read_csv(uploaded_file, sep=None, engine='python')
+
+    # Step 1: Read a sample to sniff the delimiter
+    sample = uploaded_file.read(4096).decode("utf-8", errors="replace")
+    uploaded_file.seek(0)  # Reset pointer after reading sample
+
+    # Step 2: Try to detect the delimiter with csv.Sniffer
+    try:
+        sniffer = csv.Sniffer()
+        dialect = sniffer.sniff(sample, delimiters=";,|\t")  # List any delimiters you want to support
+        delimiter = dialect.delimiter
+    except Exception:
+        delimiter = ","  # Fallback to comma if detection fails
+
+    # Step 3: Read CSV using the detected delimiter
+    df = pd.read_csv(uploaded_file, delimiter=delimiter)
+    uploaded_file.seek(0)  # Reset pointer if you need to use the file object again
+
     csv_buffer = io.BytesIO()
     df.to_csv(csv_buffer, index=False)
     csv_buffer.seek(0)

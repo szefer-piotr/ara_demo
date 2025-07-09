@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import uuid
 from io import StringIO
-
+import csv
 import utils
 
 from utils import mock_llm, create_container, create_web_search_tool, create_code_interpreter_tool, edit_column_summaries
@@ -67,7 +67,21 @@ with st.container():
 
             data_file = st.file_uploader(label="Simply drag and drop or use the Browse files button.", type="csv",label_visibility="collapsed")
             if data_file:
-                df = pd.read_csv(data_file, sep=None, engine='python', on_bad_lines='skip')
+
+                if data_file.type != "text/csv":
+                    raise ValueError("Upladed file is not a CSV file.")
+                
+                sample = data_file.read(4096).decode("utf-8", errors="replace")
+                data_file.seek(0)
+
+                try:
+                    sniffer = csv.Sniffer()
+                    dialect = sniffer.sniff(sample, delimiters=";,|\t")
+                    delimiter = dialect.delimiter
+                except Exception:
+                    delimiter = ","
+
+                df = pd.read_csv(data_file, delimiter=delimiter)
                 st.session_state["current_data"] = df
                 data_file.seek(0)
 
