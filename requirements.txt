@@ -5,3 +5,9 @@ streamlit_extras
 openai
 dotenv
 st_copy
+langchain
+langchain_community
+pypdf
+tiktoken
+faiss-cpu
+chardet

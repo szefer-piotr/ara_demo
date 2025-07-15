@@ -15,7 +15,9 @@ import uuid
 import re
 import os
 import csv
-
+import chardet, csv, pandas as pd, streamlit as st
+from io import BytesIO
+from typing import Tuple
 Chunk = Dict[str, str]
 
 
@@ -31,6 +33,67 @@ from openai.types.responses.response_output_text import AnnotationContainerFileC
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+
+
+
+# ----------------------------------------------------------------------
+# Try to read an uploaded CSV and return (DataFrame, encoding, delimiter)
+# ----------------------------------------------------------------------
+def robust_read_csv(uploaded_file) -> Tuple[pd.DataFrame, str, str]:
+    """
+    Read an uploaded CSV, handling multiple European encodings.
+
+    Returns
+    -------
+    df          : pandas.DataFrame
+    encoding    : str  – encoding that finally worked
+    delimiter   : str  – the detected field separator
+    """
+    # Read the whole file once into memory
+    raw_bytes: bytes = uploaded_file.read()
+    uploaded_file.seek(0)
+
+    # --- Build an ordered list of encodings to try -------------------------
+    detected = chardet.detect(raw_bytes).get("encoding")  # may be None
+    print(f"[DEBUG] chardet guess: {detected}")
+
+    encodings = [
+        detected,          # Top guess from chardet (might be None)
+        "utf-8-sig",       # Handles BOM
+        "utf-8",
+        "cp1250",          # Windows-1250 – common in PL Excel exports
+        "iso-8859-2",      # Latin-2 (Central European)
+        "latin1",          # Last-ditch “read anything” fallback
+    ]
+    encodings = [enc for enc in encodings if enc]  # strip Nones, keep order
+
+    # --- Iterate through encodings ----------------------------------------
+    for enc in encodings:
+        try:
+            sample = raw_bytes[:4096].decode(enc, errors="strict")
+            # Try to sniff delimiter on the *decoded* sample
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=";,|\t")
+                delim = dialect.delimiter
+            except Exception:
+                delim = ","
+            # Actually read with pandas
+            uploaded_file.seek(0)
+            df = pd.read_csv(uploaded_file, delimiter=delim,
+                             encoding=enc, engine="python")
+            print(f"[DEBUG] ✓ Successfully read with encoding={enc}, "
+                  f"delimiter='{delim}'")
+            return df, enc, delim
+        except Exception as e:
+            print(f"[DEBUG] ✗ Failed with encoding={enc}: {e}")
+            uploaded_file.seek(0)  # rewind and try next encoding
+
+    # --- If nothing worked -------------------------------------------------
+    raise UnicodeDecodeError(
+        "robust_read_csv", b"", 0, 1,
+        "Unable to decode with any known encoding."
+    )
 
 
 def inject_global_css() -> None:

@@ -4,8 +4,9 @@ import uuid
 from io import StringIO
 import csv
 import utils
+import chardet
 
-from utils import mock_llm, create_container, create_web_search_tool, create_code_interpreter_tool, edit_column_summaries
+from utils import robust_read_csv, create_container, create_web_search_tool, create_code_interpreter_tool, edit_column_summaries
 
 from sidebar import render_sidebar
 from openai import OpenAI
@@ -66,27 +67,91 @@ with st.container():
         if st.session_state["current_data"] is None:
 
             data_file = st.file_uploader(label="Simply drag and drop or use the Browse files button.", type="csv",label_visibility="collapsed")
-            if data_file:
+            
+            # if data_file:
+            #     if data_file.type != "text/csv":
+            #         raise ValueError("Uploaded file is not a CSV file.")
 
-                if data_file.type != "text/csv":
-                    raise ValueError("Upladed file is not a CSV file.")
+            #     # Read a sample for delimiter sniffing & encoding detection
+            #     raw_bytes = data_file.read(4096)
+            #     data_file.seek(0)
+
+            #     # --- Try to detect encoding
+            #     detected = chardet.detect(raw_bytes)
+            #     encoding = detected["encoding"] or "utf-8"
+
+            #     # Try to decode for delimiter sniffing
+            #     try:
+            #         sample = raw_bytes.decode(encoding, errors="replace")
+            #     except Exception:
+            #         # Fallback to UTF-8 or Latin1 if detection fails
+            #         encoding = "utf-8"
+            #         try:
+            #             sample = raw_bytes.decode(encoding)
+            #         except Exception:
+            #             for enc in ("utf-8", "latin1", "cp1250"):
+            #                 try:
+            #                     sample = raw_bytes.decode(enc, errors="replace")
+            #                     encoding = enc
+            #                     break
+            #                 except Exception:
+            #                     continue
+
+            #     # --- Detect delimiter
+            #     try:
+            #         sample = raw_bytes.decode(encoding, errors="replace")
+            #         sniffer = csv.Sniffer()
+            #         dialect = sniffer.sniff(sample, delimiters=";,|\t")
+            #         delimiter = dialect.delimiter
+            #     except Exception:
+            #         delimiter = ","
+
+            #     # Now read the file with detected encoding and delimiter
+            #     data_file.seek(0)
                 
-                sample = data_file.read(4096).decode("utf-8", errors="replace")
-                data_file.seek(0)
+            #     try:
+            #         df = pd.read_csv(data_file, delimiter=delimiter, encoding=encoding)
+            #         st.session_state["current_data"] = df
+            #     except Exception as e:
+            #         # 👉 Friendly message to the user
+            #         st.error(
+            #             "❌ **Could not read your file.** "
+            #             "Please make sure it’s saved as a CSV (not Excel) and encoded in UTF-8 if possible."
+            #         )
+            #         # (Optional) log the real error for debugging:
+            #         st.write(f"Details for developer: {e}")
+                
+            #     data_file.seek(0)
+
+            #     if "current_data" in st.session_state:
+            #         file_id = utils.upload_csv_and_get_file_id(st.session_state.openai_client, data_file)
+            #         st.session_state["file_ids"].append(file_id)
+            #         container = create_container(st.session_state.openai_client, [file_id])
+            #         st.session_state.container = container
+
+            if data_file:
+                if data_file.type != "text/csv":
+                    st.error("❌ Uploaded file is not a CSV.")
+                    st.stop()
 
                 try:
-                    sniffer = csv.Sniffer()
-                    dialect = sniffer.sniff(sample, delimiters=";,|\t")
-                    delimiter = dialect.delimiter
-                except Exception:
-                    delimiter = ","
+                    df, enc_used, delim_used = robust_read_csv(data_file)
+                    st.session_state["current_data"] = df
+                    st.success(f"Loaded {len(df):,} rows "
+                            f"(encoding = **{enc_used}**, delimiter = **'{delim_used}'**).")
+                except UnicodeDecodeError:
+                    st.error(
+                        "❌ **Could not read your file.** "
+                        "Please ensure it’s saved as a CSV (not XLS/XLSX) and, if possible, "
+                        "use UTF-8 or CP1250 encoding."
+                    )
+                    st.stop()
 
-                df = pd.read_csv(data_file, delimiter=delimiter)
-                st.session_state["current_data"] = df
+                # ― continue with OpenAI upload here ―
                 data_file.seek(0)
-
-                # Upload CSV to OpenAI files & create container
-                file_id = utils.upload_csv_and_get_file_id(st.session_state.openai_client, data_file)
+                file_id = utils.upload_csv_and_get_file_id(
+                    st.session_state.openai_client, data_file
+                )
                 st.session_state["file_ids"].append(file_id)
                 container = create_container(st.session_state.openai_client, [file_id])
                 st.session_state.container = container
@@ -139,52 +204,6 @@ with st.container():
                 if st.button("Edit column metadata", key="edit_metadata"):
                     st.session_state.edit_mode = True
                     st.rerun()
-
-
-# # ── List current hypotheses ────────────────────────────────────────────────────
-# with st.container():
-#     st.markdown(
-#         """
-#         <div style='background-color:#f0f0f0; padding:1em; border-radius:10px;'>
-#         """,
-#         unsafe_allow_html=True,
-#     )
-
-#     st.markdown("#### Existing hypotheses")
-#     st.write(
-#         """Your hypotheses will appear here. You can remove them and add new ones below. When you are ready click Refine Hypotheses and the Assistant will refine you rhypotheses using your data, web search and knowledge"""
-#     )
-#     if st.session_state["analyses"]:
-
-#         for idx, a in enumerate(st.session_state["analyses"]):
-#             col1, col2 = st.columns([9, 1])          # wide text · narrow icon
-#             with col1:
-#                 st.write(f"**{a['hypothesis_id']}** — {a['title']}")
-#             with col2:
-#                 pressed = st.button(
-#                     "🗑️",                           # trash-can emoji
-#                     key=f"del_{a['hypothesis_id']}",
-#                     help="Delete this hypothesis",
-#                 )
-#                 if pressed:
-#                     # remove the hypothesis
-#                     st.session_state["analyses"].pop(idx)
-
-#                     # keep selection sensible
-#                     if st.session_state.get("selected_hypothesis_id") == a["hypothesis_id"]:
-#                         if st.session_state["analyses"]:
-#                             st.session_state["selected_hypothesis_id"] = (
-#                                 st.session_state["analyses"][-1]["hypothesis_id"]
-#                             )
-#                         else:
-#                             st.session_state["selected_hypothesis_id"] = None
-
-#                     st.rerun()          # refresh the page
-
-#     else:
-#         st.info("None yet – add at least one before proceeding.")
-
-#     st.markdown("</div>", unsafe_allow_html=True)
 
 
 st.markdown("##### Add hypotheses")
