@@ -1,0 +1,942 @@
+[
+  {
+    "heading": "Unknown",
+    "content": "MLC-Agent: Cognitive Model based on"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Memory-Learning Collaboration in LLM"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Empowered Agent Simulation Environment"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ming Zhang*"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Faculty of Environment, Science and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Economy"
+  },
+  {
+    "heading": "Unknown",
+    "content": "University of Exeter"
+  },
+  {
+    "heading": "Exeter, UK",
+    "content": "mz9408@outlook.com"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yiling Xuan*"
+  },
+  {
+    "heading": "Unknown",
+    "content": "College of Intelligence and Computing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tianjin University"
+  },
+  {
+    "heading": "Tianjin, China",
+    "content": "yiling_xuan@163.com"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Qun Ma"
+  },
+  {
+    "heading": "Unknown",
+    "content": "College of Intelligence and Computing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tianjin University"
+  },
+  {
+    "heading": "Tianjin, China",
+    "content": "mq12335@tju.edu.cn"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yuwei Guo"
+  },
+  {
+    "heading": "Unknown",
+    "content": "College of Intelligence and Computing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tianjin University"
+  },
+  {
+    "heading": "Tianjin, China",
+    "content": "2024244171@tju.edu.cn"
+  },
+  {
+    "heading": "Abstract\u2014Many real-world systems, such as transportation",
+    "content": "systems, ecological systems, and Internet systems, are complex\nsystems. As an important tool for studying complex systems,\ncomputational experiments can map them into artificial society\nmodels that are computable and reproducible within computers,\nthereby providing digital and computational methods for quanti-\ntative analysis. In current research, the construction of individual\nagent models often ignores the long-term accumulative effect\nof memory mechanisms in the development process of agents,\nwhich to some extent causes the constructed models to deviate\nfrom the real characteristics of real-world systems. To address\nthis challenge, this paper proposes an individual agent model\nbased on a memory-learning collaboration mechanism, which\nimplements hierarchical modeling of the memory mechanism\nand a multi-indicator evaluation mechanism. Through hierar-\nchical modeling of the individual memory repository, the group\nmemory repository, and the memory buffer pool, memory can be\neffectively managed, and knowledge sharing and dissemination\nbetween individuals and groups can be promoted. At the same\ntime, the multi-indicator evaluation mechanism enables dynamic\nevaluation of memory information, allowing dynamic updates\nof information in the memory set and promoting collaborative\ndecision-making between memory and learning. Experimental\nresults show that, compared with existing memory modeling\nmethods, the agents constructed by the proposed model demon-\nstrate better decision-making quality and adaptability within the\nsystem. This verifies the effectiveness of the individual agent\nmodel based on the memory-learning collaboration mechanism\nproposed in this paper in improving the quality of individual-level\nmodeling in artificial society modeling and achieving anthropo-\nmorphic characteristics.\nThis work has been supported in part by National Key Research and\nDevelopment Program of China (No.2021YFF0900800), National Natural\nScience Foundation of China (No. 62472306, No. 62441221, No. 62206116),\nTianjin University\u2019s 2024 Special Project on Disciplinary Development (No.\nXKJS-2024-5-9), Tianjin University Talent Innovation Reward Program for\nLiterature & Science Graduate Student (C1-2022-010), and Shanxi Province"
+  },
+  {
+    "heading": "Social Science Foundation (No.2020F002).",
+    "content": "* Ming Zhang and Yiling Xuan are co-first authors and contributed equally\nto this work."
+  },
+  {
+    "heading": "Index Terms\u2014Computational Experiment, Agent based mod-",
+    "content": "eling, Learning Mechanism, Memory Mechanism"
+  },
+  {
+    "heading": "Unknown",
+    "content": "I. INTRODUCTION"
+  },
+  {
+    "heading": "In order to analyze and study the increasingly prominent",
+    "content": "characteristics of complex networks in complex social systems\nwith the rapid development of the Internet, the Internet of\nThings, big data, and social media [1], [2], it is important to\nnote that complex social systems involve human and social\nfactors, and their design, analysis, organization, control, and\nintegration are facing unprecedented challenges. Studies by"
+  },
+  {
+    "heading": "Dirk Helbing, Marko Jusup, and others have shown that",
+    "content": "models built based on complex science methods can be\nwidely applied in the field of social dynamics to help prevent\nproblems such as urban disasters, crime, infectious diseases,\nwar, and terrorism [3], [4]."
+  },
+  {
+    "heading": "Traditional experimental methods are usually based on",
+    "content": "physical entities, but this approach cannot be directly applied\nto the study of actual social systems. The main reasons\ninclude the following: 1) Complex social systems cannot be\nstudied through reductionist methods, as decomposed systems\nare likely to lose their original functions and characteristics.\nTherefore, the system must be studied as a whole [5]. 2) Due to\nthe large scale of complex social systems, conducting repeated\nexperiments on real systems is economically infeasible. 3)"
+  },
+  {
+    "heading": "Many complex systems involving social governance are legally",
+    "content": "constrained and usually cannot be tested or constructed, such\nas national security, military preparedness, and emergency\nresponse. 4) Complex social systems are highly related to\nhumans, and in many cases require human participation.\nTesting these systems may lead to irreversible risks and losses,\nwhich do not meet ethical requirements [6]."
+  },
+  {
+    "heading": "Against this background, research on complex social sys-",
+    "content": "tems has gradually shifted toward \u201ccomputational experi-\narXiv:2507.20215v1  [cs.MA]  27 Jul 2025\nments,\u201d which enable quantitative analysis of complex systems\nthrough algorithmic and counterfactual methods [7]. Figure\n1 shows the workflow of computational experiments. First,\nby constructing autonomous individual models and their in-\nteraction rules, a conceptual model of the complex social\nsystem is abstracted from a microscopic perspective. Then, by\nintegrating complex system theory with computer simulation\ntechnology, a \u201cdigital twin\u201d of the real system is cultivated\nin the information world [8]. Next, by adjusting system rules,\nparameters, and external intervention strategies, multiple com-\nputational experiments can be repeatedly conducted. Finally,\nbased on the experimental results, causal relationships between\nintermediate variables and system emergence can be identi-\nfied, providing a new approach for explaining, interpreting,\nguiding, and reshaping macro phenomena in the real world."
+  },
+  {
+    "heading": "At present, computational experiments have been applied in",
+    "content": "multiple fields, especially in scenarios with high risk, high\ncost, or where experiments cannot be directly conducted in\nreality, such as intelligent transportation systems [9], [10],\nwar simulation systems [11], socio-economic systems [12],\necological systems [13], physiological/pathological systems\n[14], [15], and political-ecological systems [16].\nFig. 1. Schematic Diagram of the Computational Experiment Method."
+  },
+  {
+    "heading": "The technical framework of computational experiments",
+    "content": "mainly includes the following five steps: artificial society\nmodeling [17]\u2013[19], experimental system construction [20],\nexperimental design [21], experimental analysis [22], and\nmodel validation [23]. Among them, artificial society mod-\neling serves as the foundation for conducting computational\nexperiments. Only by clearly defining the structures, elements,\nand attributes required in the artificial society, and mapping\nthe complex system into a computer-operable experimental\nsystem, can the simulation and observation of complex system\nphenomena be conducted. The agent-based modeling (ABM)\napproach [24] is an important tool for artificial society mod-\neling. By effectively integrating the behavioral characteristics\nof social entities, structural modeling at the microscopic level\ncan be achieved. In the development of complex social system\nresearch, artificial society modeling methods have been contin-\nuously improved and evolved, from single-agent systems to the\nintegration and application of multi-agent systems [25], and\nmany achievements have been made. However, when using"
+  },
+  {
+    "heading": "ABM to construct artificial societies, the reliability of the",
+    "content": "model is crucial. A high-quality model can not only more\naccurately reproduce the characteristics of the real world but\nalso generate unexpected emergent phenomena. Therefore, in\norder to further improve the quality and credibility of the\nmodel, optimization and enhancement can be carried out at\nthe individual level."
+  },
+  {
+    "heading": "Individuals in artificial social systems differ from the ho-",
+    "content": "mogeneous numerical computing units in traditional statistical\nmodels [26]; instead, they are endowed with many hetero-\ngeneous attribute features and behavioral patterns. Due to this\nheterogeneity, modeling requires not only assigning unique in-\ndividual characteristics, social attributes, and behavioral rules\nto each agent but also ensuring that each individual can make\ndecisions based on the system\u2019s optimal strategy and its own\nexperience. However, in current artificial society models, most\nindividuals still behave as passively responsive entities driven\nby rules. In fact, individuals are neither completely uncon-\nscious nor lacking in initiative; on the contrary, they play a key\nrole in the evolution of the system. In recent years, some stud-\nies have improved the modeling quality of individual agents\nby introducing learning algorithms at the individual level,\nthereby promoting the development and application of multi-\nagent systems. Although learning algorithms have played an\nimportant role in enhancing agent modeling quality, the most\ncritical issue lies in the neglect of memory\u2019s important role\nin agent model construction. Memory enables individuals to\nfully utilize a broader range of historical information in the\ndecision-making process, enhances their perception of long-\nterm trends and environmental changes, equips agents with\nmore comprehensive decision-making capabilities, improves\ntheir responsiveness to complex systems, and thereby enhances\nthe adaptability and robustness of agents."
+  },
+  {
+    "heading": "Unknown",
+    "content": "II. BACKGROUND AND MOTIVATION"
+  },
+  {
+    "heading": "A. Development process of artificial society modeling",
+    "content": "In the early stage of artificial society modeling development,\nthe core modeling method was agent-based modeling and sim-\nulation, which is also the main research approach of complex\nadaptive systems theory [27]. Among them, the construction of\nindividual agent models has always been the focus of research\nand serves as the foundation of model building. In the early\nstudies, Michael Wooldridge and others [28] systematically\nelaborated the basic theoretical framework of agents and pro-\nposed the BDI (Belief-Desire-Intention) model, which defines\nthe three elements of belief, desire, and intention for agents."
+  },
+  {
+    "heading": "This became a classical paradigm in early individual agent",
+    "content": "modeling research and promoted the evolution of rule-based\nagents toward learning agents. Subsequently, Bandura and\nothers [29] proposed the concept of observational learning."
+  },
+  {
+    "heading": "Their research suggested that agent learning relies not only",
+    "content": "on direct experience (such as the stimulus-response pattern\nemphasized by behaviorist psychology) but also on observing\nthe behavior of others, known as observational learning (or\nimitation learning). They further proposed four key processes\nof observational learning: attention, retention, reproduction,\nand motivation."
+  },
+  {
+    "heading": "With the rapid advancement of technology, especially the",
+    "content": "continuous breakthroughs in the fields of artificial intelligence\nand machine learning, individual agent models have gradu-\nally integrated more advanced algorithms to simulate more\ncomplex and realistic social phenomena. These modeling ap-\nproaches have not only played an important role in theoretical\nresearch but have also been widely applied in several key\nareas such as public policy making, urban planning, economic\nforecasting, and environmental management. By simulating\npotential social dynamics and their possible outcomes, these\nmodels provide decision-makers with deeper insights and more\nscientific support, laying the foundation for solving complex\nproblems in the real world. Ho et al. [30] introduced Gen-\nerative Adversarial Networks (GAN) into imitation learning,\nusing a discriminator to perform behavioral cloning without an\nexplicit reward function, thereby addressing the state distribu-\ntion shift problem in traditional behavioral cloning. Littman\net al. [31] were the first to provide a rigorous mathematical\nframework for multi-agent reinforcement learning, which has\nbecome a general paradigm for subsequent research."
+  },
+  {
+    "heading": "With the development of Large Language Models (LLMs),",
+    "content": "an increasing number of studies have begun to adopt LLMs as\ncore controllers to construct individual agent models, aiming to\nachieve key aspects of human intelligence such as contextual\nlearning, continual learning, and complex reasoning [32],\n[33]. Artificial societies built on LLMs exhibit characteristics\nhighly similar to real-world social systems at multiple levels,\nincluding organizational collaboration, rational competition,\ninformation dissemination, and group emergence [34]. For\nexample, in the field of multi-agent collaboration, CAMEL\n[35] realizes task decomposition and efficient cooperation\nthrough role-playing; AutoGen [36] enables dialogue and\ntask coordination among multiple agents via custom-defined\nagents; AgentVerse [37] provides functions for dynamically\nadjusting agent architectures and allows the composition of\nmultiple agents into cooperative groups; Park et al. [38]\ndeveloped a generative agent that reproduces social behav-\niors similar to those in \u201dThe Sims\u201d by simulating memory\nfunctions, thereby endowing agents with stronger interaction\nand adaptability. Although LLM-based agents demonstrate sig-\nnificant advantages in terms of intelligence, their application\nin artificial society modeling still faces certain limitations."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A typical issue is the \u201challucination\u201d phenomenon, where"
+  },
+  {
+    "heading": "LLM-agents may generate knowledge content beyond their",
+    "content": "role settings or task contexts. In terms of interaction mecha-\nnisms, LLM-agents primarily rely on natural language, which\npresents some inadequacies when simulating complex social\ndynamics such as cultural transmission and group behavior."
+  },
+  {
+    "heading": "In contrast, traditional agent-based modeling often simulates",
+    "content": "social dynamics through the transmission of state vectors and\nexplicit rule settings, which can more effectively capture the\ninteraction relationships among micro-level individuals. In ad-\ndition, LLM-agents usually require substantial computational\nresources during execution, and when performing large-scale\nsimulations, their efficiency is often lower than that of models\nbuilt using learning algorithms, which are more efficient and\ncontrollable in operation."
+  },
+  {
+    "heading": "In the research of individual agent modeling techniques,",
+    "content": "there are also related studies that incorporate memory as an\nimportant module in the model to optimize its adaptability\nin dynamic environments. Graves et al. [39] proposed a new\ncomputational model that combines neural networks with\nexternal memory, enabling neural networks to read from and\nwrite to external storage, thereby enhancing their memory\nand computational capabilities. Long Short-Term Memory\n(LSTM) networks in reinforcement learning also selectively\nmemorize sequential information through gating mechanisms\nto address the long-term dependency problem of Recurrent"
+  },
+  {
+    "heading": "Neural Networks (RNNs). Park et al. [38] constructed a",
+    "content": "memory stream module in the virtual town of \u201cSmallville\u201d\nto record all experiences of agents in natural language and\nretrieve them based on three indicators: relevance, importance,\nand novelty. Piao et al. [40] endowed agents with memory stor-\nage and retrieval capabilities by fine-tuning pretrained LLMs,\nallowing individuals to adjust their behavioral strategies based\non historical experiences, such as evaluating social influence\nin information dissemination decisions."
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Motivation"
+  },
+  {
+    "heading": "At present, in the research on individual agent model con-",
+    "content": "struction techniques, the importance of memory mechanisms\nis often overlooked. Although some studies have considered\nthe role of memory in agent modeling, the modeling ap-\nproaches adopted are generally simplified, mostly focusing on\nconstructing either individual memory or collective memory,\nwith relatively little attention paid to the relationship between\nthe two. In particular, there is a lack of systematic research\non how to extract useful experiences from individual memory\nto form collective experience. In LLM-based agent models,\nthe absence of long-term memory mechanisms is especially\nprominent. Due to the lack of structured long-term memory\nmodules, such models face significant challenges in knowledge\nmaintenance and management, especially during the knowl-\nedge updating process, where the problem of \u201ccatastrophic\nforgetting\u201d often arises [41], [42], that is, the introduction\nof new knowledge may unintentionally erase or overwrite\npreviously accumulated key knowledge."
+  },
+  {
+    "heading": "This study focuses on how to effectively model memory",
+    "content": "mechanisms to achieve collaborative decision-making between\nmemory and learning, thereby improving the modeling quality\nof individual agents. When constructing an individual agent\nmodel, it is necessary not only to design the agent\u2019s basic static\nfeatures (such as individual attributes and social attributes) but\nalso to further define advanced behavioral rules, such as per-\nception capability, learning mechanism, memory mechanism,\ndecision-making mechanism, and behavioral patterns. These\nadvanced behavioral rules are the core mechanisms through\nwhich agents continuously evolve and acquire adaptability\nwithin the system. However, current models ignore the impor-\ntant role of memory in the evolution of individuals, and the\ncollaborative construction of individual agent models through\nmemory and learning mechanisms provides a framework that\nbetter aligns with the decision-making characteristics of in-\ndividuals in the real world. Existing research on memory\nmodeling mainly focuses on the memory of a single agent,\nwith limited attention to collective memory in multi-agent\nsystems, neglecting the important role of collective memory in\ninformation sharing and knowledge accumulation. In addition,\nmost existing memory modeling adopts static methods and\nlacks dynamic updating mechanisms, which may lead to exces-\nsively redundant memory information and affect the efficiency\nand quality of information retrieval. Therefore, constructing\nefficient individual agent models still faces many challenges,\nmainly including: 1) how to construct agent memory sets that\ncan be dynamically updated to adapt to environmental changes\nand improve decision-making flexibility; 2) how to establish a\nconnection mechanism between individual memory and collec-\ntive memory to achieve knowledge and experience sharing and\ndissemination; 3) how to effectively coordinate memory and\nlearning mechanisms to optimize the decision-making ability\nof agents and improve overall system performance."
+  },
+  {
+    "heading": "Unknown",
+    "content": "III. THE FRAMEWORK OF IMPROVED INDIVIDUAL AGENT"
+  },
+  {
+    "heading": "MODEL",
+    "content": "In artificial society modeling, the agent model at the individ-\nual level serves as the foundation for constructing the overall\nmodel, as it directly affects the reliability of the model and its\nability to reproduce social phenomena. Effective agent model-\ning helps simulate and understand behavior at the microscopic\nlevel and reveals the decision-making processes and interaction\nrules of agents. The behavior of agents is influenced by\nmultiple factors such as their attributes, historical background,\nand social environment. Therefore, simple assumptions (e.g.,\nall agents are rational and follow the same rules) often fail to\naccurately reflect the complexity and dynamic changes of real\nsocieties, while the heterogeneity of agents and differences\nin their decision-making rules often lead to different global\nemergent phenomena. Hence, in artificial society modeling,\nthe construction of individual agent models is crucial, as it\ncan significantly influence agent behavior patterns and their\nadaptability to the environment."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Overall structure of the model"
+  },
+  {
+    "heading": "Artificial society modeling adopts a bottom-up modeling",
+    "content": "approach, in which the characteristics and behaviors of agents\nserve as the foundation. The behaviors and interactions of\nagents drive the evolution of the entire system. Based on the\ntraditional approach of constructing individual agent models\nthrough learning mechanisms, this paper innovatively inte-\ngrates memory mechanisms with learning mechanisms to\nfurther optimize the modeling technique of individual agents,\nenabling them to continuously optimize decision-making by\ncombining contextual knowledge in dynamically changing\ncomplex environments, thereby exhibiting anthropomorphic\ncharacteristics."
+  },
+  {
+    "heading": "In the modeling process, how to select and abstract individ-",
+    "content": "uals from the social system into agents in a complex system\ninvolves two key issues that need to be carefully considered:\n1) the abstraction granularity of microscopic individuals: the\nabstracted agents need to strike a balance between the level\nof abstraction and granularity, retaining the essential charac-\nteristics of individuals while removing details irrelevant to\nmodeling. Different abstraction methods may lead to different\ncategories of agents; 2) the heterogeneity of microscopic\nindividuals: multiple types of agents may exist in the system,\nand agents can be either homogeneous or heterogeneous."
+  },
+  {
+    "heading": "Therefore, during modeling, it is necessary to generalize",
+    "content": "homogeneous agents and differentiate heterogeneous agents.\nThe abstracted agent itself is also a complex system, with its\nown behavioral rules and objectives, and it can continuously\nlearn and adjust its behavioral rules based on changes in\ninternal states and external environments. The agent gradually\napproaches and achieves its predefined goals through con-\ntinuous adjustment of behavioral rules and decision-making."
+  },
+  {
+    "heading": "The overall structure of the individual agent model based on",
+    "content": "memory-learning collaboration proposed in this paper is shown\nin Fig. 2. In this structure, the continuous flow of information\norganically connects each component to form a unified whole."
+  },
+  {
+    "heading": "Unknown",
+    "content": "The specific expression of the agent model is given in (1)."
+  },
+  {
+    "heading": "Agent = \u27e8R, St, Et, Yt, At, Mt, N\u27e9",
+    "content": "(1)\nwhere R represents the static characteristics of the agent,\nwhich do not change over time, such as movement speed,\ngender, etc.; St represents the dynamic characteristics of the\nagent, which vary over time, such as the role or age of the\nagent; Et is the set of external events perceived by the agent,\nwhich may come from the environment or other agents and,\nonce received as observed information, may influence the\nagent\u2019s behaviors and decisions; Yt is the decision-making\nmechanism adopted by the agent in response to external\nperceptions, stimuli, or during interactions with other agents;"
+  },
+  {
+    "heading": "At is the set of agent behaviors, including behaviors taken",
+    "content": "under external stimuli as well as spontaneously generated\nbehaviors; Mt is the set of memories accumulated by the\nagent, including both long-term and short-term memory; N\nrepresents the constraints imposed on the agent, including\nenvironmental constraints and goal constraints."
+  },
+  {
+    "heading": "In complex systems, once individuals are abstracted and the",
+    "content": "structure of the agent is defined, the next step is to consider\nhow to enable the agent to adapt to continuously changing en-\nvironments through evolution and development. As experience\naccumulates, agents continuously adjust their behaviors. Ac-\ncording to the level of agent awareness (rationality), learning\nstrategies can be divided into unconscious learning, imitation\nlearning, and belief-based learning. In the individual agent\nmodel based on memory\u2013learning collaboration proposed in\nthis paper, the agent can continuously improve its adaptability\nby combining its own experience with the experiences of\nother agents. Based on the previously defined state, perception,\nmemory, behavior, and decision, the expression of the agent\nbehavior pattern is given in (2)."
+  },
+  {
+    "heading": "R \u00d7 St \u00d7 Yt \u00d7 Mt \u2192At \u00d7 St",
+    "content": "(2)"
+  },
+  {
+    "heading": "In this behavior pattern, the agent generates the next action",
+    "content": "plan under the guidance of behavioral rules by integrating\nits own state with perceived information and referring to its\naccumulated memory set, thereby updating its state. In this\nbehavior set, each action At can be represented by a triplet,\nas defined in (3)."
+  },
+  {
+    "heading": "At =< St",
+    "content": "start, Op, St\nend >\n(3)\nwhere Sstartt denotes the initial state, Sendt denotes the final\nstate, and Op denotes the state transition function."
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Modeling memory mechanisms"
+  },
+  {
+    "heading": "The source of memory data is a key component in con-",
+    "content": "structing the memory storage model and directly affects the\nquality of data in the memory repository. The sources of\nmemory data can be summarized as the agent itself, other\nagents, and external knowledge bases. Agents continuously ac-\ncumulate experience through interactions with the environment\nor other agents, and this experience can be used to optimize\ntheir behavioral strategies, thereby improving adaptability and\ndecision-making capability. Meanwhile, when an information-\nsharing mechanism exists among agents, an agent can learn\nfrom the successful experiences of others, thus enhancing the\noverall system\u2019s coordination efficiency and learning ability."
+  },
+  {
+    "heading": "In addition, the rich domain knowledge and mature experi-",
+    "content": "ence contained in external knowledge bases can also serve\nas important sources of memory data, providing additional\ninformational support for the agent. These data sources interact\nwith each other and collectively constitute the core content\nof the memory repository, providing critical support for the\nagent\u2019s learning, reasoning, and decision-making."
+  },
+  {
+    "heading": "When constructing the memory storage model, this section",
+    "content": "divides the memory storage structure into three sets to better\norganize and manage the information in the memory model,\nthereby improving memory storage and retrieval efficiency."
+  },
+  {
+    "heading": "The three types of memory storage sets are as follows:",
+    "content": "(1) Individual Memory Set: The individual memory set\nstores memory information unique to a single agent, including\nthe experiences and knowledge it has accumulated through\ninteractions with the environment and other agents. These\nmemories typically involve recent events experienced by the\nagent, environmental states, decision-making processes, and\nthe outcomes of those decisions.\n(2) Collective Memory Set: The collective memory set\nstores information shared by all agents in the system, i.e.,\nthe collective knowledge base. Compared to individual mem-\nory, collective memory focuses more on collaboration and\nknowledge integration among agents, containing experiences,\nrules, and patterns contributed by different agents. This sharing\nmechanism promotes knowledge dissemination and reuse,\nthereby enhancing the overall intelligence level of the agent\npopulation.\n(3) Memory Buffer Pool: The memory buffer pool is a\ndynamic storage area mainly used to temporarily store key\ninformation experienced by agents over short periods and,\nunder appropriate conditions, select memory items to integrate\ninto the collective memory set. Since agent systems generate\na large amount of short-term memory during operation, and\nsuch information may not always have long-term value, the\nmemory buffer pool plays a role in information filtering and\nmanagement."
+  },
+  {
+    "heading": "The agent\u2019s local observation information and its executed",
+    "content": "actions constitute important components of a memory item,\nand this information collectively reflects the agent\u2019s perception\nand decision-making process under a specific environmental\nstate. After a new memory item is generated, it is first\nstored in the individual memory structure and the memory\nbuffer pool, so that it can be filtered and integrated during\nthe subsequent process of group experience dissemination\nand strategy optimization. Equations (4) and (5) present the\nmathematical description of the storage process.\nM i\nt = mi\nt \u222aM i\nt\u22121\n(4)"
+  },
+  {
+    "heading": "M buffer",
+    "content": "t\n= mi\nt \u222aM buffer\nt\u22121\n(5)"
+  },
+  {
+    "heading": "The definition of the new memory item mi",
+    "content": "t is given in (6).\nmi\nt =\n\b\ntype, oi\nt\u22121, ai\nt, oi\nt\n\t\n(6)"
+  },
+  {
+    "heading": "The information in the memory item includes the memory",
+    "content": "type, the local observation oi\nt\u22121 perceived by the individual at\nthe previous time step, the action ai\nt executed at the current\ntime step, and the local observation oi\nt perceived at the current\ntime step."
+  },
+  {
+    "heading": "When the buffer M b",
+    "content": "t uffer is full, i.e., the memory in-\nformation of all individuals at the current time step has\nbeen completely collected, it is necessary to construct the\ncollective memory based on all the memory information\nin the buffer. In this process, extracting memory from the\nmemory buffer pool is a key step in the dissemination of\ngroup experience. To ensure that high-value information can\nbe effectively transmitted and integrated into the collective\nmemory set, it is necessary to filter and evaluate the memories\nstored in the buffer pool, avoiding indiscriminate storage of all\ninformation and retaining key information as much as possible."
+  },
+  {
+    "heading": "The memory evaluation method comprehensively considers",
+    "content": "two aspects: value error and rarity of the memory. Equation\n(7) defines the evaluation function.\nmselected =\nn\nmi \u2208M buffer\nt\n| |\u03b4t| > \u03b8value \u2228R(mi) > \u03b8rare\no\n(7)\nwhere:\n\u2022 \u03b4t is the value error of the memory item, used to measure\nthe degree of impact that the decision contained in the\nmemory item has on the overall strategy. A larger |\u03b4t|\nindicates a greater influence of the memory item on\nthe strategy, regardless of whether it represents positive\nexperience (promoting strategy optimization) or negative\nexperience (alerting potential errors). The specific calcu-\nlation formula of \u03b4t is given in (8):\n\u03b4t = \u03b3V (St+1) \u2212V (St)\n(8)\nFig. 2. Overall Structural Diagram of the Individual Agent Model Based on Memory-Learning Collaboration."
+  },
+  {
+    "heading": "Fig. 3. Structural Diagram of the Memory Storage Module.",
+    "content": "where V is the state value function used to measure the\nvalue of the current state, and \u03b3 is the discount factor\nused to determine the importance of future value in the\ncurrent decision.\n\u2022 R(mi) is the rarity evaluation metric of the memory item,\nused to measure whether similar experiences exist in the\ncurrent system. A higher rarity indicates that the memory\nitem is more unique within the collective memory set and\nmay contain new decision-making patterns or previously\nunseen environmental feedback, thus providing high ref-\nerence value for strategy optimization. During the process\nof experience extraction and storage, ensuring that a\ncertain proportion of high-rarity memories are retained\nhelps improve the diversity and adaptability of strategies\nand prevents the model from falling into local optima."
+  },
+  {
+    "heading": "Unknown",
+    "content": "The specific calculation formula is given in (9):"
+  },
+  {
+    "heading": "R(mi) =",
+    "content": "min\nmj\u2208M share\nt\n\u2225mi \u2212mj\u2225\n(9)\n\u2022 \u03b8value and \u03b8rare are the value error threshold and the\nrarity threshold, respectively."
+  },
+  {
+    "heading": "To avoid problems such as increased storage pressure, de-",
+    "content": "creased query efficiency, and reduced learning speed caused by\nthe continuous accumulation of memory items, it is necessary\nto prune the memory set to ensure the rational use of storage\nspace and improve the learning efficiency of the model. The\npruning strategy filters and removes low-value or redundant\nmemory items so that the collective memory can remain\nefficient and representative. The mathematical description of\nthe pruning process is given in (10):"
+  },
+  {
+    "heading": "Mt+1 = fupdate(Mt, k)",
+    "content": "(10)\nwhere k is the memory length threshold, and the update\nprocess can be based on one or more of \u03b4t , R(mi), the number\nof times the memory is used, the success rate of use, and\nthe decay factor. Specific pruning strategies can be adjusted\naccording to task requirements to balance storage efficiency\nand learning performance."
+  },
+  {
+    "heading": "Unknown",
+    "content": "C. Adaptive learning mechanism"
+  },
+  {
+    "heading": "In the individual agent model based on memory\u2013learning",
+    "content": "collaboration constructed in this paper, the learning mech-\nanism enables agents to adjust their behaviors and strate-\ngies based on external stimuli or internal feedback, while\nthe memory mechanism allows agents to optimize decision-\nmaking by storing and recalling past experiences. However, in\ndifferent learning paradigms, the adaptability between memory\nand learning, as well as their collaborative modes, vary. The\nfollowing section analyzes the compatibility of current major\nlearning mechanisms with memory mechanisms and how they\nwork together:\n(1) Evolutionary Learning"
+  },
+  {
+    "heading": "Evolutionary learning is a learning method based on nat-",
+    "content": "ural selection, usually involving processes such as mutation,\nselection, crossover, and inheritance among agents in a pop-\nulation. Its goal is to gradually optimize the adaptability of\nagents through multiple generations of evolution or to find the\nstrategy best suited to the current environment. The core of\nevolutionary learning lies in the intergenerational transmission\nof genetic information, and the evolutionary process focuses\non improving agent adaptability through natural selection. In\nevolutionary learning, agent decisions are usually based on\nthe current environment and genetic information (i.e., \u201dgene\u201d\nfeatures), rather than on historical experience or memory.\nTherefore, the main driving force of the evolutionary learning\nmechanism is genetic mutation and selection rather than the\naccumulation of past experience. In view of this, the con-\ntribution of memory mechanisms to evolutionary learning is\nlimited, and the combination of the two is not considered in\nthe subsequent modeling in this paper.\n(2) Imitation Learning"
+  },
+  {
+    "heading": "Imitation learning is a mechanism based on social learning,",
+    "content": "in which agents learn how to make decisions by observing\nand imitating the behaviors of others. In imitation learning,\nmemory plays an important role, as agents need to store\nobserved behavior patterns and their outcomes for imitation at\nappropriate times. Agents can adjust their imitation strategies\nbased on previous observation experiences. Through memory,\nagents can gradually optimize behavior selection, making\nimitation learning an adaptive process. In social environments,\nimitation learning not only relies on the behavioral decisions\nof other agents but can also be enhanced through memory\nsharing among agents. For example, the successful experiences\nof certain agents may spread within the group, and other agents\nimprove their adaptability by imitating these successful behav-\niors. This sharing and dissemination of memory accelerates the\ngroup learning process and enhances the overall adaptability\nof the group.\n(3) Reinforcement Learning"
+  },
+  {
+    "heading": "Reinforcement learning is a learning method based on",
+    "content": "rewards and punishments, in which agents continuously ad-\njust their behavioral strategies through interaction with the\nenvironment to maximize long-term returns. The core of rein-\nforcement learning lies in the updating of the value function,\nthat is, agents update their evaluation of behaviors based\non reward signals. In this process, the memory mechanism\nplays a key role, as agents need to remember previous states,\nactions, and their outcomes to use this historical informa-\ntion in subsequent decisions. The memory mechanism allows\nreinforcement learning to not only rely on current reward\nsignals but also optimize future behavior choices by combining\npast experiences. For example, in certain long-term decision-\nmaking tasks, agents need to remember past behaviors and\nunderstand their impact on future outcomes.\n(4) Large Language Models"
+  },
+  {
+    "heading": "Agents constructed using large language models rely on",
+    "content": "learning statistical patterns and semantic structures in lan-\nguage from large-scale corpora, thereby gaining the ability\nto understand, generate, reason with, and execute tasks us-\ning natural language. During task execution, agents analyze\nand process language input to achieve task decomposition,\nplanning, and continuous action. Although such agents exhibit\nstrong flexibility and generalization capabilities, especially in\nhandling complex language-dominant tasks, their underlying\nmodels rely on context windows of limited length for short-\nterm information processing, and they inherently lack stable\nand persistent long-term memory mechanisms. Therefore, in-\ntroducing memory mechanisms into LLM-based agent systems\nnot only helps maintain consistency between task context and\nbehavior but also provides key support for achieving stronger\nadaptability and human-like intelligence."
+  },
+  {
+    "heading": "Unknown",
+    "content": "D. Collaborative decision-making module"
+  },
+  {
+    "heading": "The introduction of a memory mechanism enables agents",
+    "content": "to store, retrieve, and utilize historical experiences, thereby\nimproving the rationality and stability of decision-making."
+  },
+  {
+    "heading": "However, relying solely on memory may cause agents to",
+    "content": "become overly dependent on past experiences, limiting their\nability to adapt to new environments; whereas relying only on\nlearning may lead to slower convergence and insufficient uti-\nlization of accumulated knowledge. This section focuses on the\ncollaborative decision-making mechanism between memory\nand learning, specifically addressing how to extract valuable\ninformation from the memory pool and how to dynamically\nadjust strategies by integrating learning mechanisms, enabling\nagents to both draw on historical experience and flexibly adapt\nto new environments, thus achieving better decision-making\ncapabilities in complex environments. Within this framework,\nthe learning mechanism is responsible for generating optimal\ndecisions under the current state, while the collective memory\nmodel extracts historical experience from the group to assist\nindividual decision-making. Based on this idea, this section\nproposes a memory\u2013learning collaborative decision-making\nmodel, and the specific process of the model is shown in Fig.\n4."
+  },
+  {
+    "heading": "When generating the final decision ai",
+    "content": "t, the agent integrates\nthe collective memory M s\nt hare and its own decision-making\nmechanism to fully utilize both historical experience and in-\ndividual learning capability. The collective memory M s\nt hare,\nserving as a source of global information, aggregates the expe-\nriences of multiple agents at different time steps and provides\nglobal reference. The specific mathematical description of the\ndecision-making process is given in (11):\nai\nt =\n\u001aamemory,\nifCmemory > \u03b8memory\nalearning,\notherwise\n(11)\nwhere Cmemory is the credibility of memory experience,\nwhich is an important indicator to assess whether the stored\nmemory is applicable to the current decision. Since the ef-\nfectiveness of historical experience changes over time and is\ninfluenced by environmental similarity and the payoff of past\ndecisions, it is necessary to filter and weight different memory\nitems when using collective memory for decision-making, to\nensure that the experiences referenced by the agent are the\nmost valuable. The calculation of Cmemory is mainly based\non three core elements, and its specific formula is given in\n(12):"
+  },
+  {
+    "heading": "Cmemory = \u03c91Senv + \u03c92Ssuccess + \u03c93\u03bbt\u2212t0",
+    "content": "(12)\nwhere:\n\u2022 Senv (environmental similarity): measures the degree\nof matching between the current state and historical\nmemory, with a value range of [0,1]. The calculation\nof environmental similarity can adopt methods such as\ncosine similarity or Euclidean distance to ensure that the\nagent refers only to historical experiences highly relevant\nto the current environment.\n\u2022 Ssuccess (positive reward ratio): represents the pro-\nportion of positive outcomes resulting from the same\ndecision in the past, with a range of [0,1]. This indicator\nreflects whether the memory item has contributed to\neffective decisions in the past; the higher the success\nrate, the more valuable the experience is for the current\ndecision.\n\u2022 \u03bbt\u2212t0 represents the decay degree of memory, where \u03bb is\nthe decay factor, and t\u2212t0 denotes the time span between\nthe current moment and when the memory was recorded."
+  },
+  {
+    "heading": "This term is used to reduce the influence of outdated",
+    "content": "experiences and ensure that the agent gives priority to\nmore recent and timely knowledge.\n\u2022 \u03c91 , \u03c92 , and \u03c93 are weight parameters representing\nthe weights of environmental similarity, positive reward\nratio, and memory decay term, respectively. They must\nsatisfy the constraint: \u03c91 + \u03c92 + \u03c93 = 1. These weights\ncan be adjusted according to specific tasks to balance\nthe influence of different factors in the decision-making\nprocess. For example, in rapidly changing environments,\nthe weight \u03c93 can be increased so that the agent prefers\nmore recent experiences; in stable environments, the\nweights \u03c91 and \u03c92 can be increased to make full use\nof successful historical experiences."
+  },
+  {
+    "heading": "After an individual makes a decision, the related information",
+    "content": "is stored in the memory buffer pool, which is used not\nonly to optimize future decision-making processes but also\nto provide data support for the construction of collective\nmemory. This mechanism enables agents to continuously\noptimize their behavior through the ongoing accumulation of\nexperience, thereby forming a dynamic closed loop of learning\nand decision-making. Based on this, the system establishes\na cyclic feedback mechanism between individual behavior\nand decision-making, as well as between individual behavior\nand learning strategies. Individual behavior is the result of\nthe collaboration between memory and learning, and the\ngeneration of behavior not only updates the information in\nthe memory set but also further optimizes individual decision-\nmaking. Through these two feedback mechanisms, individuals\ncan enhance short-term decision-making capabilities using\nlearning strategies and continuously optimize long-term de-\ncision frameworks with the help of memory mechanisms."
+  },
+  {
+    "heading": "Unknown",
+    "content": "IV. CASE STUDY: URBAN INSTANT DELIVERY SYSTEM"
+  },
+  {
+    "heading": "To verify the effectiveness of the individual agent modeling",
+    "content": "framework based on memory\u2013learning collaboration proposed\nin this paper, an experimental system was established in a\nspecific experimental scenario. This paper selects the on-\ndemand delivery system in modern service systems as the\nexperimental scenario, due to its high dynamism and uncer-\ntainty. Delivery tasks are usually accompanied by multiple\nconstraints, requiring agents to possess real-time decision-\nmaking capabilities and environmental adaptability. In addi-\ntion, this system naturally exhibits characteristics such as dis-\ntributed decision-making, complex interactions, and multi-task\nprocessing, which can fully simulate the behavioral patterns\nof individual agents in complex social environments. This\ncomplexity helps to deeply analyze the performance of agents\nin handling multiple tasks and constraints under the support\nof memory and learning mechanisms, thereby evaluating the\nadvantages and disadvantages of different agent modeling\nstrategies. Meanwhile, the on-demand delivery system, as\na typical real-world application scenario, is representative,\nand its modeling approach and experimental results can be\nextended and applied to other multi-agent systems with similar\ncharacteristics, such as urban traffic scheduling, emergency\nresponse, and logistics management."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Construction of an Artificial Society"
+  },
+  {
+    "heading": "Through in-depth analysis of the on-demand delivery sys-",
+    "content": "tem, this paper abstracts the active entities in the system\ninto three types of agents: Order Agent, Platform Agent, and"
+  },
+  {
+    "heading": "Delivery Agent. The Order Agent is the core resource of the",
+    "content": "system and is managed and scheduled by the Platform Agent."
+  },
+  {
+    "heading": "As the central link between Order Agents and Delivery Agents,",
+    "content": "the Platform Agent is responsible for task allocation and\ninformation transmission. The Delivery Agent is responsible\nfor actual delivery tasks, with its main activities including\nFig. 4. Diagram of the Agent Decision-Making Process Based on Memory-Learning Collaboration.\npath planning, task execution, self-evolution, and interactive\nfeedback.\n(1) Order Agent In this system, the order is the core resource\nand serves as a critical hub for coordinating operations across\nall components. Each order is not only a manifestation of\nuser demand but also contains all key information required\nfor delivery, such as delivery address, order value, and order\nstatus. The generation of an order marks the starting point of\nthe delivery process and directly influences the scheduling and\noperational state of the Delivery Agent. It also determines the\nworkflows and task distribution among various types of agents\nin the system, including Platform Agents and Delivery Agents."
+  },
+  {
+    "heading": "Unknown",
+    "content": "The attribute definition of the Order Agent is as follows:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Agentuser = \u27e8ID, (xstart, ystart), (xend, yend), Status,"
+  },
+  {
+    "heading": "Value, Tstart, Talive, Gn()\u27e9",
+    "content": "\u2022 ID: the identifier of the order, which uniquely distin-\nguishes each order.\n\u2022 (xstart, ystart): the starting location of the order, with\nthe coordinates constrained within the valid range of the\nsystem map.\n\u2022 (xend, yend): the destination location of the order, with\nthe coordinates constrained within the valid range of the\nsystem map.\n\u2022 Status: the status of the order, indicating its current state\nin the system, which can be categorized as alive, dead,\nor captured.\n\u2022 V alue: the value of the order, which is related to the\ndistance between the starting and destination points as\nwell as the order generation time.\n\u2022 Tstart: the time the order is generated, represented in 24-\nhour format.\n\u2022 Talive: the lifespan of the order; orders do not remain in\nthe system indefinitely and will become dead once the\nlifespan is exceeded.\n\u2022 Gn(): the order generation function, which controls the\nnumber of orders generated over time; all orders are\ngenerated by this function."
+  },
+  {
+    "heading": "In the constructed artificial society, a 24-hour system is",
+    "content": "adopted to align the simulation time with real-world character-\nistics, with a distinction made between daytime and nighttime."
+  },
+  {
+    "heading": "The value of an order is mainly influenced by two factors:",
+    "content": "the distance between the order\u2019s starting and ending points,\nand the time at which the order is generated. The specific\ncalculation formula for order value is given in (13):"
+  },
+  {
+    "heading": "V alue = distance((xstart, ystart), (xend, yend)) \u00d7 \u03betime",
+    "content": "(13)\nwhere distance() represents the actual distance obtained from\nthe path planning results, and \u03betime is the time weight coeffi-\ncient. When the order is generated between 08:00 and 22:00,\nthe weight is set to 1; for other times, which are considered\nnighttime working hours, the weight is set to 1.5 in order\nto incentivize agents to work at night and to prevent a large\nnumber of nighttime orders from expiring.\nTo better simulate the distribution of order generation in the\nFig. 5. Data Generation Methods for Computational Experiments.\nreal world, there are various methods for generating datasets in\ncomputational experiments, which can be mainly divided into\ntwo categories: resampling methods and Monte Carlo methods.\nThe specific generation method is shown in Fig. 5. This section\nadopts the Monte Carlo simulation method to simulate the\norder generation process. Web crawler technology is used to\ncollect relevant order review information from the ZBJ.com,\nand the review time is taken as the service completion time."
+  },
+  {
+    "heading": "The obtained data is cleaned and categorized, and the order",
+    "content": "generation pattern is fitted according to the chronological\norder. A fifth-order Gaussian function is used as the order\ngeneration function, and the specific function is given in (14):"
+  },
+  {
+    "heading": "Gn(x) =",
+    "content": "5\nX\ni=1\naie(\u2212( x\u2212bi\nci\n)2)\n(14)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "The values of ai, bi, and ci are shown in Table 1."
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE I"
+  },
+  {
+    "heading": "ORDER GENERATION FUNCTION PARAMETERS",
+    "content": "1\n2\n3\n4\n5\nai\n314.2\n188.3\n95.56\n22.9\n48.67\nbi\n172.5\n281.5\n315.5\n228.9\n267.1\nci\n4.645\n1.559\n10.69\n167.7\n13.1\n(2) Platform Agent As the coordinator and manager, the"
+  },
+  {
+    "heading": "Platform Agent mainly undertakes key responsibilities such",
+    "content": "as resource scheduling, task allocation, and task information\nmanagement. In the artificial society model constructed in\nthis section, the core function of the Platform Agent is to\neffectively allocate and schedule order resources in the system.\nSuppose there is an order set O = {o1, o2, . . . , om} and a set\nof idle Delivery Agents D = {d1, d2, . . . , dn}, the objective\nof task allocation is to minimize the total system cost, which\nis expressed by the Equation (15).\ncost =\nm\nX\ni=1\nn\nX\nj=1\ncij\n(15)\nwhere cij is the cost of assigning order oi to Delivery Agent\ndj, and the cost is measured by the distance from the current\nlocation of the agent to the starting point of the order. By\nminimizing cost, the efficiency of order delivery can be\neffectively improved, response time can be shortened, and the\nconsumption of order resources due to timeout in the system\ncan be reduced."
+  },
+  {
+    "heading": "In addition to task allocation, another important function of",
+    "content": "the Platform Agent is order information management. When\nan order is generated, the Platform Agent needs to promptly\nadd the new order to the order set so that it can be allocated in\nsubsequent iterations; when an order is assigned to a specific\nDelivery Agent, its status must be tracked, and the order should\nbe removed from the unassigned set; after the delivery is\ncompleted, the order should be removed from the set, and the\nagent that performed the task should receive an appropriate\nreward; if the order is not completed within the time limit and\nexpires, the Platform Agent must remove the expired order\nfrom the order set in a timely manner to prevent it from being\nreceived by any Delivery Agent, thus ensuring the system\noperates accurately and efficiently.\n(3) Delivery Agent The Delivery Agent is the entity in the\nsystem that possesses intelligent behavior. By definition, the\nattributes of a Delivery Agent can be represented as Equation\n(16)."
+  },
+  {
+    "heading": "AgentDeliver =< R, St, Et, Mt, Yt, At, N >",
+    "content": "(16)\n\u2022 R refers to the static attributes of the Delivery Agent,\nalso known as characteristic attributes, which describe\nthe features that do not change over time. The main static\nattributes are shown in Table 2.\n\u2022 St refers to the dynamic attributes of the Delivery Agent,\nwhich change continuously with the agent\u2019s adaptive\nbehavior. By adjusting these attributes, the agent can\nimprove its adaptability. The main dynamic attributes of\nthe Delivery Agent are shown in Table 3.\n\u2022 Et refers to the perceptual attributes of the Deliv-\nery Agent, and the agent\u2019s perception ability affects\nits decision-making process. The agent\u2019s perception is\nmainly reflected in two aspects: perceiving information"
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE II"
+  },
+  {
+    "heading": "Unknown",
+    "content": "STATIC ATTRIBUTES OF DELIVERY AGENTS"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Static Attribute"
+  },
+  {
+    "heading": "Description",
+    "content": "ID"
+  },
+  {
+    "heading": "Unique identifier assigned to each delivery",
+    "content": "agent in the system\nspeed"
+  },
+  {
+    "heading": "Maximum distance an agent can move per",
+    "content": "step; fixed value is 10\nscope"
+  },
+  {
+    "heading": "Vision range; fixed maximum distance is",
+    "content": "10 \u00d7 speed\ncost"
+  },
+  {
+    "heading": "Survival cost; fixed cost per step is 10,",
+    "content": "positively related to speed\ntype"
+  },
+  {
+    "heading": "Learning type; supports rule-based, imita-",
+    "content": "tion, and reinforcement learning"
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE III"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DYNAMIC ATTRIBUTES OF DELIVERY AGENTS"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Dynamic Attribute"
+  },
+  {
+    "heading": "Description",
+    "content": "location"
+  },
+  {
+    "heading": "Initial position where an agent starts receiving",
+    "content": "orders; randomly assigned on the map at initial-\nization\ntimeworking"
+  },
+  {
+    "heading": "Working hours; defines time period during",
+    "content": "which the agent accepts orders; initialized as a\ncontinuous random 8-hour period\nregionworking"
+  },
+  {
+    "heading": "Preferred working region; indicates areas where",
+    "content": "the agent prefers to receive orders during work-\ning time\nstatus"
+  },
+  {
+    "heading": "Status of the agent: 0 for inactive, 1 for idle, 2",
+    "content": "for delivering\nearning"
+  },
+  {
+    "heading": "Accumulated revenue, increases as the agent",
+    "content": "operates over time\nabout other agents in the system and perceiving environ-\nmental information. The main perceptual attributes are\nshown in Table 4."
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE IV"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PERCEPTUAL ATTRIBUTES OF DELIVERY AGENTS"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Perceptual Attribute"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Description"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Perception of Other Agents"
+  },
+  {
+    "heading": "The agent can perceive other encountered",
+    "content": "agents and exchange information with them"
+  },
+  {
+    "heading": "Perception of Environment",
+    "content": "The\nagent\ncan\nperceive\nenvironmental\nchanges, including weather, traffic, and time"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Perception of Orders"
+  },
+  {
+    "heading": "The agent can perceive orders within its",
+    "content": "visual range and decide whether to accept\nthem\n\u2022 Mt refers to the individual memory model of the Delivery"
+  },
+  {
+    "heading": "Agent, in which the real events experienced by the",
+    "content": "agent are stored. The individual memory model not only\nprovides contextual information for the agent but also\nserves as an important component in the construction\nof collective memory. In the on-demand delivery system\nmodeled in this section, memory types include both\nlong-term memory and short-term memory. Long-term\nmemory represents the long-term goals of the Delivery"
+  },
+  {
+    "heading": "Agent and serves as the agent\u2019s long-term pursuit during",
+    "content": "system evolution. In system design, different agents can\nbe assigned different long-term memory objectives; for\nexample, some agents may pursue maximum profit, while\nothers may pursue maximum comfort, thereby ensuring\nheterogeneity among agents. To explore the impact of\nthe combination of memory and learning mechanisms\non individual evolution, all agents in this system are\nuniformly assigned the long-term memory objective of\nmaximizing profit. Short-term memory refers to the\ncollection of events experienced by the agent, which\ngradually decays over time and is eventually eliminated\nthrough the pruning module. The main memory attributes\nare shown in Table 5."
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE V"
+  },
+  {
+    "heading": "Unknown",
+    "content": "INDIVIDUAL MEMORY ATTRIBUTES OF DELIVERY AGENTS"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Memory Attribute"
+  },
+  {
+    "heading": "Description",
+    "content": "memorytype"
+  },
+  {
+    "heading": "Type of memory, including long-term and",
+    "content": "short-term memory\neventtype"
+  },
+  {
+    "heading": "Type of events, mainly including delivery",
+    "content": "events, weather events, and traffic events\nmemorylong"
+  },
+  {
+    "heading": "Long-term memory, uniformly set for max-",
+    "content": "imizing reward\nmemoryshort"
+  },
+  {
+    "heading": "Short-term memory, records individual ex-",
+    "content": "periences. Data structure includes: [time,\ncurrent location, current state, current per-\nception, action, reward, and post-transition\nperception]\n\u03bb"
+  },
+  {
+    "heading": "Memory decay coefficient, set to 0.9. When",
+    "content": "memory decays below 0.1, it is discarded."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Effective duration is 22 days"
+  },
+  {
+    "heading": "At each time step, the memory items of the individual",
+    "content": "are stored in the memory buffer pool. The information\nentries stored in the buffer pool are consistent with\nthe individual\u2019s memory entries. At the end of each\ntime step, the memory information in the buffer pool is\nextracted to become part of the collective memory set."
+  },
+  {
+    "heading": "The parameters and related function settings involved in",
+    "content": "the extraction process are shown in Table 6. Among them,"
+  },
+  {
+    "heading": "Lbest denotes the optimal path length, Lrest denotes",
+    "content": "the remaining path length, Lpast denotes the traversed\npath length, and Norders(scope) represents the number of\norders within the perception range. The memory pruning\nprocess scores all memory items, and the top k memory\nitems are retained based on the scoring results. The\nspecific scoring function is given in (17).\nscore(mi) = |\u03b4t| + Ssuccess + \u03bbt\u2212t0\n(17)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE VI"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PARAMETERS FOR COLLECTIVE MEMORY CONSTRUCTION"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Parameter/Function"
+  },
+  {
+    "heading": "Value or Definition",
+    "content": "V\nV\n="
+  },
+  {
+    "heading": "Unknown",
+    "content": "Lbest"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Lrest+Lpast \u00d7 (statust \u2212statust\u22121) +"
+  },
+  {
+    "heading": "Norders(scope)",
+    "content": "scope2\n\u03b3\n0.8\nR"
+  },
+  {
+    "heading": "R(mi) =",
+    "content": "min\nmj\u2208Mshare\nt\n\u2225mi \u2212mj\u2225\n\u03b8value\n0.9\n\u03b8rare\n0.6\nk\n4000\n\u2022 Yt refers to the decision-making mechanism of the Deliv-\nery Agent, which is formed by the combined effect of the\nlearning-based decision and the memory-based decision."
+  },
+  {
+    "heading": "In this system, the modeling of the individual learn-",
+    "content": "ing mechanism includes three approaches: rule-based,\nimitation learning, and reinforcement learning. Under\nthe rule-based mechanism, the Delivery Agent does not\npossess learning ability, and its dynamic attributes remain\nunchanged during the system evolution process. Its main\ntask is to complete the orders assigned by the Platform"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Agent and perform random walks in the environment."
+  },
+  {
+    "heading": "Imitation learning adopts the Behavior Cloning algorithm,",
+    "content": "while reinforcement learning adopts the Q-Learning al-\ngorithm."
+  },
+  {
+    "heading": "The credibility of memory determines the manner in",
+    "content": "which behaviors are adopted. The parameter \u03b8memory\nis initialized to 0.7. When the credibility of a memory\nexceeds this threshold, the associated behavior can be\nselected. The function for memory credibility is defined\nas (18):"
+  },
+  {
+    "heading": "Cmemory = 0.6Senv + 0.2Ssuccess + 0.2\u03bbt\u2212t0",
+    "content": "(18)\n\u2022 At refers to the behavioral attributes of the Delivery"
+  },
+  {
+    "heading": "Agent, which determine the various actions the agent",
+    "content": "can perform during the system evolution process. In\nthis system, the Delivery Agent is mainly assigned the\nfollowing behavioral attributes: 1) Order acceptance: ac-\ncepting delivery orders and completing the pickup and\ndelivery process according to the specified route; 2)"
+  },
+  {
+    "heading": "Voluntary rest: the Delivery Agent can autonomously",
+    "content": "choose when to start accepting and delivering orders, but\nthe total working time must not exceed one-third of an\nevolution day; 3) Movement direction: when the agent\nis delivering an order or roaming the system without an\norder, it will determine its direction of movement based\non its memory and decision-making mechanism to ensure\ntimely delivery or to reach areas where orders are likely to\nappear; 4) Order acceptance location: the Delivery Agent\ncan freely choose its starting location for accepting orders\nafter resting, in order to receive new orders as quickly as\npossible.\n\u2022 N represents the constraints imposed on the Delivery"
+  },
+  {
+    "heading": "Agent, which may originate from the environment or",
+    "content": "from other agents. Currently, the system imposes the\nfollowing constraints on Delivery Agents: 1) Reachable\narea: the movement range of the Delivery Agent is limited\nby the boundaries of the environment and the agent is\nallowed to travel only on designated roads; 2) Working\ntime: the maximum working duration of the agent must\nnot exceed one-third of a natural day during system evolu-\ntion; 3) Order reception visibility constraint: the Delivery"
+  },
+  {
+    "heading": "Agent can only accept orders within its perception range,",
+    "content": "and orders beyond this range are considered invalid; 4)"
+  },
+  {
+    "heading": "Imitation visibility constraint: the target of imitation must",
+    "content": "be located at the same position as the Delivery Agent to\nenable information exchange, otherwise imitation cannot\noccur; 5) Dynamic attribute change constraint: the dy-\nnamic attributes of the Delivery Agent cannot be changed\nfrequently and may be adjusted at most twice within a\nnatural day of evolution. These constraints ensure that the\nbehavior of the Delivery Agent aligns with the overall\nrequirements of the system; 6) Congestion constraint:\nwhen a certain road segment in the system becomes\ncongested, that segment will temporarily be impassable,\nand the agent may choose to take a detour or wait for a\ncertain period before proceeding."
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Experiment Evaluation of Social System"
+  },
+  {
+    "heading": "This section aims to validate the effectiveness of the indi-",
+    "content": "vidual agent model based on memory-learning collaboration\nproposed in this paper and to answer the following two\nresearch questions (RQ) through experiments:"
+  },
+  {
+    "heading": "RQ1: In the study of individual agent modeling techniques,",
+    "content": "how do commonly used agents constructed based on learning\nalgorithms and large language models differ in their perfor-\nmance within the system?"
+  },
+  {
+    "heading": "RQ2: Compared with existing memory models, how does",
+    "content": "the proposed memory model perform in enhancing the anthro-\npomorphic characteristics of agents and enabling high-quality\ndecision-making within the system?\n1) Initialization of computational experiment: The size of\nthe experimental environment is 786 in length and 890 in\nwidth, and the map is divided into four subregions, each with\na length of 186 and a width of 212. The underlying modeling\nof the map adopts a two-dimensional grid representation,\nand all positions on the map can be represented using two-\ndimensional coordinates. The basic parameter settings of the\nexperiment are shown in Table 7."
+  },
+  {
+    "heading": "Unknown",
+    "content": "TABLE VII"
+  },
+  {
+    "heading": "Unknown",
+    "content": "EXPERIMENTAL CONFIGURATION"
+  },
+  {
+    "heading": "Unknown",
+    "content": "System Parameter"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Experimental Setting"
+  },
+  {
+    "heading": "Environment Size",
+    "content": "786 \u00d7 890"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Environment Structure"
+  },
+  {
+    "heading": "Grid structure; all positions in the environ-",
+    "content": "ment are available and represented by 2D\ncoordinates"
+  },
+  {
+    "heading": "Number of Agents",
+    "content": "400"
+  },
+  {
+    "heading": "Time Unit",
+    "content": "4 minutes per step"
+  },
+  {
+    "heading": "Number of Generations",
+    "content": "21600 (equivalent to 60 days in the real\nsystem)"
+  },
+  {
+    "heading": "To address RQ1, this section selects several representative",
+    "content": "learning models currently used in the research of individual\nagent modeling techniques for comparison. The detailed con-\ntent is as follows:\n\u2022 Rule-based: The behavior of rule-based agents is con-\ntrolled by a set of predefined rules, typically using\nan If-Then logical structure for decision-making. Since\ntheir behavior and decision processes are explicit and\npredictable, they can serve as a baseline model for\ncomparison with other learning models.\n\u2022 Imitation Learning [43], [44]: Imitation learning agents\nlearn by mimicking the behavior of experts rather than\nrelying on reward signals or environmental feedback."
+  },
+  {
+    "heading": "Unknown",
+    "content": "This paper adopts the commonly used Dagger (Dataset"
+  },
+  {
+    "heading": "Aggregation) algorithm in the field of imitation learning,",
+    "content": "which effectively addresses the distributional shift prob-\nlem present in traditional imitation learning.\n\u2022 Reinforcement Learning [45]: Reinforcement learning\nagents learn how to act through interaction with the\nenvironment to maximize long-term cumulative rewards."
+  },
+  {
+    "heading": "This section uses the Q-Learning algorithm based on",
+    "content": "value iteration.\n\u2022 Large Language Model [37]: Large language model\nagents serve as core controllers of the agent model\nby understanding natural language input and generating\nappropriate natural language output. This section adopts\nthe AgentVerse framework from existing research, with\nthe underlying model being qwen-max-0919 provided by"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Alibaba Cloud."
+  },
+  {
+    "heading": "To address RQ2, this section selects several representative",
+    "content": "memory models currently used in the research of individual\nagent modeling techniques for comparison. The detailed con-\ntent is as follows:\n\u2022 Individual Episodic Memory Model [34]: In such mod-\nels, each agent maintains its own memory information."
+  },
+  {
+    "heading": "During the decision-making process, the agent retrieves",
+    "content": "memory based on relevance, importance, and recency, and\nselects partially related observations as guidance to adjust\nits response to the current situation.\n\u2022 Collective Experience Replay Pool Model [46]: In this\ntype of model, the memory information of all agents\nis stored in a replay pool. During the decision-making\nprocess, the agent retrieves relevant information from the\nexperience replay pool as guidance to adjust its behavioral\nstrategy.\n2) Case 1: The impact of different learning mechanisms\non the adaptability of agents: The experiment compares four\ncommonly used learning mechanisms in individual agent mod-\neling: rule-based, imitation learning, reinforcement learning,\nand large language models. By deploying these agents in the\nconstructed on-demand delivery system and allowing them to\nevolve continuously within the system, the aim is to explore\nthe impact of different learning mechanisms on agent adapt-\nability. Next, this section will analyze the experimental results\nin detail from both the individual and system levels. Figure\n6 shows the specific performance of delivery agents under\ndifferent learning mechanisms and their impact on system\nperformance."
+  },
+  {
+    "heading": "From the macro-level analysis shown in Fig. 6(a-b), it can",
+    "content": "be observed that Delivery Agents constructed using learn-\ning algorithms exhibit a performance trend of Reinforce-\nment Learning \u00bf Imitation Learning \u00bf Rule-based in terms\nof average individual profit and average number of orders\ncompleted per day. Agents based on large language models\ndemonstrate performance similar to Imitation Learning in\nterms of average daily completed orders, and exhibit a trend\nof initially lower but eventually surpassing average individual\nprofit compared to Imitation Learning. This phenomenon can\nbe further explained at the micro level through Fig. 6(c),\nwhich shows the differences in effective working time of\nFig. 6. Performance and System Impact of Delivery Agents under Different"
+  },
+  {
+    "heading": "Learning Mechanisms.",
+    "content": "agents under different learning mechanisms, reflecting their\nvarying degrees of environmental adaptability. Rule-based\nagents lack learning capability and execute tasks strictly ac-\ncording to predefined routes, making them unable to adapt\nto environmental changes. In contrast, Imitation Learning and"
+  },
+  {
+    "heading": "Reinforcement Learning agents can continuously interact with",
+    "content": "the environment, optimize decision-making through learning,\nand enhance adaptability. Imitation Learning uses the DAgger\nalgorithm to improve adaptability by mimicking the decisions\nof superior agents. Reinforcement Learning continuously op-\ntimizes behavior by training the Q-table collaboratively based\non the principle of reward maximization, thus adapting to the\nenvironment more effectively. Large language model agents\nmake decisions through natural language prompts and improve\ntheir decision-making ability and adaptability through multi-\nround language interactions. From a system-level perspective,"
+  },
+  {
+    "heading": "Fig. 6(d) shows that agents with learning capabilities can",
+    "content": "optimize decisions through adaptive behavior, resulting in a\nhigher overall order completion rate compared to rule-based\nagents that lack learning ability."
+  },
+  {
+    "heading": "The experimental results indicate that the learning mecha-",
+    "content": "nism plays a critical role in enhancing agent adaptability across\nvarious indicators, including agent profit, average number of\norders completed per day, average effective working time\nper day, and system-level order completion rate. However,\ncompared to reinforcement learning agents, imitation learning\nagents and large language model agents exhibit certain lim-\nitations in adaptability. Imitation learning agents rely on the\nbehavioral patterns of expert agents and lack an active explo-\nration mechanism, making it difficult for them to quickly adapt\nin dynamic environments. Large language model agents lack\nthe capability for long-term dependency and multi-step reason-\ning when handling continuous decision-making and complex\nenvironmental interaction tasks. Additionally, because their\ndecisions are generated through dialogue-based interaction, the\nexperimental process is prolonged, with most of the time spent\nwaiting for response results, which limits their application in\nlarge-scale simulation scenarios. Based on the above experi-\nmental analysis, this paper can only conclude the performance\ndifferences among agents with different learning mechanisms\nunder the current task-driven experimental scenario, but cannot\ndirectly determine whether agents constructed using large\nlanguage models are superior or inferior to those based on\ntraditional learning algorithms. The differences in task types\ndetermine their respective strengths: large language model\nagents perform well in natural language understanding, general\nreasoning, zero-shot tasks, and transferability, whereas agents\nbuilt using traditional learning algorithms are more advanta-\ngeous in high-frequency interaction, strategy optimization, and\nfeedback-driven tasks.\n3) Case 2: The impact of different memory models on agent\nadaptability: Experiment 2 aims to validate the effective-\nness of the proposed memory-learning-based individual agent\nmodeling framework. The specific method involves applying\ndifferent memory modeling approaches to the Delivery Agents\nin the system and analyzing their impact on agent adaptability."
+  },
+  {
+    "heading": "By assigning different memory models to the agents with var-",
+    "content": "ious learning mechanisms from Experiment 1, the agents are\nenabled to integrate both learning and memory mechanisms\nduring the decision-making process. The specific impact of\ndifferent memory models on agent adaptability is analyzed by\ncomparing the statistical indicators of agents\u2019 average daily\nprofit.\nFig. 7. Comparison of Daily Average Rewards of Imitation Learning Agents\nunder Different Memory Models."
+  },
+  {
+    "heading": "Figure 7 shows the average daily profit of Delivery Agents",
+    "content": "based on imitation learning under the assistance of dif-\nferent memory models. From the boxplot, it can be seen\nthat memory-assisted decision-making effectively improves\nthe agents\u2019 average daily profit, among which the proposed"
+  },
+  {
+    "heading": "MMDM model performs the best. In addition, the line chart",
+    "content": "reveals that in the model without memory, the agents\u2019 average\ndaily profit exhibits significant fluctuations as the system\nevolves and only recovers after a long period of time. This\nphenomenon is mainly due to the tendency of agents in\nimitation learning to mimic the behaviors of high-reward\nagents during decision-making, which leads to a certain degree\nof behavioral clustering in the system. Moderate clustering\ncan promote agents to move toward resource-dense areas,\nthereby improving their profit; however, excessive clustering\nmay cause rapid depletion of resources in local areas, resulting\nin a phenomenon of \u201cinvolution\u201d among agents."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Fig. 8."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Comparison of Daily Average Rewards of Reinforcement Learning"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Agents under Different Memory Models."
+  },
+  {
+    "heading": "Figure 8 shows the average daily profit of Delivery Agents",
+    "content": "based on reinforcement learning under the assistance of dif-\nferent memory models, including a comparative analysis of\nline charts and boxplots. As observed from the boxplot, agent\nprofits are improved under memory-assisted decision-making,\nwith the proposed MMDM model demonstrating the best\nperformance. The line chart indicates that in reinforcement\nlearning without memory models, agent profits also exhibit\nsignificant fluctuations, but compared to imitation learning,\nthe profit level recovers more quickly. This phenomenon is\nmainly attributed to the use of the Q-Learning algorithm\nin the system modeling process, where all agents share the\nsame Q-table during training, leading to convergence in their\ndecision-making mechanisms. However, over time, agents are\nable to adjust their strategies through continuous trial and\nerror, gradually restoring their profit levels to the original\nstate. In the episodic memory model, although memory data is\nlimited to individual agents, there is no significant \u201cinvolution\u201d\nphenomenon among agents, and profits recover quickly after\nfluctuations. The line chart shows that in both the experience\nreplay pool model and the proposed MMDM model, agent\nprofits do not exhibit significant fluctuations, with only minor\nvariations. Nevertheless, in terms of overall profit levels, the"
+  },
+  {
+    "heading": "Unknown",
+    "content": "MMDM model performs better."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Fig. 9."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Comparison of Daily Average Rewards of Large Language Model"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Agents under Different Memory Models."
+  },
+  {
+    "heading": "Figure 9 shows the average daily profit of Delivery Agents",
+    "content": "based on large language models under the assistance of\ndifferent memory models, including a comparative analysis of\nline charts and boxplots. From the boxplot, it can be observed\nthat the introduction of memory mechanisms improves the\naverage daily profit of agents constructed using large language\nmodels, with the proposed MMDM model demonstrating the\nbest performance. The line chart shows that in the agent model\nbased on large language models without memory mechanisms,\nthe agent\u2019s average daily profit fluctuates significantly dur-\ning the evolution process and increases in the later stages,\nbut no \u201cinvolution\u201d phenomenon similar to that observed in\nimitation learning and reinforcement learning models occurs."
+  },
+  {
+    "heading": "This phenomenon is mainly attributed to the fact that agents",
+    "content": "based on large language models without memory mechanisms\nrely on the model\u2019s built-in short-term context information for\ndecision-making, resulting in greater volatility in the agents\u2019\nperformance under dynamic environments. At the same time,\nthe short-term context allows agents to optimize decisions and\nimprove adaptability to a certain extent during the evolution\nprocess. Furthermore, since each agent\u2019s context information\nis independent, excessive competition leading to \u201cinvolution\u201d\ndoes not occur."
+  },
+  {
+    "heading": "After the introduction of the memory mechanism, the",
+    "content": "fluctuations in agent profit are significantly reduced. In the\nindividual episodic memory model, agents are able to carry\nmore comprehensive contextual information during interac-\ntions, resulting in better performance with less variability. In\nthe collective memory buffer pool model, agents can utilize\ncollective memory as contextual information during inter-\nactions, thus outperforming the individual episodic memory\nmodel. In the proposed MMDM model, high-quality memory\ninformation is ensured through the filtering of collective mem-\nory, allowing agents to carry only the most valuable context,\nthereby achieving better adaptability."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Fig. 10."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Comparison of Agents\u2019 Daily Completed Orders and Effective"
+  },
+  {
+    "heading": "Working Time under Different Decision Models.",
+    "content": "Based on the analysis of agent profit, the internal perspective\nof the agent is further examined to explore the specific impact\nof different decision-making models on agent adaptability."
+  },
+  {
+    "heading": "Figure 10 presents a comparative analysis of the average",
+    "content": "number of orders completed per day and effective working\ntime of agents under different decision-making models. As\nshown in the figure, the introduction of memory mechanisms\nimproves both the agents\u2019 average daily order completion and\neffective working time. Among them, compared to the indi-\nvidual memory model (episodic memory model), the collective\nmemory models (experience replay pool and MMDM model)\nhave a more significant effect on enhancing agent adaptabil-\nity. Overall, the integration of memory models effectively\nstrengthens agent adaptability within the system, enabling\nagents to maintain efficient working states for longer dura-\ntions and complete more tasks during the system\u2019s evolution\nprocess."
+  },
+  {
+    "heading": "Through the above analysis, the effectiveness of the pro-",
+    "content": "posed individual agent model based on memory-learning col-\nlaboration can be verified. Regardless of imitation learning,\nreinforcement learning, or large language models, the intro-\nduction of memory models can significantly enhance agents\u2019\nadaptability within the system. Compared with reinforcement\nlearning, memory models have a more significant effect on\npromoting the adaptability of imitation learning agents and\nlarge language model agents. This is because the effectiveness\nof imitation learning depends on the quality of the imitation\ndata source, while historical experiences in the memory set not\nonly broaden the coverage of the imitation data source but also\nenhance the agent\u2019s ability of autonomous exploration. Under\nthe mechanism of large language models, the introduction\nof the memory mechanism helps mitigate volatility caused\nby insufficient short-term information, reduces trial-and-error\ncost and time, and assists agents in making more stable and\nefficient decisions under similar circumstances. In contrast,\nreinforcement learning enhances agent adaptability by contin-\nuously collecting reward information through trial and error,\nwhile the introduction of memory models can reduce invalid\nexploration of agents in the system and provide valuable\nexperiential references for the free exploration process, thereby\naccelerating the convergence process."
+  },
+  {
+    "heading": "In addition, different types of memory models exhibit",
+    "content": "varying effects in enhancing agents\u2019 adaptability. The scenario\nmemory model, as an individual memory model, primarily\nstores an agent\u2019s own experiences and can assist the agent\nin making more effective decisions when encountering similar\nsituations. However, in multi-agent systems, group memory\nmodels generally perform better, as they can aggregate expe-\nriences from multiple agents, forming a more comprehensive\nknowledge base that facilitates collaboration and information\nsharing among agents, thereby improving the adaptability and\nefficiency of the overall system. The experience replay buffer\nis a commonly used group memory model in the current\nlearning domain. Based on the classical experience replay\nbuffer model, this paper further optimizes it and proposes the"
+  },
+  {
+    "heading": "MMDM model. Experimental results validate that this model",
+    "content": "enables agents to select and utilize historical experiences\nmore efficiently, thus demonstrating superior performance in\ncomplex environments."
+  },
+  {
+    "heading": "Based on the overall modeling of the aforementioned arti-",
+    "content": "ficial society, the general behaviors of agents in the system\nare abstracted into a perception module, decision-making\nmodule, behavior module, memory module, and learning mod-\nule, which are subsequently applied to scenario construction."
+  },
+  {
+    "heading": "Through modular design, the system improves code reusability",
+    "content": "while reducing development costs and maintenance complex-\nity, thereby enabling more efficient construction and optimiza-\ntion of artificial society models and avoiding redundant work\nof building systems from scratch each time. In addition, the\nsystem integrates a visual modeling tool that allows intuitive\npresentation of agent behavior patterns during system evolu-\ntion, making it possible to clearly observe both micro-level\nagent decisions and macro-level emergent phenomena. This\nnot only enhances the transparency of system operations but\nalso facilitates deeper exploration of interaction mechanisms\nand evolutionary patterns in multi-agent systems. The system\nis widely applicable and can be extended beyond instant\ndelivery systems to multi-agent application scenarios such\nas autonomous driving, robotic collaboration, and intelligent\ntraffic scheduling."
+  },
+  {
+    "heading": "Unknown",
+    "content": "V. CONCLUSION"
+  },
+  {
+    "heading": "In recent years, the rapid development of computational",
+    "content": "experiments has provided a new perspective for analyzing\ncomplex social systems, with artificial society modeling being\nthe first step in conducting such experiments. Through artificial\nsociety modeling, complex social systems in the real world can\nbe transformed into computational models, thereby enabling\nbetter simulation and observation of the complex evolutionary\nphenomena of the system. Among them, agent modeling\ntechnology serves as the foundation for building effective sim-\nulation systems and directly determines the model\u2019s capacity to\nrepresent and predict complex behaviors in real society. High-\nquality agent models not only reflect individual behavioral\npatterns more realistically but also reveal macro-level social\nphenomena emerging from multi-agent interactions. Individual\nagent modeling technology focuses on modeling the cognitive\nmechanisms and behavioral rules of single agents and serves as\nthe micro-level driving force of system evolution. At present,\nthe construction of individual agent models usually relies\non learning algorithms or large language models to drive\nthe agents\u2019 evolution in the system. However, these methods\noften overlook the critical role of memory mechanisms in\nindividual agent models and fail to fully consider the hier-\narchical relationship between individual memory and group\nmemory. Moreover, in many complex social systems, agents\nare tightly connected and exhibit strong interactions, often\nforming networked social relationship structures. Group agent\nmodeling focuses more on the interaction relationships, coor-\ndination mechanisms, and network structures among multiple\nagents and serves as a bridge between individual behavior and\nemergent group phenomena. Group agent models enable the\nsystem\u2019s evolution to demonstrate the dynamic process from\nindividual to group, which is key to the formation of macro-\nlevel social phenomena. However, existing studies mostly\nignore the role of network structure in modeling or focus\nonly on static network modeling, without fully considering the\nfeedback relationship between agents and the network\u2014i.e.,\nagents are not only influenced by the network structure but\nalso capable of influencing changes in network topology."
+  },
+  {
+    "heading": "To address these issues, this paper progressively optimizes",
+    "content": "existing agent models from the individual level to the group\nlevel."
+  },
+  {
+    "heading": "The model clarifies the specific position of memory within",
+    "content": "the overall structure of the individual agent model and the\ndirection of information flow among different modules during\nthe evolution process. To effectively manage and utilize mem-\nory information, the model divides memory into three levels:\nindividual memory set, memory buffer pool, and group mem-\nory set. In addition, the model introduces memory evaluation\nmetrics and selectively integrates memory information into the\ngroup memory set based on these metrics, thereby improving\nthe quality of group memory. To achieve dynamic updating\nof memory information, the model also designs a dynamic\npruning mechanism. The model realizes the synergy between\nlearning and memory through the coordinated decision-making\nmodule, jointly forming the agent\u2019s decision-making mech-\nanism. This design not only overcomes the limitations of\ntraditional models in terms of continuity and interpretability\nbut also provides a more cognitively plausible underlying logic\nfor simulating complex social phenomena. Specifically, agents\nin the system evolve from \u201dbehavioral imitation\u201d to \u201dmind\nreconstruction.\u201d To verify the effectiveness of the model,\na computational experimental system is constructed in this\npaper, and the experimental results further demonstrate the\nvalidity of the model."
+  },
+  {
+    "heading": "Based on existing research achievements, this paper further",
+    "content": "explores the research problem of improving agent modeling\ntechniques at both the individual and societal levels in artificial\nsociety modeling. However, there are still some shortcomings\nin the current study that need to be addressed. Therefore, future\nresearch will focus on the following three aspects:\n(1) Enhancing the quality of memory modeling to achieve\nagent self-reflection and adjustment: The construction of the\nmemory module relies not only on computer science but also\non research results from psychology, neuroscience, and other\nfields. By gaining a deeper understanding of the composition\nof human and animal memory, it is possible to construct\nmore realistic memory modules. Historical experience is not\nonly a core information source in the evolutionary process of\nagents but should also be used to reflect on behavior for self-\noptimization, thereby improving the quality of individual agent\nmodeling and the credibility of artificial society modeling.\n(2) Integrating large language models with social networks\nto jointly construct group agent models: At present, agents\nbuilt on large language models often play the role of \u201crespon-\ndents,\u201d making it difficult for them to deeply understand the\nsocial structure in the system evolution process and lacking the\nability to actively establish social connections. Future research\nwill focus on how to combine social network structures\nwith large language models to help agents better understand\nand integrate into social networks, thereby simulating more\ncomplex social phenomena.\n(3) Coexistence of competition and cooperation: Through\nmodel expansion, competition and cooperation in the network\nare not isolated but intertwined to jointly form a complex\ninteraction mechanism. By introducing the dual dimensions of\ncompetition and cooperation, agents can make more flexible\nand rational decisions in complex social scenarios, thereby\neffectively improving their adaptability and the overall system\nstability. In addition, such mechanisms provide new perspec-\ntives and research directions for exploring social behaviors,\ngroup dynamics, and collaboration issues in multi-agent sys-\ntems."
+  },
+  {
+    "heading": "REFERENCES",
+    "content": "[1] D. M. Lazer, A. Pentland, D. J. Watts, S. Aral, S. Athey, N. Contractor,\nD. Freelon, S. Gonzalez-Bailon, G. King, H. Margetts et al., \u201cCompu-\ntational social science: Obstacles and opportunities,\u201d Science, vol. 369,\nno. 6507, pp. 1060\u20131062, 2020.\n[2] X. Xue, G. Li, D. Zhou, Y. Zhang, L. Zhang, Y. Zhao, Z. Feng, L. Cui,\nZ. Zhou, X. Sun et al., \u201cResearch roadmap of service ecosystems: A\ncrowd intelligence perspective,\u201d International Journal of Crowd Science,\nvol. 6, no. 4, pp. 195\u2013222, 2022.\n[3] M. Jusup, P. Holme, K. Kanazawa, M. Takayasu, I. Romi\u00b4c, Z. Wang,\nS. Ge\u02c7cek, T. Lipi\u00b4c, B. Podobnik, L. Wang et al., \u201cSocial physics,\u201d"
+  },
+  {
+    "heading": "Physics Reports, vol. 948, pp. 1\u2013148, 2022.",
+    "content": "[4] D. Helbing, D. Brockmann, T. Chadefaux, K. Donnay, U. Blanke,\nO. Woolley-Meza, M. Moussaid, A. Johansson, J. Krause, S. Schutte\net al., \u201cSaving human lives: What complexity science and information\nsystems can contribute,\u201d Journal of statistical physics, vol. 158, no. 3,\npp. 735\u2013781, 2015.\n[5] X. Xue, X.-N. Yu, D.-Y. Zhou, X. Wang, Z.-B. Zhou, and F.-Y. Wang,\n\u201cComputational experiments: Past, present and future,\u201d arXiv preprint\narXiv:2202.13690, 2022.\n[6] X. Xue, Y. Shen, X. Yu, D.-Y. Zhou, X. Wang, G. Wang, and F.-Y. Wang,\n\u201cComputational experiments: A new analysis method for cyber-physical-\nsocial systems,\u201d IEEE Transactions on Systems, Man, and Cybernetics:"
+  },
+  {
+    "heading": "Systems, vol. 54, no. 2, pp. 813\u2013826, 2023.",
+    "content": "[7] J. Pearl and D. Mackenzie, The book of why: the new science of cause\nand effect."
+  },
+  {
+    "heading": "Basic books, 2018.",
+    "content": "[8] Y. Lou, L.-Y. Duan, Y. Luo, Z. Chen, T. Liu, S. Wang, and W. Gao,\n\u201cTowards digital retina in smart cities: A model generation, utilization\nand communication paradigm,\u201d in 2019 IEEE International Conference\non Multimedia and Expo (ICME)."
+  },
+  {
+    "heading": "IEEE, 2019, pp. 19\u201324.",
+    "content": "[9] L. Li, X. Wang, K. Wang, Y. Lin, J. Xin, L. Chen, L. Xu, B. Tian, Y. Ai,\nJ. Wang et al., \u201cParallel testing of vehicle intelligence via virtual-real\ninteraction,\u201d Science robotics, vol. 4, no. 28, p. eaaw4106, 2019.\n[10] L. Li, W.-L. Huang, Y. Liu, N.-N. Zheng, and F.-Y. Wang, \u201cIntelligence\ntesting for autonomous vehicles: A new approach,\u201d IEEE Transactions\non Intelligent Vehicles, vol. 1, no. 2, pp. 158\u2013166, 2016.\n[11] M. Benhassine, J. Quinn, D. Stewart, A. A. Arsov, D. Ianc, M. Ivan,\nand F. Van Utterbeeck, \u201cAdvancing military medical planning in large\nscale combat operations: insights from computer simulation and experi-\nmentation in nato\u2019s vigorous warrior exercise 2024,\u201d Military Medicine,\nvol. 189, no. Supplement 3, pp. 456\u2013464, 2024.\n[12] V. J. Schweizer, A. D. Jamieson-Lane, H. Cai, S. Lehner, and M. Smer-\nlak, \u201cPathways for socio-economic system transitions expressed as a\nmarkov chain,\u201d PLoS One, vol. 18, no. 7, p. e0288928, 2023.\n[13] L. Zhang, S. Chen, X. Xue, H. Wu, and Z. Feng, \u201cInvestigating the\nimpact of structural holes on the value creation in mobile application\nservice ecosystems: Evidence from computational experiments,\u201d Journal\nof Software: Evolution and Process, vol. 36, no. 6, p. e2614, 2024.\n[14] Z. Yang, T. Wei, Y. Liang, X. Yuan, R. Gao, Y. Xia, J. Zhou, Y. Zhang,\nand Z. Yu, \u201cA foundation model for generalizable cancer diagnosis and\nsurvival prediction from histopathological images,\u201d Nature Communica-\ntions, vol. 16, no. 1, p. 2366, 2025.\n[15] F. Alvarez, D. Kipping, and W. Nogueira, \u201cA computational model\nto simulate spectral modulation and speech perception experiments\nof cochlear implant users,\u201d Frontiers in Neuroinformatics, vol. 17, p.\n934472, 2023.\n[16] N. Lettieri, \u201cComputational social science, the evolution of policy design\nand rule making in smart societies,\u201d Future internet, vol. 8, no. 2, p. 19,\n2016.\n[17] X. Xue, S. Wang, L. Zhang, Z. Feng, and Y. Guo, \u201cSocial learning\nevolution (sle): Computational experiment-based modeling framework\nof social manufacturing,\u201d IEEE Transactions on Industrial Informatics,\nvol. 15, no. 6, pp. 3343\u20133355, 2018.\n[18] D. Zhou, X. Xue, and Z. Zhou, \u201cSle2: The improved social learning\nevolution model of cloud manufacturing service ecosystem,\u201d IEEE\nTransactions on Industrial Informatics, vol. 18, no. 12, pp. 9017\u20139026,\n2022.\n[19] D. Zhou, X. Xue, X. Lu, Y. Guo, P. Ji, H. Lv, W. He, Y. Xu, Q. Li,\nand L. Cui, \u201cA hierarchical model for complex adaptive system: From\nadaptive agent to ai society,\u201d ACM Transactions on Autonomous and"
+  },
+  {
+    "heading": "Adaptive Systems, 2024.",
+    "content": "[20] X. Xue, X. Yu, D. Zhou, X. Wang, C. Bi, S. Wang, and F.-Y. Wang,\n\u201cComputational experiments for complex social systems: Integrated\ndesign of experiment system,\u201d IEEE/CAA Journal of Automatica Sinica,\nvol. 11, no. 5, pp. 1175\u20131189, 2024.\n[21] X. Xue, D. Zhou, X. Yu, G. Wang, J. Li, X. Xie, L. Cui, and F.-Y. Wang,\n\u201cComputational experiments for complex social systems: Experiment\ndesign and generative explanation,\u201d IEEE/CAA Journal of Automatica"
+  },
+  {
+    "heading": "Sinica, vol. 11, no. 4, pp. 1022\u20131038, 2024.",
+    "content": "[22] X. Xue, Y. Guo, S. Chen, and S. Wang, \u201cAnalysis and controlling\nof manufacturing service ecosystem: A research framework based on\nthe parallel system theory,\u201d IEEE Transactions on Services Computing,\nvol. 14, no. 6, pp. 1598\u20131611, 2019.\n[23] M. Lu, S. Chen, X. Xue, X. Wang, Y. Zhang, Y. Zhang, and F.-Y.\nWang, \u201cComputational experiments for complex social systems\u2014part\nii: The evaluation of computational models,\u201d IEEE Transactions on\nComputational Social Systems, vol. 9, no. 4, pp. 1224\u20131236, 2021.\n[24] Y. Ge, L. Liu, X. Qiu, H. Song, Y. Wang, and K. Huang, \u201cA framework\nof multilayer social networks for communication behavior with agent-\nbased modeling,\u201d Simulation, vol. 89, no. 7, pp. 810\u2013828, 2013.\n[25] O. Deepa and A. Senthilkumar, \u201cSwarm intelligence from natural to\nartificial systems: Ant colony optimization,\u201d Networks (Graph-Hoc),\nvol. 8, no. 1, pp. 9\u201317, 2016.\n[26] P. Ye, S. Wang, and F.-Y. Wang, \u201cA general cognitive architecture\nfor agent-based modeling in artificial societies,\u201d IEEE Transactions on\nComputational Social Systems, vol. 5, no. 1, pp. 176\u2013185, 2017.\n[27] H. Wu and Z. H. Peng, \u201cAgent-based modeling and simulation on\nplanning analysis,\u201d Applied Mechanics and Materials, vol. 631, pp.\n1312\u20131319, 2014.\n[28] M. Wooldridge and N. R. Jennings, \u201cIntelligent agents: Theory and\npractice,\u201d The knowledge engineering review, vol. 10, no. 2, pp. 115\u2013\n152, 1995.\n[29] A. Bandura and R. H. Walters, Social learning theory."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Prentice hall"
+  },
+  {
+    "heading": "Englewood Cliffs, NJ, 1977, vol. 1.",
+    "content": "[30] J. Ho and S. Ermon, \u201cGenerative adversarial imitation learning,\u201d Ad-\nvances in neural information processing systems, vol. 29, 2016.\n[31] M. L. Littman, \u201cMarkov games as a framework for multi-agent rein-\nforcement learning,\u201d in Machine learning proceedings 1994."
+  },
+  {
+    "heading": "Elsevier,",
+    "content": "1994, pp. 157\u2013163.\n[32] X. Zhu, Y. Chen, H. Tian, C. Tao, W. Su, C. Yang, G. Huang, B. Li,\nL. Lu, X. Wang et al., \u201cGhost in the minecraft: Generally capable agents\nfor open-world environments via large language models with text-based\nknowledge and memory,\u201d arXiv preprint arXiv:2305.17144, 2023.\n[33] M. Sclar, S. Kumar, P. West, A. Suhr, Y. Choi, and Y. Tsvetkov,\n\u201cMinding language models\u2019(lack of) theory of mind: A plug-and-play\nmulti-character belief tracker,\u201d arXiv preprint arXiv:2306.00924, 2023.\n[34] M. Chen, Z. Tao, W. Tang, T. Qin, R. Yang, and C. Zhu, \u201cEnhancing\nemergency decision-making with knowledge graphs and large language\nmodels,\u201d International Journal of Disaster Risk Reduction, vol. 113, p.\n104804, 2024.\n[35] G. Li, H. Hammoud, H. Itani, D. Khizbullin, and B. Ghanem, \u201cCamel:\nCommunicative agents for\u201d mind\u201d exploration of large language model\nsociety,\u201d Advances in Neural Information Processing Systems, vol. 36,\npp. 51 991\u201352 008, 2023.\n[36] Q. Wu, G. Bansal, J. Zhang, Y. Wu, B. Li, E. Zhu, L. Jiang, X. Zhang,\nS. Zhang, J. Liu et al., \u201cAutogen: Enabling next-gen llm applications via\nmulti-agent conversations,\u201d in First Conference on Language Modeling,\n2024.\n[37] W. Chen, Y. Su, J. Zuo, C. Yang, C. Yuan, C. Qian, C.-M. Chan,\nY. Qin, Y. Lu, R. Xie et al., \u201cAgentverse: Facilitating multi-agent col-\nlaboration and exploring emergent behaviors in agents,\u201d arXiv preprint\narXiv:2308.10848, vol. 2, no. 4, p. 6, 2023.\n[38] J. S. Park, J. O\u2019Brien, C. J. Cai, M. R. Morris, P. Liang, and M. S.\nBernstein, \u201cGenerative agents: Interactive simulacra of human behavior,\u201d\nin Proceedings of the 36th annual acm symposium on user interface\nsoftware and technology, 2023, pp. 1\u201322.\n[39] A. Graves, G. Wayne, and I. Danihelka, \u201cNeural turing machines,\u201d arXiv\npreprint arXiv:1410.5401, 2014.\n[40] J. Piao, Y. Yan, J. Zhang, N. Li, J. Yan, X. Lan, Z. Lu, Z. Zheng, J. Y.\nWang, D. Zhou et al., \u201cAgentsociety: Large-scale simulation of llm-\ndriven generative agents advances understanding of human behaviors\nand society,\u201d arXiv preprint arXiv:2502.08691, 2025.\n[41] L. Fan, G. Wang, Y. Jiang, A. Mandlekar, Y. Yang, H. Zhu, A. Tang,\nD.-A. Huang, Y. Zhu, and A. Anandkumar, \u201cMinedojo: Building open-\nended embodied agents with internet-scale knowledge,\u201d Advances in\nNeural Information Processing Systems, vol. 35, pp. 18 343\u201318 362,\n2022.\n[42] L. Wang, X. Zhang, H. Su, and J. Zhu, \u201cA comprehensive survey of\ncontinual learning: Theory, method and application,\u201d IEEE transactions\non pattern analysis and machine intelligence, vol. 46, no. 8, pp. 5362\u2013\n5383, 2024.\n[43] D. A. Pomerleau, \u201cAlvinn: An autonomous land vehicle in a neural\nnetwork,\u201d Advances in neural information processing systems, vol. 1,\n1988.\n[44] S. Ross, G. Gordon, and D. Bagnell, \u201cA reduction of imitation learning\nand structured prediction to no-regret online learning,\u201d in Proceedings\nof the fourteenth international conference on artificial intelligence and\nstatistics."
+  },
+  {
+    "heading": "JMLR Workshop and Conference Proceedings, 2011, pp.",
+    "content": "627\u2013635.\n[45] C. J. C. H. Watkins et al., \u201cLearning from delayed rewards,\u201d 1989.\n[46] Y. Mei, H. Zhou, T. Lan, G. Venkataramani, and P. Wei, \u201cMac-po:\nMulti-agent experience replay via collective priority optimization,\u201d arXiv\npreprint arXiv:2302.10418, 2023."
+  }
+]

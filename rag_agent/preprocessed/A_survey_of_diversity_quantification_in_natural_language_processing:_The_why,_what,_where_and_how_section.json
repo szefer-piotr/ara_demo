@@ -1,0 +1,2730 @@
+[
+  {
+    "heading": "Unknown",
+    "content": "A survey of diversity quantification in natural language processing:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "The why, what, where and how"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Louis Est\u00e8ve"
+  },
+  {
+    "heading": "Unknown",
+    "content": "France"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Universit\u00e9 Paris-Saclay, CNRS, LISN\u2217"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Marie-Catherine de Marneffe"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Belgium"
+  },
+  {
+    "heading": "Unknown",
+    "content": "FNRS - UCLouvain\u2020"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Nurit Melnik"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Israel"
+  },
+  {
+    "heading": "Unknown",
+    "content": "The Open University of Israel\u2021"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Agata Savary"
+  },
+  {
+    "heading": "Unknown",
+    "content": "France"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Universit\u00e9 Paris-Saclay, CNRS, LISN\u2217"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Olha Kanishcheva"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Germany"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Heidelberg University\u00a7"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Abstract"
+  },
+  {
+    "heading": "The concept of diversity has received in-",
+    "content": "creased consideration in Natural Language"
+  },
+  {
+    "heading": "Processing (NLP) in recent years. This is",
+    "content": "due to various motivations like promoting\nequity and inclusion, approximating human\nlinguistic behavior, and increasing systems\u2019\nperformance. Diversity has however often\nbeen addressed in an ad hoc manner in NLP,\nand with few explicit links to other domains\nwhere this notion is better theorized. We sur-\nvey articles in the ACL Anthology from the\npast 6 years, with \"diversity\" or \"diverse\" in\ntheir title. We find a wide range of settings\nin which diversity is quantified, often highly\nspecialized and using inconsistent terminol-\nogy. We put forward a unified taxonomy\nof why, what on, where, and how diversity\nis measured in NLP. Diversity measures are\ncast upon a unified framework from ecology\nand economy (Stirling, 2007) with 3 dimen-\nsions of diversity: variety, balance and dis-\nparity. We discuss the trends which emerge\ndue to this systematized approach. We be-\nlieve that this study paves the way towards\na better formalization of diversity in NLP,\nwhich should bring a better understanding\nof this notion and a better comparability be-\ntween various approaches."
+  },
+  {
+    "heading": "Unknown",
+    "content": "1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Introduction"
+  },
+  {
+    "heading": "The notion of diversity has been gaining increas-",
+    "content": "ing attention in natural language processing (NLP)\nover the past few years. The top panel of Figure 1\ndepicts the number of papers in the ACL Anthology\nfrom 1990 to 2024-07-261 which contain \u201cdiver-\nsity\u201d or \u201cdiverse\u201d in their title or abstract.2 There\n\u2217first.last@universite-paris-saclay.fr\n\u2020marie-catherine.demarneffe@uclouvain.be\n\u2021nuritme@openu.ac.il\n\u00a7kanichshevaolga@gmail.com"
+  },
+  {
+    "heading": "Unknown",
+    "content": "1The date when we downloaded the papers for this survey."
+  },
+  {
+    "heading": "Unknown",
+    "content": "2Prior to 1990, the only one such item is an erratum entitled"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Diverse corrigenda and addenda to the pre-prints."
+  },
+  {
+    "heading": "Figure 1: Papers in the ACL Anthology from 1990 until",
+    "content": "2024-07-26 with \u201cdiversity\u201d or \u201cdiverse\u201d in their title or\nabstract. Top are the raw numbers, bottom the ratio to\nall papers from the same year in the ACL Anthology.\nare 3,653 such papers in total,3 411 of them contain\none of these terms in their title (in orange in Fig-\nure 1), and 3,242 in their abstract but not in their\ntitle (in blue). Since 2019, these figures amount to\n3,162 (total), 308 (title) and 2,854 (abstract). This\neffect is not only related to the rapid growth of NLP\nin general. The bottom panel of Figure 1 shows the\nratio of the same papers to all papers in the ACL"
+  },
+  {
+    "heading": "Anthology from the same year. In particular, in",
+    "content": "the first half of 2024, as many as 12% of all ACL"
+  },
+  {
+    "heading": "Anthology papers contained the term \u201cdiverse\u201d or",
+    "content": "\u201cdiversity\u201d in their title or abstract. These works,\nhowever, display disparate understanding of the\nnotion of diversity, as well as a lack of a unified\nvocabulary and framework needed to evaluate and\ncompare approaches. Even if attempts were made\nto systematize the notion of diversity in NLP, they"
+  },
+  {
+    "heading": "3As a reference, on 2024-07-26, the ACL Anthology con-",
+    "content": "tained 97,446 papers.\narXiv:2507.20858v1  [cs.CL]  28 Jul 2025\nwere limited to particular areas (Tevet and Berant,\n2021) or diversity aspects (Ploeger et al., 2024)."
+  },
+  {
+    "heading": "This suggests that NLP belongs to the \u201cfields [. . . ]",
+    "content": "where diversity is prominent in discussion, but re-\nmains undefined or analytically neglected\u201d (Stir-\nling, 2007, p. 707). The objective of this survey is\nto take steps towards bridging this gap by taking\ninspiration from fields where diversity has been\ntheorized and systematically analysed, most promi-\nnently ecology. We are particularly interested in\nsystematizing and gaining a better understanding of\ndiversity quantification in NLP. Our contributions\nare twofold:\n\u2022 a systematic review of the 308 papers from\nthe past 6 years containing \u201cdiverse\u201d or \u201cdi-\nversity\u201d in their title, from the point of view\nof diversity quantification,\n\u2022 a taxonomy allowing to position various ap-\nproaches with respect to: the motivations be-\nhind the quest for diversity (why), the objects\non which diversity is quantified (what), the\npipeline stages where diversity measures are\napplied (where) and finally the types of diver-\nsity measures themselves (how)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "The theory of diversity"
+  },
+  {
+    "heading": "In ecological research, theorizing diversity has seen",
+    "content": "substantial progress since mentions of diversity by"
+  },
+  {
+    "heading": "Darwin (1871). Dozens of diversity measures have",
+    "content": "been defined (Smith and Wilson, 1996) and ap-\nplied to studies of various species and their habitats."
+  },
+  {
+    "heading": "This field borrowed extensively from information",
+    "content": "theory, through its use of parameterized entropies\n(Patil and Taillie, 1982) and related transformations\n(Hill, 1973). Distance measures underlying diver-\nsity were addressed for both functional differences\n(body features, behavior, etc.) and positions in\nthe phylogenetic tree (Mouchet et al., 2010). Sev-\neral initiatives were undertaken to represent various\ndiversity measures in unified frameworks, mostly\nbased on information theory (Leinster and Cobbold,\n2012; Scheiner, 2012; Chao et al., 2014). Proper-\nties of various measures have been defined and\ndebated over (Smith and Wilson, 1996; Hoffmann\nand Hoffmann, 2008; Jost, 2009). As a result, di-\nversity theory in ecology is a rather mature and\nformalized topic with a substantial bibliography."
+  },
+  {
+    "heading": "Inspired by, or parallel to, ecology, various scien-",
+    "content": "tific domains such as economics, physics, political\nscience, and linguistics have been concerned with\ndiversity measurement. A unifying framework pro-\nposed by for these domain-specific considerations\nsupposes that a system\u2019s elements (also called op-\ntions or items) can be assigned to categories (also\ncalled types), e.g. in ecology, categories are of-\nten species and elements are specimens. Diversity\nmeasures can then be positioned along three dimen-\nsions: variety, which focuses on the number of cat-\negories, balance, which considers the evenness of\nthe distribution of elements in categories, and dis-\nparity, which targets the extent of the differences\nbetween categories (Stirling, 1994a,b, 2007; Rama-\nciotti Morales et al., 2021). For instance, a habitat\nwith 20 species has a higher variety, and therefore\na higher diversity, than one with 10 species (what-\never their numbers of specimens and differences\nbetween them). A habitat hosting 3 species with\n100 specimens each is more balanced, and there-\nfore more diverse, than one hosting 3 species with\n150, 100, and 50 specimens each. Finally, a habi-\ntat with 5 bird species and 5 insect species has a\nhigher disparity than one with 10 insect species."
+  },
+  {
+    "heading": "Measures may tackle one or more dimensions at",
+    "content": "once, as we will see in Section 7. In this survey,\nwe attempt to cast the diversity measures found in"
+  },
+  {
+    "heading": "NLP to these dimensions. The aim is to introduce",
+    "content": "a unified vocabulary and taxonomy, make these\nmeasures more easily comparable, and assess their\napplicability beyond the precise contexts in which\nthey were defined."
+  },
+  {
+    "heading": "Unknown",
+    "content": "3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Data and methodology"
+  },
+  {
+    "heading": "To explore how diversity is measured in NLP, we",
+    "content": "conducted a systematic analysis of a subset of pa-\npers from the ACL Anthology4 that include the\nterms \u201cdiverse\u201d or \u201cdiversity\u201d in their title. Specifi-\ncally, the data for our study consists of papers from\nthe ACL Anthology up to July 26, 2024, which, at\nthat time, hosted 97,466 papers. We focused on\npapers from the last 5 years (from 2019 to July 26,\n2024) that contain the terms \u201cdiversity\u201d or \u201cdiverse\u201d\nin their title. While we considered including papers\nwhere these terms appear in the abstract, doing so\nwould have significantly increased the number of\narticles (see Figure 1), making a thorough man-\nual evaluation infeasible. This selection process\nresulted in 308 articles, which were manually an-\nalyzed. We filtered out 39 irrelevant papers.5 The\n4https://aclanthology.org/"
+  },
+  {
+    "heading": "5Papers judged irrelevant are those which: (i) are not writ-",
+    "content": "ten in English, (ii) speak of non-linguistic diversity (e.g. bio-\ndiversity, neurodiversity), (iii) contain \u201cdiversity\u201d in their title"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ethical"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Practical"
+  },
+  {
+    "heading": "Goal",
+    "content": "inclusiveness,\nequality, fairness\nuser expectation,\nnaturalness"
+  },
+  {
+    "heading": "Means deontology,",
+    "content": "best practices\nperformance,\ninformativeness"
+  },
+  {
+    "heading": "Table 1: Motivations behind the quest for diversity.",
+    "content": "remaining 269 papers, 197 of which quantify di-\nversity, were annotated to analyze key aspects of\nhow diversity is addressed within NLP research."
+  },
+  {
+    "heading": "Our analysis focused on answering four main ques-",
+    "content": "tions: why diversity is important (Section 4), what\naspects of diversity are being measured (Section 5),\nwhere within the research pipeline diversity is quan-\ntified (Section 6), and how this quantification is per-\nformed (Section 7). Seven researchers participated\nin the annotation. To ensure annotation quality, a\npartial cross-check was conducted on 93 papers. A\nthorough analysis of the why, what, where and how\ndimensions made emerge a taxonomy which we\ndiscuss in the following sections."
+  },
+  {
+    "heading": "Unknown",
+    "content": "4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Why diversity is important in NLP"
+  },
+  {
+    "heading": "The rapid progress in language technology brought",
+    "content": "about new opportunities, but also new challenges\nand requirements. One of them is diversity. It is\nassumed that diversity is important in many tasks,\nand that increasing it is desirable. Conversely, its\ndecline, e.g. due to training on synthetic data (Guo\net al., 2024), is a concern. The motivations of\nthis quest for diversity, when explicit, can be posi-\ntioned along two orthogonal dimensions: ethics vs.\npracticality, and means vs. goal (Table 1). Firstly,\nlanguage diversity can be seen as a goal in itself, to\nbe pursued for socially ethical reasons. Thus, NLP\nshould promote digital inclusiveness (Joshi et al.,\n2020). Datasets, systems, and benchmarks are ex-\npected to equally serve all users (Khanuja et al.,\n2023; Liu et al., 2024a), by representing different\nlanguages, language families and scripts (Kodner\net al., 2022; Goldman et al., 2023) and mitigating\nthe supremacy of English and English-centric bias\n(Pouran Ben Veyseh et al., 2022; Asai et al., 2022)."
+  },
+  {
+    "heading": "They should also fairly account for diverse cultures",
+    "content": "(Yin et al., 2021; Mohamed et al., 2022; Keleg and\nonly because they cite the name of a workshop/shared task\nor are volumes, (iv) are slides not papers, (v) contain \u201ddiver-\nsity\u201d only in the title and never in the body of the paper, (vi)\ndescribe projects, shared tasks or event/thesis proposals."
+  },
+  {
+    "heading": "Magdy, 2023; Bhatia and Shwartz, 2023; Liu et al.,",
+    "content": "2024a), human perspectives (Parrish et al., 2024)\nand opinions (Zhang et al., 2024b). When used\nin education, they should cover a large variety of\ntopics (Hadifar et al., 2023). Secondly, diversity\nis used as a means of achieving ethical goals re-\nlated to deontology and best practices in NLP. Thus,\nfine-tuning a pre-trained language model with di-\nverse prompts and responses limits the toxic and\noffensive content in LLM answers (Song et al.,\n2024). More diverse attention vectors in a trans-\nformer make it less sensitive to adversarial attacks,\nwhich try to fool it, e.g. to misclassify sentiment\nor toxicity of a text (Yang et al., 2024). A more\ndiverse benchmark makes evaluation more reliable\n(Chen et al., 2023b), notably because it shows the\nout-of-domain performance of a system (Pradhan\net al., 2022). As a result, the remaining challenges\nin NLP are better highlighted (Kim et al., 2023c)."
+  },
+  {
+    "heading": "Moreover, a dataset\u2019s diversity proves more criti-",
+    "content": "cal in evaluation than its size (Miao et al., 2020)."
+  },
+  {
+    "heading": "Thirdly, diversity is pursued as a goal for practical",
+    "content": "reasons likely because, as an inherent property of\nhuman language, it has become a user expectation\nalso towards machine-generated language. Thus,\ngenerative models should now operate in one-to-\nmany scenarios, i.e. produce a diverse spectrum\nof outputs (Kumar et al., 2019; Liu et al., 2020;"
+  },
+  {
+    "heading": "Han et al., 2021; Shao et al., 2022; Puranik et al.,",
+    "content": "2023; E et al., 2023; Hwang et al., 2023) rather\nthan a single most optimal output. Particularly\nhigh diversity expectations are encountered in the\ndomain of dialog (Lee et al., 2022), where more\ndiverse system\u2019s reactions increase user\u2019s engage-\nment (Akasaki and Kaji, 2019; Kim et al., 2023a)."
+  },
+  {
+    "heading": "Diversity of human language is considered by some",
+    "content": "authors as the upper bound of what could be ex-\npected from a system, i.e. it should approximate\nthe naturalness of machine-generated text (Sch\u00fcz\net al., 2021; Cegin et al., 2023; Liu et al., 2024b)."
+  },
+  {
+    "heading": "Finally, in numerous cases diversity is a means",
+    "content": "to achieve practical benefits, most notably perfor-\nmance. For instance, higher diversity of training\ndata has positive impact on performance in pars-\ning (Narayan and Cohen, 2015; Liu and Zeldes,\n2023), question answering (Yang et al., 2018; Ya-\ndav et al., 2024), semantic role labeling (Tripodi\net al., 2021), solving math problems (Shen et al.,\n2022), natural language generation (Li et al., 2016;"
+  },
+  {
+    "heading": "Agirre et al., 2016; Zhu et al., 2018; Zhang et al.,",
+    "content": "2021; Thompson and Post, 2020; Palumbo et al.,\n2020; Li et al., 2021), etc. An ensemble model\nbuilt of diverse submodels has better performances\nthan a unique model (Song et al., 2021; Kobayashi\net al., 2022). Extending class names with diverse\nsemantically close keywords increases the accu-\nracy of classification (Yano et al., 2024). One of\nthe reasons of this positive impact of diversity on\nperformances is a better coverage and representa-\ntiveness of domains, tasks, genres, hallucinations\ntypes (Xia et al., 2024), etc. Another practical ef-\nfect of diversity is informativeness: more diverse\ngenerated text is less generic and more informa-\ntive for users (Park et al., 2023). The quest for\ndiversity, notably in generation, is counterbalanced\nby the potential difficulty to pursue simultaneously\nmaintaining generative quality and consistence (Ma\net al., 2024). This is called the quality/diversity\ntrade-off (Ippolito et al., 2019; Zhang et al., 2021;"
+  },
+  {
+    "heading": "Shao et al., 2022), or faithfulness-diversity trade-",
+    "content": "off (Chen et al., 2023a). While most of these works\nadvocate for an increase of diversity, others posit\nthat it should be adjusted to each task (Liu et al.,\n2024c). For instance, answers to factual questions\ncall for precision and determinism (low diversity),\nwhile storytelling requires creativity and surprise\n(high diversity). Finally, a high diversity of gener-\nated text and its closeness to the diversity of human\nproduction, might not be an objective per se. For in-\nstance, the difference in diversity patterns between\nhuman-generated and AI-generated text may be an\nopportunity to effectively distinguish these two cat-\negories. This notably serves bot detection on social\nmedia, avoidance of fake news and protection of\ndemocracy (Kosmajac and Keselj, 2019). One final\nreason for the interest in diversity is to theorize it,\nand systematize its measurement, so as to under-\nstand better its nature and implications (Ploeger\net al., 2024), make educated choices of diversity\nmeasures (Tevet and Berant, 2021; Lion-Bouton\net al., 2022), and offer a reliable comparative frame-\nwork for NLP (Poelman et al., 2024). Our work\nfalls precisely within this motivation."
+  },
+  {
+    "heading": "Unknown",
+    "content": "5"
+  },
+  {
+    "heading": "Unknown",
+    "content": "What diversity is measured on"
+  },
+  {
+    "heading": "The papers in our database address a wide range",
+    "content": "of \u201cdiversities\u201d across NLP areas, pursue differ-\nent goals and utilize varying terminologies (see"
+  },
+  {
+    "heading": "Section 4). However, by applying the unified con-",
+    "content": "ceptual framework from Section 2, we categorize\nthese approaches into 3 broad types: in-text diver-\nsity, for which categories are linguistic properties\n(e.g. vocabulary or semantics); meta-linguistic di-\nversity, where categories are classifications of texts\nin datasets (e.g. their languages or domains); and\ndiversity of processing, for which categories relate\nto methods and processes (e.g. models or tasks)."
+  },
+  {
+    "heading": "Note that a paper can account for more than one",
+    "content": "broad type.\n5.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "In-text diversity"
+  },
+  {
+    "heading": "In-text diversity involves categories which are asso-",
+    "content": "ciated with linguistic properties that are implicitly\nassumed to be inherent to a text, whether it is writ-\nten, spoken, or signed. It is addressed and quanti-\nfied in 124 papers (out of 198) in our dataset. For\nexample, Guo et al. (2024) find that through succes-\nsive iterations, synthetic texts exhibit a consistent\ndecrease in their lexical, semantic and syntactic\ndiversity. Lexical diversity is operationalized in\ntheir system with (i) tokens of words as elements\nand unique words as categories and (ii) n-grams as\nelements and unique n-grams as categories. Seman-\ntic and syntactic diversity in their approach can be\nunderstood as disparity, with sentences being both\ncategories and elements. Similarly, sets of LM-\ngenerated responses (Gao et al., 2019; Tevet and"
+  },
+  {
+    "heading": "Berant, 2021; Han et al., 2022), captions (Sch\u00fcz",
+    "content": "et al., 2021), translations (Burchell et al., 2022;"
+  },
+  {
+    "heading": "Shao et al., 2022; Wu et al., 2020), paraphrases",
+    "content": "(Kumar et al., 2019; Bawden et al., 2020; Cao and"
+  },
+  {
+    "heading": "Wan, 2020) are evaluated with respect to the di-",
+    "content": "versity of the words or word sequences that they\ncontain, as well as the diversity of their semantic\ncontents and syntactic structures.\n5.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Meta-linguistic diversity"
+  },
+  {
+    "heading": "Meta-linguistic diversity relates not to texts them-",
+    "content": "selves, but rather to the classifications of texts\nwithin datasets. This type of diversity is found\nin 55 papers. Multilingual datasets are often evalu-\nated with regard to the languages they contain. In\nthe simplest case, languages are both elements and\ncategories. Diversity is characterized by variety\n\u2013 the number of languages \u2013 and disparity \u2013 the\ndistinctive typological or phylogenetic properties\nof each language (Pouran Ben Veyseh et al., 2022;"
+  },
+  {
+    "heading": "Sarti et al., 2022). In a more nuanced characteriza-",
+    "content": "tion of typological diversity, languages are classi-\nfied according to language families and, sometimes,\nbranches within them (Longpre et al., 2021; Kodner\net al., 2022; Kumar et al., 2022a). In our terminol-\nogy, the languages in that case are the elements and\nthe language branches or families, the categories."
+  },
+  {
+    "heading": "However, although the term \u2018typological diversity\u2019",
+    "content": "is often evoked, there is a real need for adopting\na systematic approach for measuring and compar-\ning it (Ponti et al., 2019; Poelman et al., 2024)."
+  },
+  {
+    "heading": "Languages are categories for Dunn et al. (2020),",
+    "content": "who draw on the meta-linguistic diversity of Twit-\nter data as a means for understanding the linguistic\nlandscape of countries. With tweets as elements\ncategorized into the languages in which they were\nproduced, the authors measure for each country its\nlinguistic diversity over time, and in particular the\neffect of travel restrictions caused by COVID-19."
+  },
+  {
+    "heading": "Other text classifications evaluated with regard to",
+    "content": "diversity are genres (Liu and Zeldes, 2023), do-\nmains or time periods to which the texts belong\n(Bhattacharyya et al., 2023). In such cases, the ele-\nments are linguistic items, mostly tokens, and the\ncategories are the meta-linguistic categories they\nbelong to. There are also papers that target the\ndiversity of text producers, e.g. the racial identity\nof language signers (Gueuwou et al., 2023) or the\npolitical opinions of authors (Zhang et al., 2024b).\n5.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Diversity of processing"
+  },
+  {
+    "heading": "A third type of diversity, addressed only in 24 pa-",
+    "content": "pers, regards not the data itself, but rather cate-\ngories associated with the processes that are ap-\nplied to the data. Thus, unlike the two previous\nclasses, diversity of processing is external to the\ntext itself. This is a wide class; we find diversity\nascribed to annotations (Weerasooriya et al., 2023)\nand annotators (Parrish et al., 2024; Creanga and"
+  },
+  {
+    "heading": "Dinu, 2024), to the (ensemble of) models used for",
+    "content": "training (Greco et al., 2022; Kobayashi et al., 2022),\nto the types of tasks performed (Qiu et al., 2021;"
+  },
+  {
+    "heading": "Zhang et al., 2024a) and to the attention vectors in",
+    "content": "the internal design of a model (Huang et al., 2019;"
+  },
+  {
+    "heading": "Yang et al., 2024). In most of these cases there is",
+    "content": "no higher-order classifications; \u201cdiverse\u201d is con-\nceptualized as \u201cseveral substantially different\u201d and\ncategories are elements. One exception is Yang\nand Wan (2022), who investigate metric diversity\nfor long document summarization: the elements\nhere are evaluation metrics (e.g. BLEU, ROUGE,"
+  },
+  {
+    "heading": "SPICE) which are classified into categories (e.g.",
+    "content": "translation, summarization, semantics)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Where diversity is measured"
+  },
+  {
+    "heading": "We analyzed where diversity is quantified in two",
+    "content": "ways. To have a broad overview of whether some\nsubfields are more concerned with diversity than\nothers, we annotate each paper with its NLP area."
+  },
+  {
+    "heading": "Unknown",
+    "content": "We also determined at which stage of a standard"
+  },
+  {
+    "heading": "NLP pipeline quantification happens.",
+    "content": "6.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "NLP areas"
+  },
+  {
+    "heading": "We annotated each paper in our database according",
+    "content": "to the main NLP area the study targets, identifying\n21, as shown in Table 2. Given the recent uptake\nin NLP for generating data, it is not surprising that"
+  },
+  {
+    "heading": "Generation is the most frequent area (61 papers,",
+    "content": "thus 31% of the 197 papers surveyed in which diver-\nsity is quantified). All papers in that area aim at gen-\nerating outputs that are \u201cdiverse\u201d (mostly in terms\nof in-text diversity, Section 5.1). This also holds for\nthe areas of Dialogue, Machine translation, Para-\nphrasing, Question answering and Summarisation,\nin which text is often generated. Corpus creation\nis also an area in which diversity, mostly meta-\nlinguistic diversity (Section 5.2), is prominently\nused (22 papers, thus 11% of the total number of\npapers). Concerns about diversity are also apparent\nin Classification tasks. Other tasks in the survey\non a smaller scale include Modeling, Recommenda-\ntion, Parsing, Evaluation, Information extraction,"
+  },
+  {
+    "heading": "Morphology, Vision, Inference, Language Technol-",
+    "content": "ogy, Speech, Survey/Opinion pieces, Matching and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Spellchecking."
+  },
+  {
+    "heading": "NLP area",
+    "content": "#"
+  },
+  {
+    "heading": "Generation",
+    "content": "61"
+  },
+  {
+    "heading": "Corpus creation",
+    "content": "22"
+  },
+  {
+    "heading": "Classification",
+    "content": "17"
+  },
+  {
+    "heading": "Dialogue",
+    "content": "15"
+  },
+  {
+    "heading": "Machine translation / Paraphrasing",
+    "content": "10"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Question answering / Summarization"
+  },
+  {
+    "heading": "Unknown",
+    "content": "9"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Modeling"
+  },
+  {
+    "heading": "Unknown",
+    "content": "7"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Recommendation / Parsing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "5"
+  },
+  {
+    "heading": "Evaluation / Information extraction / Lan-",
+    "content": "guage Technology"
+  },
+  {
+    "heading": "Unknown",
+    "content": "4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Morphology / Vision / Inference"
+  },
+  {
+    "heading": "Unknown",
+    "content": "3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Speech / Survey or Opinion paper"
+  },
+  {
+    "heading": "Unknown",
+    "content": "2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Matching / Spellchecking"
+  },
+  {
+    "heading": "Unknown",
+    "content": "1"
+  },
+  {
+    "heading": "Table 2: Number of papers per NLP area of the paper",
+    "content": "(areas with the same number of papers are on one line).\n6.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pipeline stages"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Figure 2 shows the different stages of a standard"
+  },
+  {
+    "heading": "Unknown",
+    "content": "NLP pipeline, detailed here."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Data collection"
+  },
+  {
+    "heading": "Different methods or criteria are",
+    "content": "used to select data with diversity in mind. Elements\nare thus methods/criteria and categories are group-\nings of these. Kim et al. (2023c) focus on math\nword problems and create a more diverse dataset\nthan previously existing ones, in terms of problem\ntypes (arithmetic, correspondence, comparison, ge-\nometry, possibility), lexical usage (as measured by\na lexical diversity measure), languages (they in-\nclude both English and Korean), and intermediate\nsolution forms (different equation templates)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Annotation process"
+  },
+  {
+    "heading": "The annotation is done with",
+    "content": "diverse pools of annotators (human or machine)."
+  },
+  {
+    "heading": "Elements are the annotators, categories are some",
+    "content": "annotator properties (e.g. perspective, sociodemo-\ngraphics). In NLI for example, Creanga and Dinu\n(2024) consider the diversity of human annotators,\nwith annotators as elements and perspectives as cat-\negories, where diversity pertains thus to processing\n(Section 5.3). The potential benefits of such an ap-\nproach is to better represent different worldviews,\nand consequently improve system performance."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Input data"
+  },
+  {
+    "heading": "The data given to the system is di-",
+    "content": "verse. Elements are typically occurrences of lin-\nguistic entities and categories are groupings of\nthese elements (e.g. token per lemma, document\nper genre, tweet per geolocation). An example is"
+  },
+  {
+    "heading": "Liu and Zeldes (2023) who show that the meta-",
+    "content": "linguistic diversity (Section 5.2) of training sets\npositively impacts the performance of downstream\ndiscourse parsing. Diversity is operationalized with\nrespect to the number of genres that the training\nsets cover (e.g. academic, bio, interview) and the\nnumber of discourse units within each genre."
+  },
+  {
+    "heading": "Unknown",
+    "content": "System construction"
+  },
+  {
+    "heading": "The process itself is",
+    "content": "diversity-driven. For instance, in a standard ma-\nchine learning process, the loss function can be a\ndiversity measure. Yang et al. (2024) assume that\nif a transformer-based model has diverse patterns\nin its attention layers, it is less sensitive to attacks\nby adversarial examples. Thus, while training the\nmodel, the loss function is defined as the volume of\nthe geometry formed by attention vectors, and max-\nimization of this volume is sought. Here, attention\nvectors are elements and their own categories."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Output data"
+  },
+  {
+    "heading": "System\u2019s output is measured for",
+    "content": "diversity. For instance, Han et al. (2022) propose a\nsemantic diversity measure of generated answers,\nwhich correlates better with human judgements on"
+  },
+  {
+    "heading": "Data",
+    "content": "collection\n(39, *2)"
+  },
+  {
+    "heading": "Annotation",
+    "content": "(3)"
+  },
+  {
+    "heading": "Input",
+    "content": "(24, *5)"
+  },
+  {
+    "heading": "System",
+    "content": "construction\n(22, *4)"
+  },
+  {
+    "heading": "Output data",
+    "content": "(83, *9)"
+  },
+  {
+    "heading": "Evaluation",
+    "content": "(11)"
+  },
+  {
+    "heading": "Figure 2: High-level stages in NLP pipelines (diamonds",
+    "content": "for processes, rectangles for states). Numbers in paren-\ntheses are how many papers quantify diversity. Starred *\nnumbers indicate papers with two-stage quantification.\nanswer diversity. Elements are response instances,\nand categories semantic clusters."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Evaluation"
+  },
+  {
+    "heading": "Different metrics/criteria are used",
+    "content": "to evaluate systems\u2019 outputs, for instance to re-\ninforce their applicability. In other words, elements\nare metrics/criteria and categories are groupings\nof these."
+  },
+  {
+    "heading": "This falls under diversity of process-",
+    "content": "ing (Section 5.3). For instance, in Yang and Wan\n(2022) , summaries are evaluated with task-specific\nmetrics \u2013 translation (BLEU, NIST), summariza-\ntion (ROUGE), image captioning (ROUGE/CIDEr,"
+  },
+  {
+    "heading": "SPICE), semantics (BERTScore, Meteor) \u2013 to find",
+    "content": "which measures output the same summary rankings."
+  },
+  {
+    "heading": "Thus, as mentioned in Section 5.3, the elements are",
+    "content": "the metrics, and the categories the NLP tasks in\nwhich these metrics are used."
+  },
+  {
+    "heading": "In which stage(s) is diversity quantified?",
+    "content": "For\neach of the 198 papers in which diversity is quanti-\nfied, we identified the stage(s) in which the quan-\ntification of diversity occurs. 192 papers fit the\npipeline (some Opinion and Language Technology\npapers did not). Each pipeline stage in Figure 2\ngives the number of papers in which diversity is\nquantified in that stage (starred * numbers indi-\ncate papers in which quantification happens in two\nstages). As Generation is the most frequent NLP\narea in our dataset, \u201cOutput data\u201d is unsurprisingly\nthe stage in which diversity is most often quantified\n(83 out of 197 papers): 46 of these are from the"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Generation area, 9 from Dialogue, 6 from Para-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "BALANCE"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DISPARITY"
+  },
+  {
+    "heading": "VARIETY",
+    "content": "dQuantity\ndDistance\ndBERT\ndBLEU\ndEntropy\ndDistrib\ndTTR\ndOverlap\ndHuman"
+  },
+  {
+    "heading": "Figure 3: Casting measurement families onto the three",
+    "content": "dimensions of diversity.\nphrasing and 5 from Machine translation. The\n\u201cData collection\u201d stage is also prominently featured,\nwith 13 of the 39 papers belonging to the Corpus\ncreation area. In 10 papers, diversity is measured in\ntwo stages. For 4 papers, quantification happens at"
+  },
+  {
+    "heading": "Input & Output data; for 3, at System construction",
+    "content": "& Output data; for 2, at Data collection & Output\ndata; and in 1, at Input data & System construc-\ntion."
+  },
+  {
+    "heading": "Unknown",
+    "content": "7"
+  },
+  {
+    "heading": "Unknown",
+    "content": "How diversity is measured"
+  },
+  {
+    "heading": "Looking at all 197 papers with actual quantifica-",
+    "content": "tion of diversity, we found 150 different diversity\nmeasures. Most are used in a handful of papers,\nthus most papers are not comparable to each other."
+  },
+  {
+    "heading": "The individual measures can however be appor-",
+    "content": "tioned into families, as many are variant of one\nanother, or have similar mechanisms. The families\nare presented in Table 3, by decreasing number\nof papers using measures from said families. The\nfamilies are further cast on the 3 dimensions of di-\nversity (Section 2) in the Venn\u2019s diagram in Fig. 3."
+  },
+  {
+    "heading": "While we cannot present each individual mea-",
+    "content": "sure we here sketch an emblematic measure per\nfamily. Henceforth, the set for which diversity is\nmeasured will be called the observed set, while\nn and m will denote the number of its categories\nand elements (called observed categories and ob-\nserved elements), respectively. P = \u27e8p1, ..., pn\u27e9\nwill denote the array of category frequencies, and"
+  },
+  {
+    "heading": "D = \u27e8\u27e8d1,1, ..., d1,n\u27e9, ..., \u27e8dn,1, ..., dn,n\u27e9\u27e9the ma-",
+    "content": "trix of distances between the categories.\n7.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Absolute quantification"
+  },
+  {
+    "heading": "Absolute quantification measures assign a score to",
+    "content": "the observed set independently of other sets. This\ncovers many measures from this survey, which can\nbe divided into the following families.\ndQuantity"
+  },
+  {
+    "heading": "In this family, measures often consist",
+    "content": "of just richness, which is the number of cate-\ngories, i.e. the most elementary variety measure:\nrichness (n, m, P, D) = n\n(1)"
+  },
+  {
+    "heading": "This measure is used in many papers, espe-",
+    "content": "cially those quantifying meta-linguistic diversity,\ne.g. Kodner et al. (2022); Bella et al. (2022); Bal-\nachandran et al. (2022); Altinok (2023).\ndTTR"
+  },
+  {
+    "heading": "This family consists of variants of",
+    "content": "type-token-ratio (n, m, P, D) = n\nm\n(2)\nwhich is the number of categories normal-\nized by dataset size."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A frequent variant of"
+  },
+  {
+    "heading": "Unknown",
+    "content": "TTR is Distinct-n, also called Dist-n or"
+  },
+  {
+    "heading": "Diverse-n, which is the ratio of distinct n-grams",
+    "content": "to the total number of tokens, rather than to the\nnumber of n-grams (Li et al., 2016), with often\nn \u2208[1, 4]. Distinct-n is widely used, (Yang\net al., 2020; Sch\u00fcz et al., 2021; Dopierre et al.,\n2021; Liu et al., 2023; Ma et al., 2024; Guo et al.,\n2024), however it has issues (Bestgen, 2024). Im-\nportantly for us, it is not monotonic to the number\nof categories (e.g. for a constant n, increasing m\nreduces the score). This questions its status as a\nvariety and places it outside the Venn\u2019s diagram.\ndEntropy"
+  },
+  {
+    "heading": "This family tackles variety like dQuan-",
+    "content": "tity but also tackles balance. Its main measure is"
+  },
+  {
+    "heading": "Shannon and Weaver\u2019s (1949) entropy, which is",
+    "content": "the weighted average of the surprise logb\n\u0000p\u22121\ni\n\u0001\nof\nobserving a category with index i:\nentropy (n, m, P, D) =\nn\nX\ni=1\npi logb\n\u0000p\u22121\ni\n\u0001\n(3)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "This measure is central to information theory."
+  },
+  {
+    "heading": "It accounts for variety as its maximum is logb (n),",
+    "content": "and it accounts for balance as it increases with\nevenness. It is used for example by Chubarian et al.\n(2021); Puranik et al. (2023); Hwang et al. (2023);"
+  },
+  {
+    "heading": "Park et al. (2023).",
+    "content": "dDistance"
+  },
+  {
+    "heading": "These measures often aggregate the",
+    "content": "distance matrix and possibly normalize the out-\ncome, therefore they can be cast in disparity. A\nstandard normalized form, which we refer to as\npairwise is\npairwise (n, m, P, D) =\n2 \u2217\nnP\ni=1\ni\u22121\nP\nj=1\ndi,j\nn(n \u22121)\n(4)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "It is used for example by Kim et al. (2024, eq. 6)."
+  },
+  {
+    "heading": "This measure takes the sum of the bottom-left-",
+    "content": "hand corner of the distance matrix \u2013 which implies\ngreater diversity the greater it is \u2013 and normalizes\nit by the number of unique pairs of distinct cate-\ngories.6 Aggregation of the distance matrix can\nalso be operationalized by e.g. the volume of the\ngeometry formed by vector vertices (Yang et al.,\n2024) or entropy of distances (Yu et al., 2022)."
+  },
+  {
+    "heading": "Other authors who use measures from dDistance",
+    "content": "include Stasaski and Hearst (2022); Samir and Sil-\nfverberg (2023); Kobayashi et al. (2022); Bawden\net al. (2020); Kumar et al. (2019). We define spe-\ncific subsets of dDistance containing measures\nwhich use similarity (rather than distance) func-\ntions specific to NLP applications: dBLEU and\ndBERT. Notably, Self-BLEU (Zhu et al., 2018)\nis the average of BLEU between each pair of sen-\ntences. This means the same logic as pairwise\nin Equation 4, with BLEU as the similarity function\n(thus, the lower the score the higher the diversity),\nand n2 instead of n(n\u22121)/2 as a denominator. For"
+  },
+  {
+    "heading": "BERT however, the logic differs, through the use",
+    "content": "of BERTScore (Zhang* et al., 2020). Considering\nsentences X and Y , it first computes precision and\nrecall (by aligning tokens):"
+  },
+  {
+    "heading": "RBERT =",
+    "content": "1\n|X|\nX\nxi\u2208X\nmax\nyj\u2208Y \u20d7xi\u22a4\u20d7yj\n(5)"
+  },
+  {
+    "heading": "PBERT =",
+    "content": "1\n|Y |\nX\nyj\u2208Y\nmax\nxi\u2208X \u20d7yj\u22a4\u20d7xi\n(6)\nwhere xi and yj are tokens from X and Y , and\n\u20d7xi and \u20d7yj are their embeddings. Then the F1-score\nis computed from RBERT and PBERT. Authors using\ndBLEU include (Shao et al., 2022; Han et al., 2021;"
+  },
+  {
+    "heading": "Miao et al., 2020) and those using dBERT are e.g.",
+    "content": "(Puranik et al., 2023; E et al., 2023; Kim et al.,\n2023a; Cao and Wan, 2020)."
+  },
+  {
+    "heading": "6Note that measures from dDistance incur an O",
+    "content": "\u0000n2\u0001\ncost.\n7.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Relative quantification"
+  },
+  {
+    "heading": "In the families above, a distance function is used to",
+    "content": "assess the difference between categories from a sin-\ngle set (the observed set). However, some families\nuse two sets: a reference set R and the observed\nset O whose diversity is estimated by comparison"
+  },
+  {
+    "heading": "R. In one version of this scenario, R is considered",
+    "content": "diverse, e.g. it is curated with diversity in mind, and"
+  },
+  {
+    "heading": "O should be as close as possible to R (Samardzic",
+    "content": "et al., 2024). In another version, conversely, O\nis expected to differ from R, e.g. generated utter-\nances should be different from the training utter-\nances (Murahari et al., 2019). Measures of this\ntype are positioned outside of the Venn\u2019s diagram\nin Figure 3.\ndDistrib"
+  },
+  {
+    "heading": "These measures compare the reference",
+    "content": "and observed distributions Q and P of R\u2019s and O\u2019s\nelements in categories, respectively. One example,\nused by Kumar et al. (2022b), is\ncross-entropy (Q, P) =\nn\nX\ni=1\nqi logb\n\u0000p\u22121\ni\n\u0001\n(7)\nwhich is the average surprise of observing a cate-\ngory of index i with a reference probability pi \u2208P\nbut an observed probability qi \u2208Q. Such mea-\nsures are used e.g. by Liu et al. (2024b); Xia et al.\n(2024).\ndOverlap"
+  },
+  {
+    "heading": "Here, instead of comparing the distri-",
+    "content": "butions of the categories in the two sets, we focus\non how many categories are shared by these sets."
+  },
+  {
+    "heading": "Unknown",
+    "content": "One example is the Jaccard measure"
+  },
+  {
+    "heading": "Jaccard (R, O) = |R \u2229O|",
+    "content": "|R \u222aO|\n(8)"
+  },
+  {
+    "heading": "This measure consists of the ratio of shared",
+    "content": "categories between the two sets, and is thus de-\nfined on the range [0, 1]. Authors using measures\nfrom dOverlap include Thompson and Post (2020);"
+  },
+  {
+    "heading": "Samardzic et al. (2024).",
+    "content": "7.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Introspective quantification"
+  },
+  {
+    "heading": "We saw above that diversity is considered inherent",
+    "content": "to human language. By extension, humans are\nconsidered capable to judge diversity in text simply\nby introspection. One family of measures builds\nupon this assumption.\ndHuman"
+  },
+  {
+    "heading": "Human experts are presented samples",
+    "content": "of text which they have to either rank for diversity\n(Liu et al., 2023) or score along a diversity scale\n(Kim et al., 2023b). We cannot a priori know if\nhumans rely on categories and elements for their\njudgment, therefore, this family was placed outside\nof the Venn\u2019s diagram in Figure 3."
+  },
+  {
+    "heading": "Several observations can be made about the sur-",
+    "content": "veyed diversity measures. Firstly, the most frequent\nfamilies of measures are dDistance and dQuantity,\ni.e. pure disparities and pure varieties. Secondly,\nno family lies solely in balance7, and none lies on\nthe cross-roads of disparity with balance and/or va-\nriety8 The latter observation partly results from the\nvagueness of the definition of a variety, e.g. it is un-\nclear how far formula (4) \u201cfocuses on the number\nof categories\u201d, as required by a variety (Section 2)."
+  },
+  {
+    "heading": "Thirdly, it happens that two different diversity mea-",
+    "content": "sures bear the same name. This is the case of Dist-\nn, which can either mean the (natural) number of\ndistinct n-grams in a text (Xu et al., 2018), or the\nsame number divided by the total number of words\nin the text (Li et al., 2016). The first case belongs\nto dQuantity, i.e. a variety measure, and the second\nto dTTR, i.e. is not a proper diversity as discussed\nabove."
+  },
+  {
+    "heading": "Unknown",
+    "content": "8"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Discussion"
+  },
+  {
+    "heading": "As seen above, diversity is a very prevalent con-",
+    "content": "cept in NLP. It is measured in many areas, in most\nstages of NLP pipelines, applied to a wide range of\ncategories, and for many different reasons. How-\never, this state of the art is characterized by infor-\nmality and cross-paper inconsistency. As many as\n72 reviewed papers (out of the 269 relevant ones)\nconsider diversity to be important without defining\nand quantifying it. In 54 of the 197 papers where\nquantification is found, it is limited to counting the\nnumber of categories (variety), and in some cases\na framework covering several categories is already\nconsidered diverse. In the other 143 papers, di-\nversity measures are numerous and target different\ndimensions but there is no uniform terminology\nand methodology, to the point of calling the same\nmeasure different names or using the same name\nfor different measures. What is more, the choice of\nthese measures is rarely justified and their proper-\nties are not addressed. We found very few explicit"
+  },
+  {
+    "heading": "7However, measures based on Zipfian parameters (in",
+    "content": "dOther) occurred twice (Zhang et al., 2023; Hwang et al.,\n2023), accounting solely for balance."
+  },
+  {
+    "heading": "Unknown",
+    "content": "8Such measures exist in ecology (Ricotta and Szeidl, 2006;"
+  },
+  {
+    "heading": "Leinster and Cobbold, 2012; Scheiner, 2012; Chao et al.,",
+    "content": "2014)."
+  },
+  {
+    "heading": "Family",
+    "content": "#\ndQuantity: count categories\n55\ndBLEU: use BLEU for distances.\n41\ndDistance: quantify differences be-\ntween categories\n37 + 8\n+ 41\ndTTR: use the number of categories\nand normalize it by the number of ele-\nments\n30\ndEntropy: calculate unpredictability\nof categories\n21\ndOverlap: find the overlap between\nthe categories in the observed set and\nin a reference set\n9\ndBERT: use BERT\u2019s contextual vec-\ntor space for distances\n8\ndHuman: rely on a human evaluation\n7\ndDistrib: use the distance between\nobserved and reference distributions\n3\ndOther: other measures\n36"
+  },
+  {
+    "heading": "Table 3: Families of diversity measures and number of",
+    "content": "articles (#) using them. Arguably, dBLEU (blue) and\ndBERT (green) are sub-families of dDistance.\nlinks to longstanding theories of diversity from do-\nmains like ecology. In particular, hardly any papers\nrefer explicitly to variety, balance or disparity, as\npresented in Section 2. For these reasons, the statis-\ntics reported in this survey should not be taken at\nface value but rather as indications. Namely, it\nis us, not the papers\u2019 authors, who identified the\nelements and categories, and interpreted the mea-\nsures in terms of the theory of diversity. In many\ncases measures were unclear, even after conducting\nin-depth analysis or consulting the papers where\nthey were first defined. Nevertheless, the survey\nimproved our understanding of global tendencies\nin the field along the why, what, where and how\naxes. Our examination of the intersections between\nthese axes revealed two main prototypical, highly\ndistinct, scenarios. The first involves the area of\ncorpus creation. At the data collection pipeline\nstage, sources are selected with the ethical goal\nof ensuring inclusiveness and equality and/or as\na practical means of ensuring performance. The\ndiversity categories are meta-linguistic and mea-\nsures from the dQuantity family (variety) are used."
+  },
+  {
+    "heading": "Papers in this scenario range from as simple a quan-",
+    "content": "tification as 3 genres in (Etienne et al., 2022) to\nas many as dozens of languages with 2 levels of\ncategories in (Vylomova et al., 2020). The latter\ndescribes a shared task on morphological inflec-\ntion in which diversity is operationalized in the\nchoice of languages for the dataset: 90 languages\nfrom 34 genera, grouped into 15 language families."
+  },
+  {
+    "heading": "Families are used as proxies of different types of",
+    "content": "morphological systems. The task is to generate\ninflected forms from a lemma and a set of features."
+  },
+  {
+    "heading": "The systems are required to generalize across typo-",
+    "content": "logically distinct languages (also those unseen in\ntraining) many of which are low-resourced. This\nshows both ethical and practical motivations for\ncollecting diverse data. The second scenario occurs\nin generation at the output data stage, where in-text\ncategories are used for evaluation. Diversity is a\npractical goal related to user expectations or nat-\nuralness. Often the one-to-many scenario occurs\nand the quality/diversity trade off has to be bal-\nanced. The measures are mostly from the dTTR or\ndDistance families. For example, Liu et al. (2023)\ninvestigate response generation for multiturn dia-\nlogue in generative chatbots. Their objective is to\nenhance chatbot responses for diversity and rele-\nvance simultaneously. They use recurrent neural\nnetworks (whose basic transition structure is de-\nterministic) into which they introduce a recurrent\nsummarizing latent variable (to enable variability),\nto address the one-to-many challenge. The diver-\nsity of the generated answers is measured with"
+  },
+  {
+    "heading": "Distinct-1/2 (dTTR) and with ranking-based human",
+    "content": "evaluations (dHuman). Related to these scenarios,\nwe put forward two conceptualizations of the re-\nlationships between diversity and naturalness. In\nthe first scenario, the fact that few languages are\nwell-resourced and many others are not is arguably\nnatural. Diversity-driven data selection is meant to\ncompensate for this fact, so naturalness and diver-\nsity are somehow opposed. In the second scenario,\nconversely, the diversity of human answers is often\nan upper bound for the systems\u2019 generations, so\nnaturalness and diversity are considered positively\ncorrelated. Different degrees of naturalness are also\nobservable in the categories and elements to which\ndiversity measures are applied. On the one hand,\nwe find \u201cnatural\u201d, i.e. (meta-)linguistically mean-\ningful categories such as words, idiomatic expres-\nsions, sentences, syntactic trees, genres, language\nfamilies, typological features, speakers, countries,\nethnicities, NLP tasks, etc. On the other hand, \u201carti-\nficial\u201d (i.e. non-linguistic) categories are observed,\nsuch as n-grams, BERT word pieces, word embed-\ndings, attention vectors, or points in a vector space."
+  },
+  {
+    "heading": "Those approximate more natural categories (whose",
+    "content": "diversity might be too hard to compute). Let us\nfinally notice the relatively high frequency (74 pa-\npers) of cases when diversity measures are applied\ndirectly to elements, without apportionment into\ncategories. This happens most often when utter-\nances on input or output of the system are com-\npared by similarity measures like Self-BLEU or"
+  },
+  {
+    "heading": "BERT-score. Such scenarios can be seen as trivial",
+    "content": "cases of disparity measurement in which elements\nare identical to categories. Variety is then roughly\nequivalent to dataset size (and not considered as\na diversity dimension) and balance is moot. Such\ncases reveal the tension between NLP, where con-\ntinuous representations are prevalent, and domains\nlike ecology, in which categorical modeling is stan-\ndard. This tension might be a reason why theo-\nretical diversity, based on categorization, has little\npopularity in NLP so far."
+  },
+  {
+    "heading": "Unknown",
+    "content": "9"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conclusions and future work"
+  },
+  {
+    "heading": "The use of \u201ddiverse\u201d and \u201ddiversity\u201d in NLP re-",
+    "content": "search has increased significantly, despite the lack\nof a formalized definition. To analyze how diversity\nis measured, we conducted a survey of ACL An-\nthology papers (2019-01-01 through 2024-07-26),\nexamining why, what, where, and how diversity is\nquantified. Our study introduces taxonomies that\ncapture key trends in diversity measurement. Diver-\nsity is primarily measured under three perspectives:\nin-text diversity (most common), meta-linguistic di-\nversity, and diversity of processing. While diverse"
+  },
+  {
+    "heading": "NLP areas address these aspects, generation fo-",
+    "content": "cuses on in-text diversity, whereas corpus creation\nemphasizes meta-linguistic diversity. The most\nfrequent pipeline stages where diversity is quanti-\nfied are output data and data collection. We iden-\ntified 150 distinct diversity measures, which often\nemphasize variety (number of categories) and dis-\nparity (differences between categories), but rarely\nbalance. Some measures may be cast into the for-\nmal framework used in ecology, but many remain"
+  },
+  {
+    "heading": "NLP-specific. Based on our results, we recommend",
+    "content": "standardizing diversity quantification in NLP and\nsystematically incorporating diversity as an eval-\nuation criterion in benchmarks. Future research\nshould systematize and further enhance methods\nfor achieving diversity, such as sampling strategies\nand model training techniques."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Acknowledgements"
+  },
+  {
+    "heading": "Unknown",
+    "content": "This research was funded by the CA21167 COST"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Action UniDive as well as the \"Plan Blanc\" (White"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Plan) doctoral grant from Universit\u00e9 Paris-Saclay."
+  },
+  {
+    "heading": "Unknown",
+    "content": "We thank Giedre Valunaite Oleskevicien\u02d9e and Irina"
+  },
+  {
+    "heading": "Lobzhanidze for their participation to annotation,",
+    "content": "as part of the WG4 group of UniDive."
+  },
+  {
+    "heading": "Unknown",
+    "content": "References"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Eneko Agirre, Carmen Banea, Daniel Cer, Mona"
+  },
+  {
+    "heading": "Diab, Aitor Gonzalez-Agirre, Rada Mihal-",
+    "content": "cea, German Rigau, and Janyce Wiebe. 2016."
+  },
+  {
+    "heading": "SemEval-2016 task 1: Semantic textual similar-",
+    "content": "ity, monolingual and cross-lingual evaluation. In"
+  },
+  {
+    "heading": "Proceedings of the 10th International Workshop",
+    "content": "on Semantic Evaluation (SemEval-2016), pages\n497\u2013511, San Diego, California. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Satoshi Akasaki and Nobuhiro Kaji. 2019. Con-",
+    "content": "versation initiation by diverse news contents in-\ntroduction. In Proceedings of the 2019 Con-\nference of the North American Chapter of the"
+  },
+  {
+    "heading": "Association for Computational Linguistics: Hu-",
+    "content": "man Language Technologies, Volume 1 (Long\nand Short Papers), pages 3988\u20133998, Minneapo-\nlis, Minnesota. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Duygu Altinok. 2023. A diverse set of freely avail-",
+    "content": "able linguistic resources for Turkish. In Pro-\nceedings of the 61st Annual Meeting of the Asso-\nciation for Computational Linguistics (Volume\n1: Long Papers), pages 13739\u201313750, Toronto,"
+  },
+  {
+    "heading": "Canada. Association for Computational Linguis-",
+    "content": "tics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Akari Asai, Shayne Longpre, Jungo Kasai, Chia-"
+  },
+  {
+    "heading": "Hsuan Lee, Rui Zhang, Junjie Hu, Ikuya Ya-",
+    "content": "mada, Jonathan H. Clark, and Eunsol Choi. 2022."
+  },
+  {
+    "heading": "MIA 2022 shared task: Evaluating cross-lingual",
+    "content": "open-retrieval question answering for 16 diverse\nlanguages. In Proceedings of the Workshop on"
+  },
+  {
+    "heading": "Multilingual Information Access (MIA), pages",
+    "content": "108\u2013120, Seattle, USA. Association for Compu-\ntational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Vidhisha Balachandran,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hannaneh Hajishirzi,"
+  },
+  {
+    "heading": "William Cohen, and Yulia Tsvetkov. 2022. Cor-",
+    "content": "recting diverse factual errors in abstractive sum-\nmarization via post-editing and language model\ninfilling. In Proceedings of the 2022 Conference\non Empirical Methods in Natural Language Pro-\ncessing, pages 9818\u20139830, Abu Dhabi, United"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Arab Emirates. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rachel Bawden, Biao Zhang, Lisa Yankovskaya,"
+  },
+  {
+    "heading": "Andre T\u00e4ttar, and Matt Post. 2020. A study in",
+    "content": "improving BLEU reference coverage with di-\nverse automatic paraphrasing. In Findings of\nthe Association for Computational Linguistics:"
+  },
+  {
+    "heading": "EMNLP 2020, pages 918\u2013932, Online. Associa-",
+    "content": "tion for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "G\u00e1bor Bella, Erdenebileg Byambadorj, Yamini"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chandrashekar, Khuyagbaatar Batsuren, Danish"
+  },
+  {
+    "heading": "Cheema, and Fausto Giunchiglia. 2022. Lan-",
+    "content": "guage diversity: Visible to humans, exploitable\nby machines. In Proceedings of the 60th Annual"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Meeting of the Association for Computational"
+  },
+  {
+    "heading": "Linguistics: System Demonstrations, pages 156\u2013",
+    "content": "165, Dublin, Ireland. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Yves Bestgen. 2024. Measuring lexical diversity",
+    "content": "in texts: The twofold length problem. Language\nlearning, 74(3):638\u2013671."
+  },
+  {
+    "heading": "Mehar Bhatia and Vered Shwartz. 2023.",
+    "content": "GD-"
+  },
+  {
+    "heading": "COMET: A geo-diverse commonsense inference",
+    "content": "model. In Proceedings of the 2023 Conference\non Empirical Methods in Natural Language Pro-\ncessing, pages 7993\u20138001, Singapore. Associa-\ntion for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pramit Bhattacharyya, Joydeep Mondal, Subhadip"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Maji, and Arnab Bhattacharya. 2023. VACAS-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PATI: A diverse corpus of Bangla literature. In"
+  },
+  {
+    "heading": "Proceedings of the 13th International Joint Con-",
+    "content": "ference on Natural Language Processing and\nthe 3rd Conference of the Asia-Pacific Chapter\nof the Association for Computational Linguis-\ntics (Volume 1: Long Papers), pages 1118\u20131130,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Nusa Dua, Bali. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Laurie Burchell, Alexandra Birch, and Kenneth"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Heafield. 2022."
+  },
+  {
+    "heading": "Exploring diversity in back",
+    "content": "translation for low-resource machine translation."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In Proceedings of the Third Workshop on Deep"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Learning for Low-Resource Natural Language"
+  },
+  {
+    "heading": "Processing, pages 67\u201379, Hybrid. Association",
+    "content": "for Computational Linguistics."
+  },
+  {
+    "heading": "Yue Cao and Xiaojun Wan. 2020. DivGAN: To-",
+    "content": "wards diverse paraphrase generation via diversi-\nfied generative adversarial network. In Findings\nof the Association for Computational Linguis-\ntics: EMNLP 2020, pages 2411\u20132421, Online."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Jan Cegin, Jakub Simko, and Peter Brusilovsky.",
+    "content": "2023. ChatGPT to replace crowdsourcing of\nparaphrases for intent classification: Higher di-\nversity and comparable model robustness. In"
+  },
+  {
+    "heading": "Proceedings of the 2023 Conference on Empir-",
+    "content": "ical Methods in Natural Language Processing,\npages 1889\u20131905, Singapore. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Anne Chao, Chun-Huo Chiu, and Lou Jost. 2014."
+  },
+  {
+    "heading": "Unifying Species Diversity, Phylogenetic Diver-",
+    "content": "sity, Functional Diversity, and Related Similarity\nand Differentiation Measures Through Hill Num-\nbers. Annual Review of Ecology, Evolution, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Systematics, 45:297\u2013324. Publisher: Annual"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Reviews."
+  },
+  {
+    "heading": "Wei-Lin Chen, Cheng-Kuang Wu, Hsin-Hsi Chen,",
+    "content": "and Chung-Chi Chen. 2023a. Fidelity-enriched\ncontrastive search: Reconciling the faithfulness-\ndiversity trade-off in text generation. In Pro-\nceedings of the 2023 Conference on Empirical"
+  },
+  {
+    "heading": "Methods in Natural Language Processing, pages",
+    "content": "843\u2013851, Singapore. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yulong Chen, Yang Liu, Ruochen Xu, Ziyi Yang,"
+  },
+  {
+    "heading": "Chenguang Zhu, Michael Zeng, and Yue Zhang.",
+    "content": "2023b."
+  },
+  {
+    "heading": "UniSumm and SummZoo: Unified",
+    "content": "model and diverse benchmark for few-shot sum-\nmarization. In Proceedings of the 61st Annual"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Meeting of the Association for Computational"
+  },
+  {
+    "heading": "Linguistics (Volume 1: Long Papers), pages",
+    "content": "12833\u201312855, Toronto, Canada. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Karine Chubarian, Abdul Rafae Khan, Anastasios"
+  },
+  {
+    "heading": "Sidiropoulos, and Jia Xu. 2021. Grouping words",
+    "content": "with semantic diversity. In Proceedings of the\n2021 Conference of the North American Chap-\nter of the Association for Computational Lin-\nguistics: Human Language Technologies, pages\n3217\u20133228, Online. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Claudiu Creanga and Liviu P. Dinu. 2024. Design-",
+    "content": "ing NLP systems that adapt to diverse world-\nviews. In Proceedings of the 3rd Workshop on"
+  },
+  {
+    "heading": "Perspectivist Approaches to NLP (NLPerspec-",
+    "content": "tives) @ LREC-COLING 2024, pages 95\u201399,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Torino, Italia. ELRA and ICCL."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Charles Darwin. 1871. The Descent of Man, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Selection in Relation to Sex, volume 1. John"
+  },
+  {
+    "heading": "Murray, Albemarle Street., London. Manual",
+    "content": "entry."
+  },
+  {
+    "heading": "Thomas Dopierre, Christophe Gravier, and Wil-",
+    "content": "fried Logerais. 2021. PROTAUGMENT: Un-\nsupervised diverse short-texts paraphrasing for\nintent detection meta-learning. In Proceedings\nof the 59th Annual Meeting of the Association for"
+  },
+  {
+    "heading": "Computational Linguistics and the 11th Interna-",
+    "content": "tional Joint Conference on Natural Language"
+  },
+  {
+    "heading": "Processing (Volume 1: Long Papers), pages",
+    "content": "2454\u20132466, Online. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Jonathan Dunn, Tom Coupe, and Benjamin Adams.",
+    "content": "2020."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Measuring linguistic diversity during"
+  },
+  {
+    "heading": "COVID-19. In Proceedings of the Fourth Work-",
+    "content": "shop on Natural Language Processing and Com-\nputational Social Science, pages 1\u201310, Online."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Venkatesh E, Kaushal Maurya, Deepak Kumar, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Maunendra Sankar Desarkar. 2023. DivHSK:"
+  },
+  {
+    "heading": "Diverse headline generation using self-attention",
+    "content": "based keyword selection. In Findings of the As-\nsociation for Computational Linguistics: ACL\n2023, pages 1879\u20131891, Toronto, Canada. Asso-\nciation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Aline Etienne, Delphine Battistelli, and Gw\u00e9nol\u00e9"
+  },
+  {
+    "heading": "Lecorv\u00e9. 2022. A (psycho-)linguistically moti-",
+    "content": "vated scheme for annotating and exploring emo-\ntions in a genre-diverse corpus. In Proceedings\nof the Thirteenth Language Resources and Eval-\nuation Conference, pages 603\u2013612, Marseille,"
+  },
+  {
+    "heading": "France. European Language Resources Associa-",
+    "content": "tion."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Xiang Gao, Sungjin Lee, Yizhe Zhang, Chris"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Brockett, Michel Galley, Jianfeng Gao, and Bill"
+  },
+  {
+    "heading": "Dolan. 2019. Jointly optimizing diversity and",
+    "content": "relevance in neural response generation. In Pro-\nceedings of the 2019 Conference of the North"
+  },
+  {
+    "heading": "American Chapter of the Association for Com-",
+    "content": "putational Linguistics: Human Language Tech-\nnologies, Volume 1 (Long and Short Papers),\npages 1229\u20131238, Minneapolis, Minnesota. As-\nsociation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Omer Goldman, Khuyagbaatar Batsuren, Salam"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Khalifa,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Aryaman Arora,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Garrett Nicolai,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Reut Tsarfaty, and Ekaterina Vylomova. 2023."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SIGMORPHON\u2013UniMorph 2023 shared task 0:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Typologically diverse morphological inflection."
+  },
+  {
+    "heading": "In Proceedings of the 20th SIGMORPHON work-",
+    "content": "shop on Computational Research in Phonetics,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Phonology, and Morphology, pages 117\u2013125,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Toronto, Canada. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Claudio Greco, Alberto Testoni, Raffaella Bernardi,",
+    "content": "and Stella Frank. 2022. A small but informed\nand diverse model:"
+  },
+  {
+    "heading": "The case of the multi-",
+    "content": "modal GuessWhat!? guessing game. In Pro-\nceedings of the 2022 CLASP Conference on\n(Dis)embodiment, pages 1\u201310, Gothenburg, Swe-\nden. Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Shester Gueuwou, Sophie Siake, Colin Leong, and"
+  },
+  {
+    "heading": "Mathias M\u00fcller. 2023. JWSign: A highly multi-",
+    "content": "lingual corpus of Bible translations for more di-\nversity in sign language processing. In Findings\nof the Association for Computational Linguistics:"
+  },
+  {
+    "heading": "EMNLP 2023, pages 9907\u20139927, Singapore. As-",
+    "content": "sociation for Computational Linguistics."
+  },
+  {
+    "heading": "Yanzhu Guo, Guokan Shang, Michalis Vazirgian-",
+    "content": "nis, and Chlo\u00e9 Clavel. 2024. The curious decline\nof linguistic diversity: Training language models\non synthetic text. In Findings of the Association\nfor Computational Linguistics: NAACL 2024,\npages 3589\u20133604, Mexico City, Mexico. Associ-\nation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amir Hadifar, Semere Kiros Bitew, Johannes"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Deleu, Veronique Hoste, Chris Develder, and"
+  },
+  {
+    "heading": "Thomas Demeester. 2023. Diverse content selec-",
+    "content": "tion for educational question generation. In Pro-\nceedings of the 17th Conference of the European"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chapter of the Association for Computational"
+  },
+  {
+    "heading": "Linguistics: Student Research Workshop, pages",
+    "content": "123\u2013133, Dubrovnik, Croatia. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jiuzhou Han, Daniel Beck, and Trevor Cohn. 2021."
+  },
+  {
+    "heading": "Generating diverse descriptions from semantic",
+    "content": "graphs. In Proceedings of the 14th International"
+  },
+  {
+    "heading": "Conference on Natural Language Generation,",
+    "content": "pages 1\u201311, Aberdeen, Scotland, UK. Associa-\ntion for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Seungju Han, Beomsu Kim, and Buru Chang. 2022."
+  },
+  {
+    "heading": "Measuring and improving semantic diversity of",
+    "content": "dialogue generation. In Findings of the Associ-\nation for Computational Linguistics: EMNLP\n2022, pages 934\u2013950, Abu Dhabi, United Arab"
+  },
+  {
+    "heading": "Emirates. Association for Computational Lin-",
+    "content": "guistics."
+  },
+  {
+    "heading": "M. O. Hill. 1973. Diversity and Evenness: A Uni-",
+    "content": "fying Notation and Its Consequences. Ecology,\n54(2):427\u2013432. Number: 2 Publisher: Ecologi-\ncal Society of America."
+  },
+  {
+    "heading": "S\u00f6nke Hoffmann and Andreas Hoffmann. 2008. Is",
+    "content": "there a \u201ctrue\u201d diversity? Ecological Economics,\n65(2):213\u2013215."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Po-Yao Huang, Xiaojun Chang, and Alexander"
+  },
+  {
+    "heading": "Hauptmann. 2019. Multi-head attention with",
+    "content": "diversity for learning grounded multilingual\nmultimodal representations."
+  },
+  {
+    "heading": "In Proceedings",
+    "content": "of the 2019 Conference on Empirical Meth-\nods in Natural Language Processing and the\n9th International Joint Conference on Natural"
+  },
+  {
+    "heading": "Language Processing (EMNLP-IJCNLP), pages",
+    "content": "1461\u20131467, Hong Kong, China. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "EunJeong Hwang, Veronika Thost, Vered Shwartz,",
+    "content": "and Tengfei Ma. 2023. Knowledge graph com-\npression enhances diverse commonsense gener-\nation. In Proceedings of the 2023 Conference\non Empirical Methods in Natural Language Pro-\ncessing, pages 558\u2013572, Singapore. Association\nfor Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Daphne Ippolito, Reno Kriz, Jo\u00e3o Sedoc, Maria"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kustikova, and Chris Callison-Burch. 2019."
+  },
+  {
+    "heading": "Comparison of diverse decoding methods from",
+    "content": "conditional language models. In Proceedings of\nthe 57th Annual Meeting of the Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics, pages 3752\u20133762,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Florence, Italy. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Pratik Joshi, Sebastin Santy, Amar Budhiraja, Ka-",
+    "content": "lika Bali, and Monojit Choudhury. 2020. The\nstate and fate of linguistic diversity and inclusion\nin the NLP world. In Proceedings of the 58th"
+  },
+  {
+    "heading": "Annual Meeting of the Association for Compu-",
+    "content": "tational Linguistics, pages 6282\u20136293, Online."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Lou Jost. 2009. Mismeasuring biological diversity:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Response to Hoffmann and Hoffmann (2008)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ecological Economics, 68(4):925\u2013928."
+  },
+  {
+    "heading": "Amr Keleg and Walid Magdy. 2023. DLAMA: A",
+    "content": "framework for curating culturally diverse facts\nfor probing the knowledge of pretrained lan-\nguage models. In Findings of the Association\nfor Computational Linguistics: ACL 2023, pages\n6245\u20136266, Toronto, Canada. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Simran Khanuja, Sebastian Ruder, and Partha"
+  },
+  {
+    "heading": "Talukdar. 2023. Evaluating the diversity, equity,",
+    "content": "and inclusion of NLP technology: A case study\nfor Indian languages. In Findings of the Associa-\ntion for Computational Linguistics: EACL 2023,\npages 1763\u20131777, Dubrovnik, Croatia. Associa-\ntion for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Donghyun Kim, Youbin Ahn, Wongyu Kim,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chanhee Lee, Kyungchan Lee, Kyong-Ho Lee,"
+  },
+  {
+    "heading": "Jeonguk Kim, Donghoon Shin, and Yeonsoo Lee.",
+    "content": "2023a. Persona expansion with commonsense\nknowledge for diverse and consistent response\ngeneration. In Proceedings of the 17th Confer-\nence of the European Chapter of the Associa-\ntion for Computational Linguistics, pages 1139\u2013\n1149, Dubrovnik, Croatia. Association for Com-\nputational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Donghyun Kim, Youbin Ahn, Chanhee Lee,"
+  },
+  {
+    "heading": "Wongyu Kim, Kyong-Ho Lee, Donghoon Shin,",
+    "content": "and Yeonsoo Lee. 2023b. Concept-based Per-\nsona Expansion for Improving Diversity of"
+  },
+  {
+    "heading": "Persona-Grounded Dialogue. In Proceedings",
+    "content": "of the 17th Conference of the European Chapter\nof the Association for Computational Linguistics,\npages 3471\u20133481, Dubrovnik, Croatia. Associa-\ntion for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jiwoo Kim,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Youngbin Kim,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ilwoong Baek,"
+  },
+  {
+    "heading": "JinYeong Bak, and Jongwuk Lee. 2023c. It ain\u2019t",
+    "content": "over: A multi-aspect diverse math word problem\ndataset. In Proceedings of the 2023 Conference\non Empirical Methods in Natural Language Pro-\ncessing, pages 14984\u201315011, Singapore. Associ-\nation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yejin Kim, Scott Rome, Kevin Foley, Mayur"
+  },
+  {
+    "heading": "Nankani, Rimon Melamed, Javier Morales, Ab-",
+    "content": "hay K. Yadav, Maria Peifer, Sardar Hamidian,\nand H. Howie Huang. 2024. Improving Con-\ntent Recommendation: Knowledge Graph-Based"
+  },
+  {
+    "heading": "Semantic Contrastive Learning for Diversity",
+    "content": "and Cold-Start Users."
+  },
+  {
+    "heading": "In Proceedings of the",
+    "content": "2024 Joint International Conference on Compu-\ntational Linguistics, Language Resources and"
+  },
+  {
+    "heading": "Evaluation (LREC-COLING 2024), pages 8743\u2013",
+    "content": "8755, Torino, Italia. ELRA and ICCL."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sosuke Kobayashi, Shun Kiyono, Jun Suzuki, and"
+  },
+  {
+    "heading": "Kentaro Inui. 2022. Diverse lottery tickets boost",
+    "content": "ensemble from a single pretrained model. In Pro-\nceedings of BigScience Episode #5 \u2013 Workshop\non Challenges & Perspectives in Creating Large"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Language Models, pages 42\u201350, virtual+Dublin."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jordan Kodner, Salam Khalifa, Khuyagbaatar"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Batsuren, Hossep Dolatian, Ryan Cotterell,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Faruk Akkus, Antonios Anastasopoulos, Taras"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Andrushko, Aryaman Arora, Nona Atanalov,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "G\u00e1bor"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Bella,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Elena"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Budianskaya,"
+  },
+  {
+    "heading": "Yusti-",
+    "content": "nus Ghanggo Ate, Omer Goldman, David"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Guriel, Simon Guriel, Silvia Guriel-Agiashvili,"
+  },
+  {
+    "heading": "Witold Kiera\u00b4s, Andrew Krizhanovsky, Na-",
+    "content": "talia Krizhanovsky, Igor Marchenko, Mag-\ndalena Markowska, Polina Mashkovtseva, Maria"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Nepomniashchaya, Daria Rodionova, Karina"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Scheifer, Alexandra Sorova, Anastasia Yemelina,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jeremiah Young, and Ekaterina Vylomova. 2022."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SIGMORPHON\u2013UniMorph 2022 shared task 0:"
+  },
+  {
+    "heading": "Generalization and typologically diverse mor-",
+    "content": "phological inflection. In Proceedings of the 19th"
+  },
+  {
+    "heading": "SIGMORPHON Workshop on Computational Re-",
+    "content": "search in Phonetics, Phonology, and Morphol-\nogy, pages 176\u2013203, Seattle, Washington. Asso-\nciation for Computational Linguistics."
+  },
+  {
+    "heading": "Dijana Kosmajac and Vlado Keselj. 2019. Twit-",
+    "content": "ter bot detection using diversity measures. In"
+  },
+  {
+    "heading": "Proceedings of the 3rd International Conference",
+    "content": "on Natural Language and Speech Processing,\npages 1\u20138, Trento, Italy. Association for Compu-\ntational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Aman Kumar, Himani Shrotriya, Prachi Sahu,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amogh Mishra, Raj Dabre, Ratish Puduppully,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Anoop Kunchukuttan, Mitesh M. Khapra, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pratyush Kumar. 2022a. IndicNLG benchmark:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Multilingual datasets for diverse NLG tasks in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Indic languages. In Proceedings of the 2022"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Language Processing, pages 5363\u20135394, Abu"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Dhabi, United Arab Emirates. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ashutosh Kumar, Satwik Bhattamishra, Manik"
+  },
+  {
+    "heading": "Bhandari, and Partha Talukdar. 2019. Submodu-",
+    "content": "lar optimization-based diverse paraphrasing and\nits effectiveness in data augmentation. In Pro-\nceedings of the 2019 Conference of the North"
+  },
+  {
+    "heading": "American Chapter of the Association for Com-",
+    "content": "putational Linguistics: Human Language Tech-\nnologies, Volume 1 (Long and Short Papers),\npages 3609\u20133619, Minneapolis, Minnesota. As-\nsociation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Shanu Kumar, Sandipan Dandapat, and Monojit"
+  },
+  {
+    "heading": "Choudhury. 2022b. \u201ddiversity and uncertainty",
+    "content": "in moderation\u201d are the key to data selection for\nmultilingual few-shot transfer. In Findings of\nthe Association for Computational Linguistics:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "NAACL 2022, pages 1042\u20131055, Seattle, United"
+  },
+  {
+    "heading": "States. Association for Computational Linguis-",
+    "content": "tics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jing Yang Lee, Kong Aik Lee, and Woon Seng"
+  },
+  {
+    "heading": "Gan. 2022. A randomized link transformer for",
+    "content": "diverse open-domain dialogue generation. In"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Proceedings of the 4th Workshop on NLP for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conversational AI, pages 1\u201311, Dublin, Ireland."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tom Leinster and Christina A. Cobbold. 2012."
+  },
+  {
+    "heading": "Measuring diversity: the importance of species",
+    "content": "similarity. Ecology, 93(3):477\u2013489."
+  },
+  {
+    "heading": "Jiwei Li, Michel Galley, Chris Brockett, Jian-",
+    "content": "feng Gao, and Bill Dolan. 2016. A diversity-\npromoting objective function for neural conver-\nsation models. In Proceedings of the 2016 Con-\nference of the North American Chapter of the"
+  },
+  {
+    "heading": "Association for Computational Linguistics: Hu-",
+    "content": "man Language Technologies, pages 110\u2013119,"
+  },
+  {
+    "heading": "San Diego, California. Association for Compu-",
+    "content": "tational Linguistics."
+  },
+  {
+    "heading": "Junyi Li, Tianyi Tang, Gaole He, Jinhao Jiang, Xi-",
+    "content": "aoxuan Hu, Puzhao Xie, Zhipeng Chen, Zhuo-\nhao Yu, Wayne Xin Zhao, and Ji-Rong Wen.\n2021. TextBox: A unified, modularized, and ex-\ntensible framework for text generation. In Pro-\nceedings of the 59th Annual Meeting of the As-\nsociation for Computational Linguistics and the\n11th International Joint Conference on Natural"
+  },
+  {
+    "heading": "Language Processing: System Demonstrations,",
+    "content": "pages 30\u201339, Online. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Adam Lion-Bouton, Yagmur Ozturk, Agata Savary,",
+    "content": "and Jean-Yves Antoine. 2022. Evaluating di-\nversity of multiword expressions in annotated\ntext. In Proceedings of the 29th International"
+  },
+  {
+    "heading": "Conference on Computational Linguistics, pages",
+    "content": "3285\u20133295, Gyeongju, Republic of Korea. Inter-\nnational Committee on Computational Linguis-\ntics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chen Liu, Fajri Koto, Timothy Baldwin, and"
+  },
+  {
+    "heading": "Iryna Gurevych. 2024a. Are multilingual LLMs",
+    "content": "culturally-diverse reasoners? an investigation\ninto multicultural proverbs and sayings. In Pro-\nceedings of the 2024 Conference of the North"
+  },
+  {
+    "heading": "American Chapter of the Association for Com-",
+    "content": "putational Linguistics: Human Language Tech-\nnologies (Volume 1: Long Papers), pages 2016\u2013\n2039, Mexico City, Mexico. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Dayiheng Liu, Yeyun Gong, Yu Yan, Jie Fu,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Bo Shao, Daxin Jiang, Jiancheng Lv, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Nan Duan. 2020."
+  },
+  {
+    "heading": "Diverse, controllable, and",
+    "content": "keyphrase-aware: A corpus and method for news\nmulti-headline generation. In Proceedings of\nthe 2020 Conference on Empirical Methods in"
+  },
+  {
+    "heading": "Natural Language Processing (EMNLP), pages",
+    "content": "6241\u20136250, Online. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Guisheng Liu, Yi Li, Zhengcong Fei, Haiyan"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Fu, Xiangyang Luo, and Yanqing Guo. 2024b."
+  },
+  {
+    "heading": "Prefix-diffusion: A lightweight diffusion model",
+    "content": "for diverse image captioning. In Proceedings\nof the 2024 Joint International Conference on"
+  },
+  {
+    "heading": "Computational Linguistics, Language Resources",
+    "content": "and Evaluation (LREC-COLING 2024), pages\n12954\u201312965, Torino, Italia. ELRA and ICCL."
+  },
+  {
+    "heading": "Mingyue Liu, Jonathan Frawley, Sarah Wyer, Hu-",
+    "content": "bert P. H. Shum, Sara Uckelman, Sue Black, and"
+  },
+  {
+    "heading": "Chris Willcocks. 2024c. Self-regulated sample",
+    "content": "diversity in large language models. In Findings\nof the Association for Computational Linguistics:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "NAACL 2024, pages 1891\u20131899, Mexico City,"
+  },
+  {
+    "heading": "Mexico. Association for Computational Linguis-",
+    "content": "tics."
+  },
+  {
+    "heading": "Yang Janet Liu and Amir Zeldes. 2023. Why can\u2019t",
+    "content": "discourse parsing generalize? a thorough inves-\ntigation of the impact of data diversity. In Pro-\nceedings of the 17th Conference of the European"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chapter of the Association for Computational"
+  },
+  {
+    "heading": "Linguistics, pages 3112\u20133130, Dubrovnik, Croa-",
+    "content": "tia. Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yongkang Liu, Shi Feng, Daling Wang, Yifei"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Zhang, and Hinrich Sch\u00fctze. 2023. PVGRU:"
+  },
+  {
+    "heading": "Generating diverse and relevant dialogue re-",
+    "content": "sponses via pseudo-variational mechanism. In"
+  },
+  {
+    "heading": "Proceedings of the 61st Annual Meeting of",
+    "content": "the Association for Computational Linguistics\n(Volume 1: Long Papers), pages 3295\u20133310,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Toronto, Canada. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Shayne Longpre, Yi Lu, and Joachim Daiber. 2021."
+  },
+  {
+    "heading": "MKQA: A linguistically diverse benchmark for",
+    "content": "multilingual open domain question answering."
+  },
+  {
+    "heading": "Transactions of the Association for Computa-",
+    "content": "tional Linguistics, 9:1389\u20131406."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yueen Ma,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DaFeng Chi,"
+  },
+  {
+    "heading": "Jingjing Li,",
+    "content": "Kai"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Song, Yuzheng Zhuang, and Irwin King. 2024."
+  },
+  {
+    "heading": "VOLTA: Improving generative diversity by vari-",
+    "content": "ational mutual information maximizing autoen-\ncoder. In Findings of the Association for Com-\nputational Linguistics: NAACL 2024, pages 364\u2013\n378, Mexico City, Mexico. Association for Com-\nputational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Shen-yun Miao, Chao-Chun Liang, and Keh-Yih"
+  },
+  {
+    "heading": "Su. 2020. A diverse corpus for evaluating and",
+    "content": "developing English math word problem solvers."
+  },
+  {
+    "heading": "In Proceedings of the 58th Annual Meeting of",
+    "content": "the Association for Computational Linguistics,\npages 975\u2013984, Online. Association for Compu-\ntational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Youssef Mohamed, Mohamed Abdelfattah, Shyma"
+  },
+  {
+    "heading": "Alhuwaider, Feifan Li, Xiangliang Zhang, Ken-",
+    "content": "neth Church, and Mohamed Elhoseiny. 2022."
+  },
+  {
+    "heading": "Unknown",
+    "content": "ArtELingo: A million emotion annotations of"
+  },
+  {
+    "heading": "WikiArt with emphasis on diversity over lan-",
+    "content": "guage and culture. In Proceedings of the 2022"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Language Processing, pages 8770\u20138785, Abu"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Dhabi, United Arab Emirates. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Maud A. Mouchet, S\u00e9bastien Vill\u00e9ger, Norman"
+  },
+  {
+    "heading": "W. H. Mason, and David Mouillot. 2010. Func-",
+    "content": "tional diversity measures: an overview of their\nredundancy and their ability to discriminate com-\nmunity assembly rules."
+  },
+  {
+    "heading": "Functional Ecology,",
+    "content": "24(4):867\u2013876."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Vishvak Murahari, Prithvijit Chattopadhyay, Dhruv"
+  },
+  {
+    "heading": "Batra, Devi Parikh, and Abhishek Das. 2019. Im-",
+    "content": "proving generative visual dialog by answering\ndiverse questions. In Proceedings of the 2019"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Language Processing and the 9th International"
+  },
+  {
+    "heading": "Joint Conference on Natural Language Process-",
+    "content": "ing (EMNLP-IJCNLP), pages 1449\u20131454, Hong"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kong, China. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Shashi Narayan and Shay B. Cohen. 2015. Di-",
+    "content": "versity in spectral learning for natural language\nparsing. In Proceedings of the 2015 Conference\non Empirical Methods in Natural Language Pro-\ncessing, pages 1868\u20131878, Lisbon, Portugal. As-\nsociation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Enrico Palumbo, Andrea Mezzalira, Cristina"
+  },
+  {
+    "heading": "Marco, Alessandro Manzotti, and Daniele Am-",
+    "content": "berti. 2020. Semantic diversity for natural lan-\nguage understanding evaluation in dialog sys-\ntems. In Proceedings of the 28th International"
+  },
+  {
+    "heading": "Conference on Computational Linguistics: In-",
+    "content": "dustry Track, pages 44\u201349, Online. International"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Committee on Computational Linguistics."
+  },
+  {
+    "heading": "Jun-Hyung Park, Hyuntae Park, Youjin Kang, Eo-",
+    "content": "jin Jeon, and SangKeun Lee. 2023. DIVE: To-\nwards descriptive and diverse visual common-\nsense generation. In Proceedings of the 2023"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Language Processing, pages 9677\u20139695, Singa-",
+    "content": "pore. Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Alicia Parrish, Susan Hao, Sarah Laszlo, and Lora"
+  },
+  {
+    "heading": "Aroyo. 2024. Is a picture of a bird a bird? a",
+    "content": "mixed-methods approach to understanding di-\nverse human perspectives and ambiguity in ma-\nchine vision models."
+  },
+  {
+    "heading": "In Proceedings of the",
+    "content": "3rd Workshop on Perspectivist Approaches to"
+  },
+  {
+    "heading": "NLP (NLPerspectives) @ LREC-COLING 2024,",
+    "content": "pages 1\u201318, Torino, Italia. ELRA and ICCL."
+  },
+  {
+    "heading": "G. P. Patil and C. Taillie. 1982. Diversity as a Con-",
+    "content": "cept and its Measurement. Journal of the Amer-\nican Statistical Association, 77(379):548\u2013561."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Number: 379 Publisher: [American Statistical"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association, Taylor & Francis, Ltd.]."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Esther"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ploeger,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Wessel"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Poelman,"
+  },
+  {
+    "heading": "Miryam",
+    "content": "de Lhoneux, and Johannes Bjerva. 2024. What\nis \u201dtypological diversity\u201d in NLP?"
+  },
+  {
+    "heading": "In Pro-",
+    "content": "ceedings of the 2024 Conference on Empirical"
+  },
+  {
+    "heading": "Methods in Natural Language Processing, pages",
+    "content": "5681\u20135700, Miami, Florida, USA. Association\nfor Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Wessel"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Poelman,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Esther"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ploeger,"
+  },
+  {
+    "heading": "Miryam",
+    "content": "de Lhoneux, and Johannes Bjerva. 2024.\nA\ncall for consistency in reporting typological\ndiversity. In Proceedings of the 6th Workshop\non Research in Computational Linguistic Ty-\npology and Multilingual NLP, pages 75\u201377, St."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Julian\u2019s, Malta. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Edoardo Maria Ponti, Helen O\u2019Horan, Yevgeni"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Berzak, Ivan Vuli\u00b4c, Roi Reichart, Thierry"
+  },
+  {
+    "heading": "Poibeau, Ekaterina Shutova, and Anna Korho-",
+    "content": "nen. 2019. Modeling language variation and\nuniversals: A survey on typological linguistics\nfor natural language processing. Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics, 45(3):559\u2013601."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amir Pouran Ben Veyseh, Minh Van Nguyen,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Franck Dernoncourt, and Thien Nguyen. 2022."
+  },
+  {
+    "heading": "MINION: a large-scale and diverse dataset for",
+    "content": "multilingual event detection. In Proceedings\nof the 2022 Conference of the North Ameri-\ncan Chapter of the Association for Computa-\ntional Linguistics: Human Language Technolo-\ngies, pages 2286\u20132299, Seattle, United States."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sameer Pradhan, Julia Bonn, Skatje Myers,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kathryn Conger, Tim O\u2019gorman, James Gung,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kristin Wright-bettner, and Martha Palmer. 2022."
+  },
+  {
+    "heading": "PropBank comes of Age\u2014Larger, smarter, and",
+    "content": "more diverse. In Proceedings of the 11th Joint"
+  },
+  {
+    "heading": "Conference on Lexical and Computational Se-",
+    "content": "mantics, pages 278\u2013288, Seattle, Washington."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Vinayak Puranik, Anirban Majumder, and Vineet"
+  },
+  {
+    "heading": "Chaoji. 2023. PROTEGE: Prompt-based diverse",
+    "content": "question generation from web articles. In Find-\nings of the Association for Computational Lin-\nguistics: EMNLP 2023, pages 5449\u20135463, Sin-\ngapore. Association for Computational Linguis-\ntics."
+  },
+  {
+    "heading": "Yao Qiu, Jinchao Zhang, and Jie Zhou. 2021. Dif-",
+    "content": "ferent strokes for different folks: Investigating\nappropriate further pre-training approaches for\ndiverse dialogue tasks. In Proceedings of the\n2021 Conference on Empirical Methods in Nat-\nural Language Processing, pages 2318\u20132327,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Online and Punta Cana, Dominican Republic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pedro Ramaciotti Morales, Robin Lamarche-Perrin,"
+  },
+  {
+    "heading": "Rapha\u00ebl Fournier-S\u2019niehotta, R\u00e9my Poulain, Li-",
+    "content": "onel Tabourier, and Fabien Tarissan. 2021. Mea-\nsuring diversity in heterogeneous information\nnetworks. Theoretical Computer Science, 859."
+  },
+  {
+    "heading": "Carlo Ricotta and Laszlo Szeidl. 2006. Towards a",
+    "content": "unifying approach to diversity measures: bridg-\ning the gap between the Shannon entropy and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rao\u2019s quadratic index. Theoretical Population"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Biology, 70(3):237\u2013243. Number: 3."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tanja Samardzic, Ximena Gutierrez, Christian"
+  },
+  {
+    "heading": "Bentz, Steven Moran, and Olga Pelloni. 2024. A",
+    "content": "measure for transparent comparison of linguis-\ntic diversity in multilingual NLP data sets. In"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Findings of the Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics: NAACL 2024, pages 3367\u20133382,"
+  },
+  {
+    "heading": "Mexico City, Mexico. Association for Computa-",
+    "content": "tional Linguistics."
+  },
+  {
+    "heading": "Farhan Samir and Miikka Silfverberg. 2023. Un-",
+    "content": "derstanding compositional data augmentation in\ntypologically diverse morphological inflection."
+  },
+  {
+    "heading": "In Proceedings of the 2023 Conference on Em-",
+    "content": "pirical Methods in Natural Language Process-\ning, pages 277\u2013291, Singapore. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Gabriele Sarti, Arianna Bisazza, Ana Guerberof-"
+  },
+  {
+    "heading": "Arenas, and Antonio Toral. 2022. DivEMT: Neu-",
+    "content": "ral machine translation post-editing effort across\ntypologically diverse languages. In Proceedings\nof the 2022 Conference on Empirical Methods in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Natural Language Processing, pages 7795\u20137816,"
+  },
+  {
+    "heading": "Abu Dhabi, United Arab Emirates. Association",
+    "content": "for Computational Linguistics."
+  },
+  {
+    "heading": "Samuel M. Scheiner. 2012. A metric of biodiver-",
+    "content": "sity that integrates abundance, phylogeny, and\nfunction. Oikos, 121(8):1191\u20131202."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Simeon Sch\u00fcz, Ting Han, and Sina Zarrie\u00df. 2021."
+  },
+  {
+    "heading": "Diversity as a by-product: Goal-oriented lan-",
+    "content": "guage generation leads to linguistic variation. In"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Proceedings of the 22nd Annual Meeting of the"
+  },
+  {
+    "heading": "Special Interest Group on Discourse and Dia-",
+    "content": "logue, pages 411\u2013422, Singapore and Online."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Claude Elwood Shannon and Warren Weaver. 1949."
+  },
+  {
+    "heading": "A Mathematical Theory of Communication. Uni-",
+    "content": "versity of Illinois Press, Urbana."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chenze Shao, Xuanfu Wu, and Yang Feng. 2022."
+  },
+  {
+    "heading": "One reference is not enough: Diverse distillation",
+    "content": "with reference selection for non-autoregressive\ntranslation. In Proceedings of the 2022 Con-\nference of the North American Chapter of the"
+  },
+  {
+    "heading": "Association for Computational Linguistics: Hu-",
+    "content": "man Language Technologies, pages 3779\u20133791,"
+  },
+  {
+    "heading": "Seattle, United States. Association for Computa-",
+    "content": "tional Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yibin Shen, Qianying Liu, Zhuoyuan Mao, Zhen"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Wan, Fei Cheng, and Sadao Kurohashi. 2022."
+  },
+  {
+    "heading": "Seeking diverse reasoning logic: Controlled",
+    "content": "equation expression generation for solving math\nword problems. In Proceedings of the 2nd Con-\nference of the Asia-Pacific Chapter of the Asso-\nciation for Computational Linguistics and the\n12th International Joint Conference on Natural"
+  },
+  {
+    "heading": "Language Processing (Volume 2: Short Papers),",
+    "content": "pages 254\u2013260, Online only. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Benjamin Smith and J. Bastow Wilson. 1996. A"
+  },
+  {
+    "heading": "Consumer\u2019s Guide to Evenness Indices. Oikos,",
+    "content": "76(1):70\u201382. Number: 1 Publisher: [Nordic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Society Oikos, Wiley]."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Bingyan Song, Chunguang Pan, Shengguang"
+  },
+  {
+    "heading": "Wang, and Zhipeng Luo. 2021. DeepBlueAI",
+    "content": "at SemEval-2021 task 7: Detecting and rating\nhumor and offense with stacking diverse lan-\nguage model-based methods. In Proceedings\nof the 15th International Workshop on Semantic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Evaluation (SemEval-2021), pages 1130\u20131134,"
+  },
+  {
+    "heading": "Online. Association for Computational Linguis-",
+    "content": "tics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Feifan Song, Bowen Yu, Hao Lang, Haiyang Yu,"
+  },
+  {
+    "heading": "Fei Huang, Houfeng Wang, and Yongbin Li.",
+    "content": "2024. Scaling data diversity for fine-tuning lan-\nguage models in human alignment. In Proceed-\nings of the 2024 Joint International Conference\non Computational Linguistics, Language Re-\nsources and Evaluation (LREC-COLING 2024),\npages 14358\u201314369, Torino, Italia. ELRA and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "ICCL."
+  },
+  {
+    "heading": "Katherine Stasaski and Marti Hearst. 2022. Seman-",
+    "content": "tic diversity in dialogue with natural language\ninference. In Proceedings of the 2022 Confer-\nence of the North American Chapter of the Asso-\nciation for Computational Linguistics: Human"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Language Technologies, pages 85\u201398, Seattle,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "United States. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Andrew Stirling. 1994a. Diversity and ignorance",
+    "content": "in electricity supply investment. Energy Policy,\n22(3):195\u2013216."
+  },
+  {
+    "heading": "Andrew Stirling. 1994b. Power technology choice:",
+    "content": "putting the money where the mouth is?"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PhD,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "University of Sussex, Sussex."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Andy Stirling. 2007."
+  },
+  {
+    "heading": "A general framework for",
+    "content": "analysing diversity in science, technology and\nsociety. Journal of The Royal Society Interface,\n4(15):707\u2013719. Number: 15 Publisher: Royal"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Society."
+  },
+  {
+    "heading": "Guy Tevet and Jonathan Berant. 2021. Evaluating",
+    "content": "the evaluation of diversity in natural language\ngeneration. In Proceedings of the 16th Confer-\nence of the European Chapter of the Association\nfor Computational Linguistics: Main Volume,\npages 326\u2013346, Online. Association for Compu-\ntational Linguistics."
+  },
+  {
+    "heading": "Brian Thompson and Matt Post. 2020. Paraphrase",
+    "content": "generation as zero-shot multilingual translation:"
+  },
+  {
+    "heading": "Disentangling semantic similarity from lexical",
+    "content": "and syntactic diversity. In Proceedings of the"
+  },
+  {
+    "heading": "Fifth Conference on Machine Translation, pages",
+    "content": "561\u2013570, Online. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Rocco Tripodi, Simone Conia, and Roberto Navigli.",
+    "content": "2021. UniteD-SRL: A unified dataset for span-\nand dependency-based multilingual and cross-\nlingual Semantic Role Labeling. In Findings of\nthe Association for Computational Linguistics:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "EMNLP 2021, pages 2293\u20132305, Punta Cana,"
+  },
+  {
+    "heading": "Dominican Republic. Association for Computa-",
+    "content": "tional Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ekaterina Vylomova,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jennifer White,"
+  },
+  {
+    "heading": "Eliza-",
+    "content": "beth Salesky, Sabrina J. Mielke, Shijie Wu,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Edoardo Maria Ponti, Rowan Hall Maudslay,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ran Zmigrod, Josef Valvoda, Svetlana Toldova,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Francis Tyers, Elena Klyachko, Ilya Yegorov,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Natalia Krizhanovsky, Paula Czarnowska, Irene"
+  },
+  {
+    "heading": "Nikkarinen, Andrew Krizhanovsky, Tiago Pi-",
+    "content": "mentel, Lucas Torroba Hennigen, Christo Kirov,"
+  },
+  {
+    "heading": "Garrett Nicolai, Adina Williams, Antonios Anas-",
+    "content": "tasopoulos, Hilaria Cruz, Eleanor Chodroff,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ryan Cotterell, Miikka Silfverberg, and Mans"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hulden. 2020."
+  },
+  {
+    "heading": "SIGMORPHON 2020 shared",
+    "content": "task 0: Typologically diverse morphological in-\nflection. In Proceedings of the 17th SIGMOR-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PHON Workshop on Computational Research in"
+  },
+  {
+    "heading": "Phonetics, Phonology, and Morphology, pages 1\u2013",
+    "content": "39, Online. Association for Computational Lin-\nguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tharindu Cyril Weerasooriya, Alexander Ororbia,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Raj Bhensadadia, Ashiqur KhudaBukhsh, and"
+  },
+  {
+    "heading": "Christopher Homan. 2023. Disagreement mat-",
+    "content": "ters: Preserving label diversity by jointly mod-\neling item and annotator label distributions with"
+  },
+  {
+    "heading": "DisCo. In Findings of the Association for Com-",
+    "content": "putational Linguistics: ACL 2023, pages 4679\u2013\n4695, Toronto, Canada. Association for Compu-\ntational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Xuanfu Wu, Yang Feng, and Chenze Shao. 2020."
+  },
+  {
+    "heading": "Generating diverse translation from model distri-",
+    "content": "bution with dropout. In Proceedings of the 2020"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Language Processing (EMNLP), pages 1088\u2013",
+    "content": "1097, Online. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yu Xia, Xu Liu, Tong Yu, Sungchul Kim, Ryan"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rossi, Anup Rao, Tung Mai, and Shuai Li. 2024."
+  },
+  {
+    "heading": "Hallucination diversity-aware active learning for",
+    "content": "text summarization. In Proceedings of the 2024"
+  },
+  {
+    "heading": "Conference of the North American Chapter of",
+    "content": "the Association for Computational Linguistics:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Human Language Technologies (Volume 1: Long"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Papers), pages 8665\u20138677, Mexico City, Mexico."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jingjing Xu, Xuancheng Ren, Junyang Lin, and"
+  },
+  {
+    "heading": "Xu Sun. 2018. Diversity-promoting GAN: A",
+    "content": "cross-entropy based generative adversarial net-\nwork for diversified text generation."
+  },
+  {
+    "heading": "In Pro-",
+    "content": "ceedings of the 2018 Conference on Empirical"
+  },
+  {
+    "heading": "Methods in Natural Language Processing, pages",
+    "content": "3940\u20133949, Brussels, Belgium. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Vikas Yadav, Hyuk joon Kwon, Vijay Srinivasan,",
+    "content": "and Hongxia Jin. 2024. Explicit over implict:"
+  },
+  {
+    "heading": "Explicit diversity conditions for effective ques-",
+    "content": "tion answer generation. In Proceedings of the\n2024 Joint International Conference on Compu-\ntational Linguistics, Language Resources and"
+  },
+  {
+    "heading": "Evaluation (LREC-COLING 2024), pages 6876\u2013",
+    "content": "6882, Torino, Italia. ELRA and ICCL."
+  },
+  {
+    "heading": "Cai Yang and Stephen Wan. 2022. Investigating",
+    "content": "metric diversity for evaluating long document\nsummarisation."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In Proceedings of the Third"
+  },
+  {
+    "heading": "Workshop on Scholarly Document Processing,",
+    "content": "pages 115\u2013125, Gyeongju, Republic of Korea."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jingfeng Yang, Diyi Yang, and Zhaoran Ma. 2020."
+  },
+  {
+    "heading": "Planning and generating natural and diverse dis-",
+    "content": "fluent texts as augmentation for disfluency de-\ntection. In Proceedings of the 2020 Conference\non Empirical Methods in Natural Language Pro-\ncessing (EMNLP), pages 1450\u20131460, Online. As-\nsociation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yuting Yang, Pei Huang, Feifei Ma, Juan Cao, and"
+  },
+  {
+    "heading": "Jintao Li. 2024. PAD: A robustness enhance-",
+    "content": "ment ensemble method via promoting attention\ndiversity. In Proceedings of the 2024 Joint In-\nternational Conference on Computational Lin-\nguistics, Language Resources and Evaluation\n(LREC-COLING 2024), pages 12574\u201312584,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Torino, Italia. ELRA and ICCL."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Zhilin Yang, Peng Qi, Saizheng Zhang, Yoshua"
+  },
+  {
+    "heading": "Bengio, William Cohen, Ruslan Salakhutdinov,",
+    "content": "and Christopher D. Manning. 2018. HotpotQA:"
+  },
+  {
+    "heading": "A dataset for diverse, explainable multi-hop",
+    "content": "question answering. In Proceedings of the 2018"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Language Processing, pages 2369\u20132380, Brus-",
+    "content": "sels, Belgium. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Taro Yano, Kunihiro Takeoka, and Masafumi Oya-",
+    "content": "mada. 2024. Relevance, diversity, and exclusiv-\nity: Designing keyword-augmentation strategy\nfor zero-shot classifiers. In Proceedings of the\n13th Joint Conference on Lexical and Computa-\ntional Semantics (*SEM 2024), pages 106\u2013119,"
+  },
+  {
+    "heading": "Mexico City, Mexico. Association for Computa-",
+    "content": "tional Linguistics."
+  },
+  {
+    "heading": "Da Yin, Liunian Harold Li, Ziniu Hu, Nanyun Peng,",
+    "content": "and Kai-Wei Chang. 2021. Broaden the vision:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Geo-diverse visual commonsense reasoning. In"
+  },
+  {
+    "heading": "Proceedings of the 2021 Conference on Em-",
+    "content": "pirical Methods in Natural Language Process-\ning, pages 2115\u20132129, Online and Punta Cana,"
+  },
+  {
+    "heading": "Dominican Republic. Association for Computa-",
+    "content": "tional Linguistics."
+  },
+  {
+    "heading": "Yu Yu, Shahram Khadivi, and Jia Xu. 2022. Can",
+    "content": "data diversity enhance learning generalization?"
+  },
+  {
+    "heading": "In Proceedings of the 29th International Confer-",
+    "content": "ence on Computational Linguistics, pages 4933\u2013\n4945, Gyeongju, Republic of Korea. Interna-\ntional Committee on Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Huajian Zhang, Yumo Xu, and Laura Perez-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Beltrachini. 2024a."
+  },
+  {
+    "heading": "Fine-grained natural lan-",
+    "content": "guage inference based faithfulness evaluation\nfor diverse summarisation tasks. In Proceedings\nof the 18th Conference of the European Chapter\nof the Association for Computational Linguistics\n(Volume 1: Long Papers), pages 1701\u20131722, St."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Julian\u2019s, Malta. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Hugh Zhang, Daniel Duckworth, Daphne Ippolito,",
+    "content": "and Arvind Neelakantan. 2021. Trading off di-\nversity and quality in natural language genera-\ntion. In Proceedings of the Workshop on Human"
+  },
+  {
+    "heading": "Evaluation of NLP Systems (HumEval), pages",
+    "content": "25\u201333, Online. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tianyi Zhang*, Varsha Kishore*, Felix Wu*,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kilian Q. Weinberger, and Yoav Artzi. 2020."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Bertscore: Evaluating text generation with bert."
+  },
+  {
+    "heading": "In International Conference on Learning Repre-",
+    "content": "sentations."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Xinran Zhang, Maosong Sun, Jiafeng Liu, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Xiaobing Li. 2023. Lingxi: A diversity-aware"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chinese modern poetry generation system. In"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Proceedings of the 61st Annual Meeting of the"
+  },
+  {
+    "heading": "Association for Computational Linguistics (Vol-",
+    "content": "ume 3: System Demonstrations), pages 63\u201375,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Toronto, Canada. Association for Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yusen Zhang, Nan Zhang, Yixin Liu, Alexander"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Fabbri, Junru Liu, Ryo Kamoi, Xiaoxin Lu,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Caiming Xiong, Jieyu Zhao, Dragomir Radev,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kathleen McKeown, and Rui Zhang. 2024b."
+  },
+  {
+    "heading": "Fair abstractive summarization of diverse per-",
+    "content": "spectives. In Proceedings of the 2024 Confer-\nence of the North American Chapter of the Asso-\nciation for Computational Linguistics: Human"
+  },
+  {
+    "heading": "Language Technologies (Volume 1: Long Pa-",
+    "content": "pers), pages 3404\u20133426, Mexico City, Mexico."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Yaoming Zhu, Sidi Lu, Lei Zheng, Jiaxian Guo,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Weinan Zhang, Jun Wang, and Yong Yu. 2018."
+  },
+  {
+    "heading": "Texygen: A benchmarking platform for text gen-",
+    "content": "eration models. In The 41st International ACM"
+  },
+  {
+    "heading": "SIGIR Conference on Research & Development",
+    "content": "in Information Retrieval, SIGIR 2018, Ann Arbor,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "MI, USA, July 08-12, 2018, pages 1097\u20131100."
+  },
+  {
+    "heading": "Unknown",
+    "content": "ACM."
+  }
+]
