@@ -1,5 +1,5 @@
 env/
 .env
-rag_agent/vectorstore/books/*
-rag_agent/arxiv_pdfs/*
-rag_agent/preprocessed/*
+/rag_agent/vectorstore/books/*
+/rag_agent/arxiv_pdfs/*
+/rag_agent/preprocessed/*
