@@ -11,8 +11,8 @@ pypdf
 tiktoken
 faiss-cpu
 chardet
-
 arxiv
 pymupdf
-
 minio
+qdrant_client
+fastembed

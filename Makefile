@@ -1,4 +1,4 @@
-.PHONY: minio stop-minio
+.PHONY: minio stop-minio qdrant stop-qdrant
 
 minio:
 	cd minio && docker compose up -d
