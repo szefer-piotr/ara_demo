@@ -4,3 +4,4 @@ env/
 /rag_agent/arxiv_pdfs/*
 /rag_agent/preprocessed/*
 minio/minio_data/*
+qdrant/qdrant_data/*
