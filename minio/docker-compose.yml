@@ -5,11 +5,11 @@ services:
     image: quay.io/minio/minio
     container_name: minio
     ports:
-      - "9000:9000"  # S3 API
+      - "9002:9000"  # S3 API
       - "9001:9001"  # Web Console
     environment:
-      MINIO_ROOT_USER: QWERTYUIOP
-      MINIO_ROOT_PASSWORD: ASDFGHJKL
+      MINIO_ROOT_USER: piotrminio
+      MINIO_ROOT_PASSWORD: piotrminio
     volumes:
       - ./minio_data:/data
     command: server /data --console-address ":9001"

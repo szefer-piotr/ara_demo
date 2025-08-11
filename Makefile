@@ -17,3 +17,15 @@ qdrant:
 
 stop-qdrant:
 	cd qdrant && docker compose down
+
+download_arxiv_papers:
+	python download_arxiv_papers.py \
+	--keywords ecology \
+	--bucket research-papers \
+	--minio-url http://localhost:9002 \
+	--minio-access-key piotrminio \
+	--minio-secret-key piotrminio \
+	--max-results 10 \
+	--batch-size 10 \
+	--user-agent "piotr-arxiv-minio/0.1 (mailto:szefer85@gmail.com)" \
+	-vv
