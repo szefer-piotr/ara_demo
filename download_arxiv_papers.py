@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -185,6 +182,7 @@ def run(
         secret_key=minio_secret_key,
         secure=minio_secure,
     )
+    
     ensure_bucket(client, bucket)
 
     processed = 0
@@ -237,7 +235,7 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     )
     p.add_argument("--bucket", required=True, help="MinIO bucket name.")
     p.add_argument("--prefix", default=DEFAULT_PREFIX, help="Object key prefix in the bucket (default: papers/).")
-    p.add_argument("--minio-url", required=True, help="MinIO URL, e.g., http://localhost:9000")
+    p.add_argument("--minio-url", required=True, help="MinIO URL, e.g., http://localhost:9002")
     p.add_argument("--minio-access-key", required=True, help="Minio access key")
     p.add_argument("--minio-secret-key", required=True, help="MinIO secret key")
     p.add_argument("--minio-secure", action="store_true", help="Use HTTPS to connect to MinIO (default: HTTP)")

@@ -2,6 +2,12 @@
 
 minio:
 	cd minio && docker compose up -d
+	@echo "Waiting for MinIO HTTP endpoint..."
+	@until curl -s -o /dev/null http://localhost:9002; do \
+		sleep 1; \
+		echo "Still waiting..."; \
+	done
+	@echo "✅ MinIO is up!"
 
 stop-minio:
 	cd minio && docker compose down
@@ -29,3 +35,16 @@ download_arxiv_papers:
 	--batch-size 10 \
 	--user-agent "piotr-arxiv-minio/0.1 (mailto:szefer85@gmail.com)" \
 	-vv
+
+chunk_arxiv_papers:
+	python minio_to_qdrant.py \
+    --minio-endpoint localhost:9002 \
+	--minio-bucket research-papers \
+	--minio-secure false \
+    --prefix arxiv/ \
+    --qdrant-url http://localhost:6333 \
+	--collection arxiv_chunks \
+    --openai-model text-embedding-3-large \
+    --chunk-size 1200 
+	--chunk-overlap 200 
+	--force
