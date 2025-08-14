@@ -20,12 +20,18 @@ clean-minio:
 
 qdrant:
 	cd qdrant && docker compose up -d
+	@echo "Waiting for Qdrant to be ready on port 6333..."
+	@until curl -s -o /dev/null http://localhost:6333/healthz; do \
+		sleep 1; \
+		echo "Still waiting for Qdrant..."; \
+	done
+	@echo "✅ Qdrant is ready at http://localhost:6333"
 
 stop-qdrant:
 	cd qdrant && docker compose down
 
 download_arxiv_papers:
-	python download_arxiv_papers.py \
+	python3 download_arxiv_papers.py \
 	--keywords ecology \
 	--bucket research-papers \
 	--minio-url http://localhost:9002 \
@@ -37,14 +43,14 @@ download_arxiv_papers:
 	-vv
 
 chunk_arxiv_papers:
-	python minio_to_qdrant.py \
+	python3 chunk_arxiv_papers.py \
     --minio-endpoint localhost:9002 \
 	--minio-bucket research-papers \
 	--minio-secure false \
-    --prefix arxiv/ \
+    --prefix papers/ \
     --qdrant-url http://localhost:6333 \
 	--collection arxiv_chunks \
     --openai-model text-embedding-3-large \
-    --chunk-size 1200 
-	--chunk-overlap 200 
+    --chunk-size 1200 \
+	--chunk-overlap 200 \
 	--force

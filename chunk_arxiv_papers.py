@@ -15,7 +15,7 @@ Usage examples:
       --minio-endpoint localhost:9000 --minio-bucket research-papers --minio-secure false \
       --minio-access-key minioadmin --minio-secret-key minioadmin \
       --prefix arxiv/2025-08-10/ \
-      --mongo-uri "mongodb://localhost:27017" --db-name arxiv_ingest \
+      --qdrant-url \
       --chunk-size 1200 --chunk-overlap 200
 
     # Process specific objects (comma-separated)
@@ -29,14 +29,24 @@ import argparse, os, re, uuid, tempfile, logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Tuple, Iterable, Optional
+from dotenv import load_dotenv
 
 from minio import Minio
 from qdrant_client import QdrantClient
-from qdrant_client.conversions import common_types as types
-from qdrant_client.models import Distance, VectorParams, Filter, FieldCondition, MatchValue
+from qdrant_client.models import (
+    Distance, 
+    VectorParams, 
+    Filter, 
+    FieldCondition, 
+    MatchValue,
+    PointStruct
+)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_experimental import SemanticChunker
+from langchain_experimental.text_splitter import SemanticChunker
 from langchain_openai import OpenAIEmbeddings
+from openai import OpenAI
+
+load_dotenv()
 
 try:
     import fitz
@@ -50,7 +60,6 @@ try:
 except:
     HAVE_PDFMINER = False
 
-from openai import OpenAI
 
 NAMESPACE_URL = uuid.NAMESPACE_URL
 OPENAI_EMBED_MODEL = os.getenv('OPENAI_EMBED_MODEL')
@@ -92,7 +101,7 @@ def parse_args():
     # Behavior
     p.add_argument("--force", action="store_true", help="Re-ingest even if exists (deletes by filter first)")
     p.add_argument("--log-level", default=os.getenv("LOG_LEVEL", "INFO"))
-    p.parse_args()
+    return p.parse_args()
 
 
 def stable_paper_id(bucket: str, object_name: str) -> str:
@@ -104,7 +113,21 @@ def arxiv_id_from_name(name: str) -> Optional[str]:
     return m.group(1) if m else None
 
 
-def list_pdf_objects(m: Minio, bucket: str, key: str) -> Tuple[bytes, str, int]:
+def list_pdf_objects(m: Minio, bucket: str, prefix: str):
+    """
+    Yield ONLY real PDF object keys under prefix. Skip directory markers.
+    """
+    for obj in m.list_objects(bucket, prefix=prefix, recursive=True):
+        name = obj.object_name
+        # skip "folders" like 'arxiv/' and any non-pdf
+        if name.endswith("/"):
+            continue
+        if not name.lower().endswith(".pdf"):
+            continue
+        yield name
+
+
+def get_pdf_bytes(m: Minio, bucket: str, key: str) -> Tuple[bytes, str, int]:
     resp = m.get_object(bucket, key)
     try:
         pdf = resp.read()
@@ -155,8 +178,7 @@ def semantic_chunk_text(
     splitter = SemanticChunker(
         embeddings=embeddings,
         breakpoint_threshold_type=breakpoint_threshold_type,
-        breakpoint_threshold=breakpoint_threshold,
-        buffer_size=buffer_size,
+        breakpoint_threshold_amount=breakpoint_threshold,
     )
 
     chunks = splitter.split_text(text)
@@ -196,7 +218,7 @@ def upsert_points(
         payloads: List[dict],
 ):
     points = [
-        types.PointStruct(id=pid, vector-v, payload=pl) #type: ignore
+        PointStruct(id=pid, vector=v, payload=pl) #type: ignore
         for pid, v, pl in zip(ids, vectors, payloads)
     ]
     q.upsert(collection_name=collection, points=points)
@@ -206,10 +228,26 @@ def delete_existing(q: QdrantClient, collection: str, paper_id: str):
     # Delete all previous chunks for this paper (by payload filter)
     q.delete(
         collection_name=collection,
-        point_selector=types.Filter(
-            must=[types.FieldCondition(key="paper_id", match=types.MatchValue(value=paper_id))]
+        points_selector=Filter(
+            must=[FieldCondition(key="paper_id", match=MatchValue(value=paper_id))]
         ),
     )
+
+
+def chunk_uuid(paper_uuid: str, i: int) -> str:
+    return str(uuid.uuid5(uuid.UUID(paper_uuid), str(i)))
+
+
+def safe_tokenizer_len(text: str, model: str) -> int:
+    try:
+        import tiktoken
+        enc = tiktoken.encoding_for_model(model)
+        return len(enc.encode(text))
+    except Exception:
+        return max(1, len(text) // 4)
+    
+
+# def enforce
 
 
 def main():
@@ -251,12 +289,18 @@ def main():
                 skipped += 1
                 continue
 
-            chunks = semantic_chunk_text(
-                text, 
-                model= os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small"),
-                breakpoint_threshold=95,
-                buffer_size=1,
+            chunks = chunk_text(
+                text,
+                size = args.chunk_size,
+                overlap= args.chunk_overlap,
             )
+
+            # chunks = semantic_chunk_text(
+            #     text, 
+            #     model= os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small"),
+            #     breakpoint_threshold=95,
+            #     buffer_size=1,
+            # )
 
             if not chunks:
                 logging.warning("No chunks produced, skipping %s", key)
@@ -272,7 +316,7 @@ def main():
                 first_vector_size = len(vectors[0])
                 ensure_collection(qdrant, args.collection, first_vector_size)
 
-            ids = [f"{paper_id}:{i:06d}" for i in range(len(chunks))]
+            ids = [chunk_uuid(paper_id, i) for i in range(len(chunks))]
             payloads = []
             now = datetime.now(timezone.utc).isoformat()
             for i, txt in enumerate(chunks):
