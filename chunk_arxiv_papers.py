@@ -14,9 +14,10 @@ Usage examples:
     python chunk_arxiv_papers.py \
       --minio-endpoint localhost:9000 --minio-bucket research-papers --minio-secure false \
       --minio-access-key minioadmin --minio-secret-key minioadmin \
-      --prefix arxiv/2025-08-10/ \
+      --prefix papers/ \
       --qdrant-url \
-      --chunk-size 1200 --chunk-overlap 200
+      --chunk-size 1200 \
+      --chunk-overlap 200
 
     # Process specific objects (comma-separated)
     python chunk_arxiv_papers.py \
