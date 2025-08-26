@@ -1,0 +1,56 @@
+model_list:
+  - model_name: openai/*
+    litellm_params:
+      model: openai/*
+      api_key: os.environ/OPENAI_API_KEY
+  - model_name: gemini/*
+    litellm_params:
+      model: gemini/*
+      api_key: os.environ/GEMINI_API_KEY
+general_settings:
+  # spend is tracked by Langfuse
+  # turning this on required deployment of Postgres db alongside litellm
+  disable_spend_logs: true
+  # this disable writing error logs to the Postgres database
+  # which is not being deployed alongside our current litellm deployment
+  disable_error_logs: true
+  # we set it on true, because we don't deploy db alongside litellm deployment
+  allow_requests_on_db_unavailable: true
+litellm_settings:
+  # increased timeout for OpenAI Flex Processing
+  request_timeout: 3600
+  # the default values of num_retries is 3
+  # so the litellm performs maximum 3 requests to the model if the requests fails, but:
+  # 1. we have also configured retry policy in our code
+  # 2. timeouts are configured (litellm, ingress, ec2 alb)
+  # in this case we can encounter one big problem:
+  # requests sent to the LLM can take various time, depending on the context window
+  # in such case, when the litellm performs retries we can reach the timeouts
+  # and the client will receive 5xx errors,
+  # unfortunately this causes litellm to again send requests
+  # (if we have not exhausted number of retries so far)
+  # because the client disconnected and the litellm received errors
+  # and we are also sending next requests to the litellm, because
+  # we also have configured retry in our code
+  # in short: we can fall into loop of reretrying again and again
+  # that's why we decide to stick with only 1 retry in litellm
+  # and it's up to the client to implement retry
+  num_retries: 1
+  retry_policy: {
+    "AuthenticationErrorRetries": 1,
+    "TimeoutErrorRetries": 1,
+    "RateLimitErrorRetries": 1,
+    "ContentPolicyViolationErrorRetries": 1,
+    "InternalServerErrorRetries": 1
+  }
+  # switch off Debug Logging
+  set_verbose: false
+  json_logs: true
+  force_ipv4: true
+  # for now we disable caching
+  cache: false
+  # health checks are performed by k8s
+  background_health_checks: false
+  success_callback: ["langfuse"]
+  redact_user_api_key_info: true
+  turn_off_message_logging: false

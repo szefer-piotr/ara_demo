@@ -12,6 +12,7 @@ rag_agent/preprocessed/
 minio/minio_data/
 qdrant/qdrant_data/
 vectorstore/
+data/
 
 # Python caches
 __pycache__/

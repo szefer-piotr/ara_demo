@@ -1,0 +1,9 @@
+LITELLM_MODE=PRODUCTION
+LITELLM_LOG=ERROR
+# Important:
+# 1. it is necessary to send atleast one request to Langfuse before using the UI
+# because when opening the Tracing Settings page, the UI will regenerate new API keys
+# 2. there params should refer to the same public-key and secret-key in configs/langfuse/env
+LANGFUSE_PUBLIC_KEY=pk-lf-1234567890
+LANGFUSE_SECRET_KEY=sk-lf-1234567890
+LANGFUSE_HOST=langfuse-web:3000
