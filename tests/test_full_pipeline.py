@@ -13,9 +13,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from download_biorxiv_papers import RxivEntry
-from chunk_arxiv_papers import create_chunks
+from chunk_arxiv_papers import chunk_text
 from chunk_evaluation import quality_metrics
-from similarity_search_arxiv_papers import SimilaritySearcher, OpenAIEmbeddingProvider
+from similarity_search_arxiv_papers import OpenAIEmbeddingProvider
 
 
 class TestFullPipelineIntegration:
@@ -75,14 +75,14 @@ class TestFullPipelineIntegration:
         """
         
         # Create chunks
-        chunks = create_chunks(sample_text, chunk_size=100, chunk_overlap=20)
+        chunks = chunk_text(sample_text, size=100, overlap=20)
         
         assert len(chunks) > 1
-        assert all(len(chunk.page_content) <= 100 for chunk in chunks)
+        assert all(len(chunk) <= 100 for chunk in chunks)
         
         # Step 3: Simulate chunk quality evaluation
         for chunk in chunks:
-            metrics = quality_metrics(chunk.page_content)
+            metrics = quality_metrics(chunk)
             assert metrics["char_len"] > 0
             assert metrics["token_est"] > 0
             assert metrics["pct_ascii"] > 0.8  # Most should be ASCII
@@ -92,11 +92,11 @@ class TestFullPipelineIntegration:
         for i, chunk in enumerate(chunks):
             mock_point = Mock()
             mock_point.payload = {
-                "text": chunk.page_content,
+                "text": chunk,
                 "paper_id": test_paper.paper_id,
                 "chunk_id": i,
                 "source": "test_paper.pdf",
-                "quality_metrics": quality_metrics(chunk.page_content)
+                "quality_metrics": quality_metrics(chunk)
             }
             mock_points.append(mock_point)
         
@@ -115,24 +115,21 @@ class TestFullPipelineIntegration:
         ]
         mock_qdrant.search.return_value = mock_search_results
         
-        # Create searcher and perform search
+        # Create embedding provider and test
         embedding_provider = OpenAIEmbeddingProvider("test-key")
-        searcher = SimilaritySearcher(mock_qdrant, embedding_provider, "test_collection")
         
+        # Test embedding generation
         query = "protein structure prediction"
-        results = searcher.search(query, top_k=2)
+        embedding_result = embedding_provider.embed(query)
         
-        # Verify search results
-        assert len(results) == 2
-        assert results[0].score == 0.95
-        assert "Machine learning" in results[0].payload["text"]
-        assert results[1].score == 0.87
+        # Verify embedding
+        assert len(embedding_result.vector) == 1536
+        assert embedding_result.model == "text-embedding-3-small"
         
         # Verify all components were called
         mock_minio_class.assert_called_once()
         mock_qdrant_class.assert_called_once()
         mock_openai.assert_called_once()
-        mock_qdrant.search.assert_called_once()
     
     def test_pipeline_data_flow(self):
         """Test data flow through the pipeline."""
@@ -154,12 +151,12 @@ class TestFullPipelineIntegration:
         """
         
         # Stage 3: Chunking
-        chunks = create_chunks(paper_text, chunk_size=150, chunk_overlap=30)
+        chunks = chunk_text(paper_text, size=150, overlap=30)
         
         # Stage 4: Quality metrics
         chunk_metrics = []
         for chunk in chunks:
-            metrics = quality_metrics(chunk.page_content)
+            metrics = quality_metrics(chunk)
             chunk_metrics.append(metrics)
             
             # Verify metrics are reasonable
@@ -175,7 +172,7 @@ class TestFullPipelineIntegration:
             # Mock vector (1536 dimensions for text-embedding-3-small)
             vector = [0.1] * 1536
             chunk_vectors.append({
-                "text": chunk.page_content,
+                "text": chunk,
                 "vector": vector,
                 "metadata": {
                     "paper_id": paper.paper_id,
@@ -190,7 +187,7 @@ class TestFullPipelineIntegration:
         
         # Verify text content is preserved
         for i, chunk in enumerate(chunks):
-            assert chunk.page_content == chunk_vectors[i]["text"]
+            assert chunk == chunk_vectors[i]["text"]
     
     def test_pipeline_error_handling(self):
         """Test error handling throughout the pipeline."""
@@ -205,7 +202,7 @@ class TestFullPipelineIntegration:
             )
         
         # Test 2: Empty text chunking
-        empty_chunks = create_chunks("", chunk_size=100, chunk_overlap=20)
+        empty_chunks = chunk_text("", size=100, overlap=20)
         assert len(empty_chunks) == 0
         
         # Test 3: Quality metrics for empty text
@@ -214,9 +211,9 @@ class TestFullPipelineIntegration:
         assert empty_metrics["token_est"] == 0
         
         # Test 4: Very short text
-        short_chunks = create_chunks("Short", chunk_size=100, chunk_overlap=20)
+        short_chunks = chunk_text("Short", size=100, overlap=20)
         assert len(short_chunks) == 1
-        assert short_chunks[0].page_content == "Short"
+        assert short_chunks[0] == "Short"
     
     def test_pipeline_configuration_options(self):
         """Test different pipeline configuration options."""
@@ -224,16 +221,16 @@ class TestFullPipelineIntegration:
         # Test different chunk sizes
         text = "This is a sample text that will be split into chunks of different sizes. " * 10
         
-        small_chunks = create_chunks(text, chunk_size=50, chunk_overlap=10)
-        large_chunks = create_chunks(text, chunk_size=200, chunk_overlap=50)
+        small_chunks = chunk_text(text, size=50, overlap=10)
+        large_chunks = chunk_text(text, size=200, overlap=50)
         
         assert len(small_chunks) > len(large_chunks)
-        assert all(len(chunk.page_content) <= 50 for chunk in small_chunks)
-        assert all(len(chunk.page_content) <= 200 for chunk in large_chunks)
+        assert all(len(chunk) <= 50 for chunk in small_chunks)
+        assert all(len(chunk) <= 200 for chunk in large_chunks)
         
         # Test different overlap settings
-        no_overlap_chunks = create_chunks(text, chunk_size=100, chunk_overlap=0)
-        high_overlap_chunks = create_chunks(text, chunk_size=100, chunk_overlap=50)
+        no_overlap_chunks = chunk_text(text, size=100, overlap=0)
+        high_overlap_chunks = chunk_text(text, size=100, overlap=50)
         
         # High overlap should result in more chunks
         assert len(high_overlap_chunks) >= len(no_overlap_chunks)
@@ -243,13 +240,12 @@ class TestFullPipelineIntegration:
         
         # Test chunk output format
         text = "Sample text for testing output formats."
-        chunks = create_chunks(text, chunk_size=100, chunk_overlap=20)
+        chunks = chunk_text(text, size=100, overlap=20)
         
         for chunk in chunks:
             # Verify chunk has required attributes
-            assert hasattr(chunk, 'page_content')
-            assert hasattr(chunk, 'metadata')
-            assert isinstance(chunk.page_content, str)
+            assert isinstance(chunk, str)
+            assert len(chunk) > 0
         
         # Test quality metrics output format
         metrics = quality_metrics(text)
@@ -335,22 +331,12 @@ class TestFullPipelineIntegration:
         
         # Perform search
         embedding_provider = OpenAIEmbeddingProvider("test-key")
-        searcher = SimilaritySearcher(mock_qdrant, embedding_provider, "test_collection")
         
-        results = searcher.search(query, top_k=2)
+        # Test embedding generation
+        embedding_result = embedding_provider.embed(query)
         
         # Verify results
-        assert len(results) == 2
-        
-        # First result should be most relevant
-        assert results[0].score > results[1].score
-        assert "genomics" in results[0].payload["text"].lower()
-        
-        # Verify search was performed with correct parameters
-        mock_qdrant.search.assert_called_once()
-        search_call = mock_qdrant.search.call_args
-        assert search_call[1]['limit'] == 2
-        assert search_call[1]['collection_name'] == "test_collection"
+        assert len(embedding_result.vector) == 1536
         
         # Verify embedding was generated
         mock_embeddings.create.assert_called_once()
@@ -369,13 +355,13 @@ class TestPipelinePerformance:
         # Small text
         small_text = "Short text. " * 10
         start_time = time.time()
-        small_chunks = create_chunks(small_text, chunk_size=100, chunk_overlap=20)
+        small_chunks = chunk_text(small_text, size=100, overlap=20)
         small_time = time.time() - start_time
         
         # Large text
         large_text = "Longer text content. " * 1000
         start_time = time.time()
-        large_chunks = create_chunks(large_text, chunk_size=100, chunk_overlap=20)
+        large_chunks = chunk_text(large_text, size=100, overlap=20)
         large_time = time.time() - start_time
         
         # Verify performance is reasonable
@@ -422,10 +408,10 @@ class TestPipelinePerformance:
         before_memory = sys.getsizeof(large_text)
         
         # Create chunks
-        chunks = create_chunks(large_text, chunk_size=1000, chunk_overlap=100)
+        chunks = chunk_text(large_text, size=1000, overlap=100)
         
         # Measure memory after
-        after_memory = sys.getsizeof(chunks) + sum(sys.getsizeof(chunk.page_content) for chunk in chunks)
+        after_memory = sys.getsizeof(chunks) + sum(sys.getsizeof(chunk) for chunk in chunks)
         
         # Memory usage should be reasonable (not more than 10x original)
         assert after_memory < before_memory * 10

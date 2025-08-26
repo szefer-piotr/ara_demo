@@ -52,8 +52,13 @@ class RxivEntry:
     def paper_id(self) -> str:
         return self.doi.replace("/", "_")
 
+    def html_url(self) -> str:
+        base = "https://www.biorxiv.org/content" if self.server == "biorxiv" else "https://www.medrxiv.org/content"
+        # HTML page for the “full” view (used as Referer)
+        return f"{base}/{self.doi}v{self.version}.full"
+
     def pdf_url(self) -> str:
-        base = BIO_PDF_BASE if self.server == "biorxiv" else MED_PDF_BASE
+        base = "https://www.biorxiv.org/content" if self.server == "biorxiv" else "https://www.medrxiv.org/content"
         return f"{base}/{self.doi}v{self.version}.full.pdf"
 
 
@@ -100,22 +105,71 @@ def object_exists(minio: Minio, bucket: str, key: str) -> bool:
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
-def download_pdf(pdf_url: str, retries: int = 3, backoff: float = 2.0) -> bytes:
+# def download_pdf(pdf_url: str, retries: int = 3, backoff: float = 2.0) -> bytes:
+#     headers = {
+#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+#         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+#         'Accept-Language': 'en-US,en;q=0.5',
+#         'Accept-Encoding': 'gzip, deflate',
+#         'Connection': 'keep-alive',
+#         'Upgrade-Insecure-Requests': '1',
+#     }
+    
+#     for attempt in range(1, retries + 1):
+#         try:
+#             with requests.get(pdf_url, headers=headers, stream=True, timeout=60) as r:
+#                 r.raise_for_status()
+#                 buf = io.BytesIO()
+#                 for chunk in r.iter_content(chunk_size=1024 * 64):
+#                     if chunk:
+#                         buf.write(chunk)
+#                 return buf.getvalue()
+#         except Exception as e:
+#             logging.warning("Download failed (attempt %d/%d): %s", attempt, retries, e)
+#             if attempt == retries:
+#                 raise
+#             time.sleep(backoff * attempt)
+#     raise RuntimeError("unreachable")
+    
+def download_pdf(
+    pdf_url: str,
+    user_agent: str,
+    referer: Optional[str] = None,
+    retries: int = 3,
+    backoff: float = 2.0,
+) -> bytes:
+    sess = requests.Session()
+    headers = {
+        "User-Agent": user_agent,
+        "Accept": "application/pdf",
+    }
+    if referer:
+        headers["Referer"] = referer
+
+    def _get(url: str) -> requests.Response:
+        return sess.get(url, stream=True, timeout=(15, 60), headers=headers, allow_redirects=True)
+
+    last_exc = None
     for attempt in range(1, retries + 1):
         try:
-            with requests.get(pdf_url, stream=True, timeout=60) as r:
-                r.raise_for_status()
-                buf = io.BytesIO()
-                for chunk in r.iter_content(chunk_size=1024 * 64):
-                    if chunk:
-                        buf.write(chunk)
-                return buf.getvalue()
+            r = _get(pdf_url)
+            if r.status_code == 403:
+                # Try a direct-download variant
+                alt = pdf_url + "?download=1"
+                r = _get(alt)
+            r.raise_for_status()
+            buf = io.BytesIO()
+            for chunk in r.iter_content(chunk_size=64 * 1024):
+                if chunk:
+                    buf.write(chunk)
+            return buf.getvalue()
         except Exception as e:
-            logging.warning("Download failed (attempt %d/%d): %s", attempt, retries, e)
-            if attempt == retries:
-                raise
-            time.sleep(backoff * attempt)
-    raise RuntimeError("unreachable")
+            last_exc = e
+            logging.warning("PDF fetch failed (attempt %d/%d) for %s: %s", attempt, retries, pdf_url, e)
+            if attempt < retries:
+                time.sleep(backoff * attempt)
+    raise requests.HTTPError(f"Unable to fetch PDF after {retries} attempts: {pdf_url}") from last_exc
+
 
 def upload_pdf(minio: Minio, bucket: str, key: str, content: bytes, sha256: str | None = None) -> None:
     data = io.BytesIO(content)
@@ -125,7 +179,14 @@ def upload_pdf(minio: Minio, bucket: str, key: str, content: bytes, sha256: str 
 
 def make_session(user_agent: str, connect_timeout: float, read_timeout: float) -> tuple[requests.Session, tuple]:
     sess = requests.Session()
-    sess.headers.update({"User-Agent": user_agent})
+    sess.headers.update({
+        "User-Agent": user_agent,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    })
     retry = Retry(
         total=3, connect=3, read=3, backoff_factor=1.5,
         status_forcelist=(429, 500, 502, 503, 504), respect_retry_after_header=True,
@@ -167,6 +228,11 @@ def rxiv_search(
                 resp = sess.get(url, timeout=timeouts)
                 resp.raise_for_status()
                 data = resp.json()
+
+                print(f"API Response keys: {list(data.keys())}")
+                print(f"Collection length: {len(data.get('collection', []))}")
+                print(f"First paper: {data.get('collection', [])[0] if data.get('collection') else 'None'}")
+
                 consecutive_failures = 0
             except Exception as e:
                 logging.warning("Details failed %s..%s cursor=%d: %s", win_from, win_to, cursor, e)
@@ -241,6 +307,29 @@ def print_entries(entries: List[RxivEntry], as_json: bool) -> None:
         print(f"    pdf:   {e.pdf_url()}")
         print(f"    key:   {e.paper_id}")
         print()
+
+
+def check_pdf_availability(pdf_url: str) -> bool:
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0'
+        }
+        response = requests.head(pdf_url, headers=headers, timeout=10)
+        return response.status_code == 200
+    except Exception as e:
+        logging.debug("HEAD request failed: %s", e)
+        return True  # Assume available if check fails
 
 # -------------------- pipeline --------------------
 def run(
@@ -342,19 +431,25 @@ def run(
             continue
 
         pdf_url = entry.pdf_url()
+        referrer = entry.html_url()
         logging.info("Downloading: %s (%s v%d)", entry.title, entry.doi, entry.version)
-        pdf_bytes = download_pdf(pdf_url)
-        digest = sha256_bytes(pdf_bytes)
 
+        try:
+            pdf_bytes = download_pdf(pdf_url, user_agent, referrer)
+        except Exception as e:
+            logging.error("Skipping (download error): %s (%s) - %s", entry.title, pdf_url, e)
+            continue
+
+        digest = sha256_bytes(pdf_bytes)
         logging.info("Uploading: %s (%s)", bucket, key)
         upload_pdf(client, bucket, key, pdf_bytes, sha256=digest)
+
         processed += 1
 
         if delay_between_batches > 0:
-            time.sleep(delay_between_batches)
+            time.sleep(random_delay)
 
     logging.info("Done. Processed %d papers (requested max_results=%d).", processed, max_results)
-
 
 # -------------------- CLI --------------------
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:

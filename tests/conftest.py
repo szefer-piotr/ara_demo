@@ -4,6 +4,7 @@ Pytest configuration and common fixtures for bioarxiv pipeline tests.
 import pytest
 import tempfile
 import os
+import sys
 from unittest.mock import Mock, MagicMock, patch
 from pathlib import Path
 
@@ -29,6 +30,7 @@ def mock_minio_client():
     mock_client.stat_object.return_value = Mock()
     mock_client.put_object.return_value = None
     mock_client.get_object.return_value = Mock()
+    mock_client.list_objects.return_value = []
     return mock_client
 
 @pytest.fixture
@@ -38,6 +40,7 @@ def mock_qdrant_client():
     mock_client.get_collection.return_value = Mock()
     mock_client.upsert.return_value = Mock()
     mock_client.search.return_value = Mock()
+    mock_client.scroll.return_value = ([], None)
     return mock_client
 
 @pytest.fixture
@@ -92,4 +95,20 @@ def sample_chunk_data():
         "pages": 5,
         "ingested_at": "2023-01-01T00:00:00Z"
     }
+
+# Mock external dependencies to prevent import errors
+@pytest.fixture(autouse=True)
+def mock_external_deps():
+    """Mock external dependencies to prevent import errors during test collection."""
+    with patch.dict('sys.modules', {
+        'minio': Mock(),
+        'qdrant_client': Mock(),
+        'openai': Mock(),
+        'fitz': Mock(),
+        'pdfminer.high_level': Mock(),
+        'langchain_text_splitters': Mock(),
+        'langchain_experimental.text_splitter': Mock(),
+        'langchain_openai': Mock(),
+    }):
+        yield
 

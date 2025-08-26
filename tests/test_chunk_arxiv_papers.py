@@ -13,8 +13,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from chunk_arxiv_papers import (
-    log_setup, parse_args, extract_text_from_pdf, create_chunks,
-    process_paper, main
+    log_setup, parse_args, extract_text, chunk_text,
+    main
 )
 
 
@@ -98,175 +98,70 @@ class TestParseArgs:
 class TestPDFTextExtraction:
     """Test PDF text extraction functionality."""
     
-    @patch('chunk_arxiv_papers.fitz.open')
-    def test_extract_text_with_pymupdf(self, mock_fitz_open):
-        """Test text extraction using PyMuPDF."""
-        # Mock PyMuPDF
-        mock_doc = Mock()
-        mock_page = Mock()
-        mock_page.get_text.return_value = "Sample text from PyMuPDF"
-        mock_doc.__iter__.return_value = [mock_page]
-        mock_doc.__len__.return_value = 1
-        mock_fitz_open.return_value = mock_doc
+    def test_extract_text_success(self):
+        """Test successful text extraction."""
+        # Mock PDF content
+        pdf_bytes = b"%PDF-1.4\nSample PDF content"
         
-        with patch('chunk_arxiv_papers.HAVE_PYMUPDF', True):
-            result = extract_text_from_pdf("dummy_path.pdf")
+        with patch('chunk_arxiv_papers.fitz.open') as mock_fitz_open:
+            mock_doc = Mock()
+            mock_page = Mock()
+            mock_page.get_text.return_value = "Sample text from PyMuPDF"
+            mock_doc.__iter__.return_value = [mock_page]
+            mock_doc.__len__.return_value = 1
+            mock_fitz_open.return_value = mock_doc
             
-            assert result == "Sample text from PyMuPDF"
-            mock_fitz_open.assert_called_once_with("dummy_path.pdf")
-    
-    @patch('chunk_arxiv_papers.pdfminer_extract_text')
-    def test_extract_text_with_pdfminer(self, mock_pdfminer):
-        """Test text extraction using pdfminer."""
-        mock_pdfminer.return_value = "Sample text from pdfminer"
-        
-        with patch('chunk_arxiv_papers.HAVE_PYMUPDF', False), \
-             patch('chunk_arxiv_papers.HAVE_PDFMINER', True):
-            result = extract_text_from_pdf("dummy_path.pdf")
+            result = extract_text(pdf_bytes)
             
-            assert result == "Sample text from pdfminer"
-            mock_pdfminer.assert_called_once_with("dummy_path.pdf")
-    
-    def test_extract_text_no_library(self):
-        """Test text extraction when no PDF library is available."""
-        with patch('chunk_arxiv_papers.HAVE_PYMUPDF', False), \
-             patch('chunk_arxiv_papers.HAVE_PDFMINER', False):
-            
-            with pytest.raises(RuntimeError, match="No PDF library available"):
-                extract_text_from_pdf("dummy_path.pdf")
+            assert isinstance(result, tuple)
+            assert len(result) == 2
+            assert result[0] == "Sample text from PyMuPDF"  # text
+            assert result[1] == 1  # pages
 
 
-class TestChunkCreation:
-    """Test chunk creation functionality."""
+class TestTextChunking:
+    """Test text chunking functionality."""
     
-    def test_create_chunks_recursive_splitter(self):
-        """Test chunk creation using RecursiveCharacterTextSplitter."""
-        sample_text = "This is a sample text that will be split into chunks. " * 50
+    def test_chunk_text_basic(self):
+        """Test basic text chunking."""
+        sample_text = "This is a sample text that will be split into chunks. " * 10
         
-        chunks = create_chunks(sample_text, chunk_size=100, chunk_overlap=20)
+        chunks = chunk_text(sample_text, size=100, overlap=20)
         
         assert len(chunks) > 1
-        assert all(len(chunk.page_content) <= 100 for chunk in chunks)
+        assert all(len(chunk) <= 100 for chunk in chunks)
         
         # Check overlap between consecutive chunks
         for i in range(len(chunks) - 1):
-            current_chunk = chunks[i].page_content
-            next_chunk = chunks[i + 1].page_content
+            current_chunk = chunks[i]
+            next_chunk = chunks[i + 1]
             
             # Should have some overlap
             assert any(word in next_chunk for word in current_chunk.split()[-5:])
     
-    def test_create_chunks_semantic_splitter(self):
-        """Test chunk creation using SemanticChunker."""
-        sample_text = "This is a sample text that will be split into chunks. " * 50
-        
-        with patch('chunk_arxiv_papers.OpenAIEmbeddings') as mock_embeddings:
-            mock_embeddings.return_value = Mock()
-            
-            chunks = create_chunks(
-                sample_text, 
-                chunk_size=100, 
-                chunk_overlap=20,
-                use_semantic=True
-            )
-            
-            assert len(chunks) > 1
-            mock_embeddings.assert_called_once()
-    
-    def test_create_chunks_empty_text(self):
-        """Test chunk creation with empty text."""
-        chunks = create_chunks("", chunk_size=100, chunk_overlap=20)
+    def test_chunk_text_empty_text(self):
+        """Test chunking with empty text."""
+        chunks = chunk_text("", size=100, overlap=20)
         assert len(chunks) == 0
     
-    def test_create_chunks_small_text(self):
-        """Test chunk creation with text smaller than chunk size."""
+    def test_chunk_text_small_text(self):
+        """Test chunking with text smaller than chunk size."""
         small_text = "This is a small text."
-        chunks = create_chunks(small_text, chunk_size=100, chunk_overlap=20)
+        chunks = chunk_text(small_text, size=100, overlap=20)
         
         assert len(chunks) == 1
-        assert chunks[0].page_content == small_text
-
-
-class TestPaperProcessing:
-    """Test paper processing functionality."""
+        assert chunks[0] == small_text
     
-    @patch('chunk_arxiv_papers.extract_text_from_pdf')
-    @patch('chunk_arxiv_papers.create_chunks')
-    def test_process_paper_success(self, mock_create_chunks, mock_extract_text):
-        """Test successful paper processing."""
-        # Mock text extraction
-        mock_extract_text.return_value = "Sample paper text content"
+    def test_chunk_text_different_sizes(self):
+        """Test chunking with different chunk sizes."""
+        text = "This is a sample text that will be split into chunks. " * 20
         
-        # Mock chunk creation
-        mock_chunks = [
-            Mock(page_content="Chunk 1", metadata={}),
-            Mock(page_content="Chunk 2", metadata={})
-        ]
-        mock_create_chunks.return_value = mock_chunks
+        small_chunks = chunk_text(text, size=50, overlap=10)
+        large_chunks = chunk_text(text, size=200, overlap=50)
         
-        # Mock MinIO object info
-        mock_object_info = Mock()
-        mock_object_info.etag = "test-etag"
-        mock_object_info.size = 1024
-        
-        # Mock Qdrant client
-        mock_qdrant = Mock()
-        
-        result = process_paper(
-            "test_paper.pdf",
-            "test-bucket",
-            mock_object_info,
-            mock_qdrant,
-            "test_collection",
-            chunk_size=100,
-            chunk_overlap=20,
-            use_semantic=False
-        )
-        
-        assert result == True
-        mock_extract_text.assert_called_once()
-        mock_create_chunks.assert_called_once()
-        mock_qdrant.upsert.assert_called_once()
-    
-    @patch('chunk_arxiv_papers.extract_text_from_pdf')
-    def test_process_paper_extraction_failure(self, mock_extract_text):
-        """Test paper processing when text extraction fails."""
-        mock_extract_text.side_effect = Exception("Extraction failed")
-        
-        mock_object_info = Mock()
-        mock_qdrant = Mock()
-        
-        result = process_paper(
-            "test_paper.pdf",
-            "test-bucket",
-            mock_object_info,
-            mock_qdrant,
-            "test_collection"
-        )
-        
-        assert result == False
-        mock_qdrant.upsert.assert_not_called()
-    
-    @patch('chunk_arxiv_papers.extract_text_from_pdf')
-    @patch('chunk_arxiv_papers.create_chunks')
-    def test_process_paper_empty_text(self, mock_create_chunks, mock_extract_text):
-        """Test paper processing with empty extracted text."""
-        mock_extract_text.return_value = ""
-        
-        mock_object_info = Mock()
-        mock_qdrant = Mock()
-        
-        result = process_paper(
-            "test_paper.pdf",
-            "test-bucket",
-            mock_object_info,
-            mock_qdrant,
-            "test_collection"
-        )
-        
-        assert result == False
-        mock_create_chunks.assert_not_called()
-        mock_qdrant.upsert.assert_not_called()
+        assert len(small_chunks) > len(large_chunks)
+        assert all(len(chunk) <= 50 for chunk in small_chunks)
+        assert all(len(chunk) <= 200 for chunk in large_chunks)
 
 
 class TestMainFunction:
@@ -274,8 +169,9 @@ class TestMainFunction:
     
     @patch('chunk_arxiv_papers.Minio')
     @patch('chunk_arxiv_papers.QdrantClient')
-    @patch('chunk_arxiv_papers.process_paper')
-    def test_main_function_success(self, mock_process, mock_qdrant_class, mock_minio_class):
+    @patch('chunk_arxiv_papers.extract_text')
+    @patch('chunk_arxiv_papers.chunk_text')
+    def test_main_function_success(self, mock_chunk_text, mock_extract_text, mock_qdrant_class, mock_minio_class):
         """Test successful main function execution."""
         # Mock clients
         mock_minio = Mock()
@@ -288,32 +184,38 @@ class TestMainFunction:
         mock_qdrant = Mock()
         mock_qdrant_class.return_value = mock_qdrant
         
-        # Mock object info
-        mock_object_info = Mock()
-        mock_object_info.etag = "test-etag"
-        mock_object_info.size = 1024
-        mock_minio.stat_object.return_value = mock_object_info
+        # Mock text extraction
+        mock_extract_text.return_value = ("Sample text content", 5)
         
-        # Mock processing results
-        mock_process.side_effect = [True, True]
+        # Mock chunking
+        mock_chunks = ["Chunk 1", "Chunk 2"]
+        mock_chunk_text.return_value = mock_chunks
         
-        # Test with minimal arguments
-        test_args = [
-            'chunk_arxiv_papers.py',
-            '--minio-endpoint', 'localhost:9000',
-            '--minio-bucket', 'test-bucket',
-            '--qdrant-url', 'http://localhost:6333'
-        ]
-        
-        with patch('sys.argv', test_args):
-            main()
-        
-        # Verify clients were created
-        mock_minio_class.assert_called_once()
-        mock_qdrant_class.assert_called_once()
-        
-        # Verify papers were processed
-        assert mock_process.call_count == 2
+        # Mock other functions
+        with patch('chunk_arxiv_papers.get_pdf_bytes') as mock_get_pdf:
+            mock_get_pdf.return_value = (b"pdf_content", "etag", 1024)
+            
+            with patch('chunk_arxiv_papers.embed_texts_openai') as mock_embed:
+                mock_embed.return_value = [[0.1] * 1536, [0.1] * 1536]
+                
+                with patch('chunk_arxiv_papers.upsert_points') as mock_upsert:
+                    # Test with minimal arguments
+                    test_args = [
+                        'chunk_arxiv_papers.py',
+                        '--minio-endpoint', 'localhost:9000',
+                        '--minio-bucket', 'test-bucket',
+                        '--qdrant-url', 'http://localhost:6333'
+                    ]
+                    
+                    with patch('sys.argv', test_args):
+                        main()
+                    
+                    # Verify components were called
+                    mock_minio_class.assert_called_once()
+                    mock_qdrant_class.assert_called_once()
+                    mock_extract_text.assert_called()
+                    mock_chunk_text.assert_called()
+                    mock_upsert.assert_called()
     
     @patch('chunk_arxiv_papers.Minio')
     @patch('chunk_arxiv_papers.QdrantClient')
@@ -359,9 +261,9 @@ class TestIntegration:
     
     @patch('chunk_arxiv_papers.Minio')
     @patch('chunk_arxiv_papers.QdrantClient')
-    @patch('chunk_arxiv_papers.extract_text_from_pdf')
-    @patch('chunk_arxiv_papers.create_chunks')
-    def test_full_pipeline_integration(self, mock_create_chunks, mock_extract_text, 
+    @patch('chunk_arxiv_papers.extract_text')
+    @patch('chunk_arxiv_papers.chunk_text')
+    def test_full_pipeline_integration(self, mock_chunk_text, mock_extract_text, 
                                      mock_qdrant_class, mock_minio_class):
         """Test full pipeline integration."""
         # Setup mocks
@@ -369,37 +271,41 @@ class TestIntegration:
         mock_minio.list_objects.return_value = [
             Mock(object_name="papers/test.pdf")
         ]
-        mock_minio.stat_object.return_value = Mock(etag="test-etag", size=1024)
         mock_minio_class.return_value = mock_minio
         
         mock_qdrant = Mock()
         mock_qdrant_class.return_value = mock_qdrant
         
-        mock_extract_text.return_value = "Sample paper content for testing chunking"
+        mock_extract_text.return_value = ("Sample paper content for testing chunking", 5)
         
-        mock_chunks = [
-            Mock(page_content="Sample paper content", metadata={}),
-            Mock(page_content="for testing chunking", metadata={})
-        ]
-        mock_create_chunks.return_value = mock_chunks
+        mock_chunks = ["Sample paper content", "for testing chunking"]
+        mock_chunk_text.return_value = mock_chunks
         
-        # Run pipeline
-        test_args = [
-            'chunk_arxiv_papers.py',
-            '--minio-endpoint', 'localhost:9000',
-            '--minio-bucket', 'test-bucket',
-            '--qdrant-url', 'http://localhost:6333',
-            '--chunk-size', '50',
-            '--chunk-overlap', '10'
-        ]
-        
-        with patch('sys.argv', test_args):
-            main()
-        
-        # Verify all components were called
-        mock_minio_class.assert_called_once()
-        mock_qdrant_class.assert_called_once()
-        mock_extract_text.assert_called_once()
-        mock_create_chunks.assert_called_once()
-        mock_qdrant.upsert.assert_called_once()
+        # Mock other functions
+        with patch('chunk_arxiv_papers.get_pdf_bytes') as mock_get_pdf:
+            mock_get_pdf.return_value = (b"pdf_content", "etag", 1024)
+            
+            with patch('chunk_arxiv_papers.embed_texts_openai') as mock_embed:
+                mock_embed.return_value = [[0.1] * 1536, [0.1] * 1536]
+                
+                with patch('chunk_arxiv_papers.upsert_points') as mock_upsert:
+                    # Run pipeline
+                    test_args = [
+                        'chunk_arxiv_papers.py',
+                        '--minio-endpoint', 'localhost:9000',
+                        '--minio-bucket', 'test-bucket',
+                        '--qdrant-url', 'http://localhost:6333',
+                        '--chunk-size', '50',
+                        '--chunk-overlap', '10'
+                    ]
+                    
+                    with patch('sys.argv', test_args):
+                        main()
+                    
+                    # Verify all components were called
+                    mock_minio_class.assert_called_once()
+                    mock_qdrant_class.assert_called_once()
+                    mock_extract_text.assert_called_once()
+                    mock_chunk_text.assert_called_once()
+                    mock_upsert.assert_called_once()
 

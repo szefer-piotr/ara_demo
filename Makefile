@@ -37,8 +37,23 @@ download_arxiv_papers:
 	--minio-url http://localhost:9002 \
 	--minio-access-key piotrminio \
 	--minio-secret-key piotrminio \
-	--max-results 10 \
+	--max-results 50 \
 	--batch-size 10 \
+	--user-agent "piotr-arxiv-minio/0.1 (mailto:szefer85@gmail.com)" \
+	-vv
+
+download_biorxiv_papers:
+	python3 download_biorxiv_papers.py \
+	--server biorxiv \
+	--keywords ecology \
+	--date-from 2024-01-01 \
+	--date-to 2024-01-31 \
+	--bucket biorxiv-papers \
+	--minio-url http://localhost:9002 \
+	--minio-access-key piotrminio \
+	--minio-secret-key piotrminio \
+	--max-results 5 \
+	--batch-size 5 \
 	--user-agent "piotr-arxiv-minio/0.1 (mailto:szefer85@gmail.com)" \
 	-vv
 

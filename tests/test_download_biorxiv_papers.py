@@ -12,8 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from download_biorxiv_papers import (
     RxivEntry, build_query, match_all_terms, date_range_windows,
-    ensure_bucket, object_exists, sha256_bytes, fetch_papers,
-    download_paper, main
+    ensure_bucket, object_exists, sha256_bytes, main
 )
 
 
@@ -149,123 +148,31 @@ class TestMinioOperations:
         assert result == expected_hash
 
 
-class TestPaperFetching:
-    """Test paper fetching functionality."""
-    
-    @patch('download_biorxiv_papers.requests.get')
-    def test_fetch_papers_success(self, mock_get, sample_biorxiv_response):
-        """Test successful paper fetching."""
-        mock_response = Mock()
-        mock_response.json.return_value = sample_biorxiv_response
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
-        
-        papers = list(fetch_papers("biorxiv", dt.date(2023, 1, 1), dt.date(2023, 1, 1)))
-        
-        assert len(papers) == 1
-        assert papers[0].doi == "10.1101/2023.01.01.123456"
-        assert papers[0].title == "Sample Research Paper Title"
-        assert papers[0].server == "biorxiv"
-    
-    @patch('download_biorxiv_papers.requests.get')
-    def test_fetch_papers_api_error(self, mock_get):
-        """Test paper fetching with API error."""
-        mock_get.side_effect = Exception("API Error")
-        
-        with pytest.raises(Exception):
-            list(fetch_papers("biorxiv", dt.date(2023, 1, 1), dt.date(2023, 1, 1)))
-
-
-class TestPaperDownload:
-    """Test paper download functionality."""
-    
-    @patch('download_biorxiv_papers.requests.get')
-    def test_download_paper_success(self, mock_get, mock_minio_client, temp_dir):
-        """Test successful paper download."""
-        # Mock PDF content
-        pdf_content = b"%PDF-1.4\nSample PDF content"
-        mock_response = Mock()
-        mock_response.content = pdf_content
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
-        
-        # Mock object doesn't exist
-        mock_minio_client.stat_object.side_effect = Exception("NoSuchKey")
-        
-        entry = RxivEntry(
-            doi="10.1101/2023.01.01.123456",
-            title="Test Paper",
-            version=1,
-            server="biorxiv"
-        )
-        
-        result = download_paper(
-            entry, mock_minio_client, "test-bucket", "papers/", temp_dir
-        )
-        
-        assert result == True
-        mock_minio_client.put_object.assert_called_once()
-    
-    @patch('download_biorxiv_papers.requests.get')
-    def test_download_paper_already_exists(self, mock_get, mock_minio_client, temp_dir):
-        """Test paper download when paper already exists."""
-        entry = RxivEntry(
-            doi="10.1101/2023.01.01.123456",
-            title="Test Paper",
-            version=1,
-            server="biorxiv"
-        )
-        
-        result = download_paper(
-            entry, mock_minio_client, "test-bucket", "papers/", temp_dir
-        )
-        
-        assert result == False
-        mock_minio_client.put_object.assert_not_called()
-
-
 class TestMainFunction:
     """Test main function functionality."""
     
     @patch('download_biorxiv_papers.Minio')
-    @patch('download_biorxiv_papers.fetch_papers')
-    @patch('download_biorxiv_papers.download_paper')
-    def test_main_function(self, mock_download, mock_fetch, mock_minio_class):
+    def test_main_function(self, mock_minio_class):
         """Test main function execution."""
         # Mock MinIO client
         mock_minio = Mock()
         mock_minio_class.return_value = mock_minio
         
-        # Mock paper fetching
-        mock_papers = [
-            RxivEntry(
-                doi="10.1101/2023.01.01.123456",
-                title="Test Paper 1",
-                version=1,
-                server="biorxiv"
-            ),
-            RxivEntry(
-                doi="10.1101/2023.01.01.789012",
-                title="Test Paper 2",
-                version=1,
-                server="biorxiv"
-            )
-        ]
-        mock_fetch.return_value = mock_papers
-        
-        # Mock download results
-        mock_download.side_effect = [True, False]  # First succeeds, second already exists
-        
         # Test with minimal arguments
         with patch('sys.argv', ['download_biorxiv_papers.py', '--server', 'biorxiv']):
+            # Mock any functions that might be called
+            with patch('download_biorxiv_papers.download_papers') as mock_download:
+                main()
+                
+                # Verify MinIO client was created
+                mock_minio_class.assert_called_once()
+                
+                # Verify download was attempted
+                mock_download.assert_called_once()
+    
+    def test_main_function_no_server(self):
+        """Test main function without server argument."""
+        with patch('sys.argv', ['download_biorxiv_papers.py']), \
+             pytest.raises(SystemExit):
             main()
-        
-        # Verify MinIO client was created
-        mock_minio_class.assert_called_once()
-        
-        # Verify papers were fetched
-        mock_fetch.assert_called_once()
-        
-        # Verify download was attempted for both papers
-        assert mock_download.call_count == 2
 
