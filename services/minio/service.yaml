@@ -11,5 +11,5 @@ services:
       MINIO_ROOT_USER: piotrminio
       MINIO_ROOT_PASSWORD: piotrminio
     volumes:
-      - ./minio_data:/data
+      - ../../data/minio_data:/data
     command: server /data --console-address ":9001"

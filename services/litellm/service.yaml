@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  litellm:
+    container_name: litellm
+    image: ghcr.io/berriai/litellm:main-v1.69.0-stable
+    restart: always
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./config.yaml:/app/config.yaml
+    env_file:
+      - "./env"
+      - "../../.env"
+    command:
+      - --config
+      - /app/config.yaml
+      - --detailed_debug
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://litellm:4000 || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 1s
