@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   langfuse-worker:
-    image: langfuse/langfuse-worker:3.59.0
+    image: langfuse/langfuse-worker:3.106.0
     container_name: langfuse-worker
     restart: always
     depends_on: &langfuse-depends-on
@@ -58,7 +58,7 @@ services:
   langfuse-web:
     hostname: langfuse-web
     container_name: langfuse-web
-    image: langfuse/langfuse:3.59.0
+    image: langfuse/langfuse:3.106.0
     restart: always
     depends_on: *langfuse-depends-on
     ports:
