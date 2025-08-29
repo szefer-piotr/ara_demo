@@ -20,3 +20,6 @@ __pycache__/
 
 # Files
 chunks_quality.csv
+out/*
+
+MECA_packages/

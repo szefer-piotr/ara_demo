@@ -30,7 +30,7 @@ if "analyses" not in st.session_state:
     st.session_state["analyses"] = []      # list of hypothesis-level dictionaries
 
 if "openai_client" not in st.session_state:
-    st.session_state.openai_client = OpenAI()
+    st.session_state.openai_client = OpenAI(base_url="http://localhost:4000/v1")
 
 if "file_ids" not in st.session_state:
     st.session_state["file_ids"] = []
