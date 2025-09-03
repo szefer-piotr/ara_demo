@@ -43,24 +43,7 @@ download_arxiv_papers:
 	-vv
 
 biorxiv:
-	python3 download_biorxiv_tdm.py \
-	--keywords "population ecology" "diversity" "richness" "abundance" "ecology"
-	--latest-months 5
-	--max-files 5 \
-	-o out \
-	--minio-url http://localhost:9002 \
-	--minio-access-key piotrminio \
-	--minio-secret-key piotrminio \
-	--minio-bucket biorxiv \
-	--minio-prefix biorxiv/ \
-	--minio-skip-existing \
-	--minio-metadata-sha256
-
-biorxiv-tdm:
-	python3 download_biorxiv_tdm.py \
-	--keywords "population ecology" \
-	--search-mode any \
-	--max-files 10
+	python3 src/biorxiv-upload-papers.py \
 
 chunk_arxiv_papers:
 	python3 chunk_arxiv_papers.py \

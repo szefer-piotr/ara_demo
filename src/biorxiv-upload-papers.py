@@ -10,6 +10,7 @@ from botocore.exceptions import ClientError, ParamValidationError
 from datetime import datetime, timedelta
 from typing import List, Optional
 import os
+import argparse
 from minio import Minio
 
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ from dataclasses import dataclass
 
 load_dotenv()
 
-BUCKET = "biorxiv-src-monthly"  # Updated to correct bucket name
+S3_BUCKET = "biorxiv-src-monthly"  # Updated to correct bucket name
 DEFAULT_REGION = "us-east-1"
 
 # MinIO configuration - use port 9002 for API
@@ -111,7 +112,7 @@ def find_MECA_packages_in_s3(s3_client, doi: Optional[List[str]], target_month: 
                 # Use paginator to handle more than 1000 objects
                 paginator = s3_client.get_paginator('list_objects_v2')
                 page_iterator = paginator.paginate(
-                    Bucket=BUCKET,
+                    Bucket=S3_BUCKET,
                     Prefix=month_prefix,
                     RequestPayer='requester'
                 )
@@ -142,57 +143,99 @@ def find_MECA_packages_in_s3(s3_client, doi: Optional[List[str]], target_month: 
     return s3_keys
 
 
+def extract_keys_from_s3_keys(s3_keys: list[str]) -> list[str]:
+    """
+    Extract keys from a list of S3 keys.
+    """
+    return [k.replace("Current_Content/June_2025/", "").replace(".meca", "") for k in s3_keys]
+
+
+def check_if_packages_exist_in_minio(minio_client: Minio, bucket_name: str, s3_keys: list[str]) -> list[str]:
+    """
+    Check if packages exist in the MinIO bucket.
+    """
+    exists_in_minio = []
+    if minio_client.bucket_exists(bucket_name):
+        for obj in minio_client.list_objects(bucket_name, prefix="", recursive=True):
+            if obj.object_name in s3_keys:
+                exists_in_minio.append(True)
+            else:
+                exists_in_minio.append(False)
+    return exists_in_minio
+
+def check_if_unzipped_packages_exist_locally(output_dir: str, s3_keys: list[str]) -> list[str]:
+    """
+    Check if packages exist locally.
+    """
+    exists_locally = []
+    for k in s3_keys:
+        if os.path.exists(os.path.join(output_dir, k)):
+            exists_locally.append(True)
+        else:
+            exists_locally.append(False)
+    return exists_locally
+
+def check_if_meca_packages_are_downloaded(output_dir: str, s3_keys: list[str]) -> list[str]:
+    """
+    Check if packages are unzipped.
+    """
+    exists_unzipped = []
+    for k in s3_keys:
+        if os.path.exists(os.path.join(output_dir, k) + '.meca'):
+            exists_unzipped.append(True)
+        else:
+            exists_unzipped.append(False)
+    return exists_unzipped
+
+
 def download_MECA_packages_from_s3(
-    s3_client, 
-    n_packages: int | None, 
+    s3_client,
     s3_keys: List[str], 
     output_dir: str = "./MECA_packages"
 ) -> None:
     """
-    Download MECA packages from the bioRxiv S3 bucket.
+    Download listed MECA packages from the bioRxiv S3 bucket.
     
     Args:
         s3_client: Configured boto3 S3 client
-        n_packages: Number of packages to download, or None to download all
-        s3_keys: List of S3 keys to download
+        s3_keys: List of uuids
         output_dir: Local directory to save the packages
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-
-    # Limit the number of packages to download
-    if n_packages is not None:
-        s3_keys = s3_keys[:n_packages]
     
-    print(f"📥 Downloading {len(s3_keys)} MECA packages...")
+    print(f"📥 Verifying {len(s3_keys)} MECA packages locally and on S3...")
     
     downloaded_packages = 0
     skipped_packages = 0
     
-    for i, s3_key in enumerate(s3_keys, 1):
+    for i, s3_uuid in enumerate(s3_keys, 1):
         try:
+            # Reconstruct the full S3 key
+            full_s3_key = f"Current_Content/June_2025/{s3_uuid}.meca"
             # Create a safe filename from the S3 key
-            safe_filename = os.path.basename(s3_key).replace('/', '_')
-            output_path = os.path.join(output_dir, safe_filename)
+            safe_filename = s3_uuid.replace('/', '_')
+            output_path = os.path.join(output_dir, safe_filename) + ".meca"
             
             # Check if file already exists locally
-            if os.path.exists(output_path):
+            exists_packed = check_if_meca_packages_are_downloaded(output_dir, [s3_uuid])
+            if exists_packed[0]:
                 print(f"   ⏭️  Package {i}/{len(s3_keys)}: {safe_filename} already exists, skipping...")
                 skipped_packages += 1
                 continue
             
-            print(f"   📦 Downloading package {i}/{len(s3_keys)}: {safe_filename}")
-            
-            s3_client.download_file(
-                Bucket=BUCKET,
-                Key=s3_key,
-                Filename=output_path,
-                ExtraArgs={"RequestPayer": "requester"}
-            )
-            downloaded_packages += 1
-            
+            else:
+                print(f"   📦 Downloading package {i}/{len(s3_keys)}: {safe_filename}")
+                s3_client.download_file(
+                    Bucket=S3_BUCKET,
+                    Key=full_s3_key,
+                    Filename=output_path,
+                    ExtraArgs={"RequestPayer": "requester"}
+                )
+                downloaded_packages += 1
+                
         except Exception as e:
-            print(f"   ❌ Failed to download {s3_key}: {e}")
+            print(f"   ❌ Failed to download {s3_uuid}: {e}")
             continue
     
     print(f"✅ Download summary:")
@@ -209,17 +252,7 @@ def unzip_MECA_packages(output_dir: str = "./MECA_packages") -> None:
         output_dir: Local directory to save the packages
     """
     extracted_dirs = []
-
-    if not os.path.exists(output_dir):
-        print(f"   ❌ Output directory {output_dir} does not exist")
-        return extracted_dirs
-
     meca_files = [f for f in os.listdir(output_dir) if f.endswith(".meca")]
-
-    if not meca_files:
-        print(f"   ❌ No MECA files found in {output_dir}")
-        return extracted_dirs
-
     print(f"   ✅ Found {len(meca_files)} MECA files in {output_dir}")
 
     for i, meca_file in enumerate(meca_files, 1): 
@@ -227,13 +260,15 @@ def unzip_MECA_packages(output_dir: str = "./MECA_packages") -> None:
             meca_path = os.path.join(output_dir, meca_file)
             extract_dir = os.path.join(output_dir, meca_file.replace(".meca", ""))
 
+            if os.path.exists(extract_dir):
+                print(f"   ⏭️  Package {i}/{len(meca_files)}: {meca_file} already unzipped locally, skipping...")
+                continue
+
             print(f"   📦 Extracting MECA package {i}/{len(meca_files)}: {meca_file}")
 
             os.makedirs(extract_dir, exist_ok=True)
-
             with zipfile.ZipFile(meca_path, 'r') as zip_ref:
                 zip_ref.extractall(extract_dir)
-
             extracted_dirs.append(extract_dir)
             print(f"   ✅ Successfully extracted to {extract_dir}")
 
@@ -360,16 +395,17 @@ def create_minio_client() -> Minio:
         raise
     
 
-def upload_files_to_minio(extracted_dirs: List[str], file_type: str = "pdf") -> None:
+def upload_files_to_minio(s3_keys: List[str], file_type: str = "pdf") -> None:
     """
-    Upload files from extracted MECA directories to MinIO.
+    Upload given s3 keys, extracted locally or already downloaded from S3, to MinIO.
     
     Args:
-        extracted_dirs: List of paths to extracted MECA directories
+        s3_keys: List of paths to extracted MECA directories
         file_type: Type of files to upload ('pdf' for PDF files only, 'all' for all files)
     """
-    if not extracted_dirs:
+    if not s3_keys:
         print("⚠️  No extracted directories provided for upload")
+        print(f"   🔍 s3_keys list: {s3_keys}")
         return
     
     try:
@@ -383,15 +419,37 @@ def upload_files_to_minio(extracted_dirs: List[str], file_type: str = "pdf") -> 
         print(f"📤 Starting upload to MinIO bucket: {MINIO_BUCKET}")
         print(f"🎯 File type filter: {file_type}")
         
-        for extracted_dir in extracted_dirs:
+        # extracted_dirs = [f.replace("./MECA_packages/", "") for f in s3_keys]
+        print(f"   🔍 Extracted directories LOCALLY: {s3_keys}")
+        s3_keys = [f.replace(".meca", "") for f in s3_keys]
+        
+        print(f"   🔍 Extracted directories AFTER .meca extension replacement: {s3_keys}")
+        # Debug: Check what each directory contains
+        for i, dir_path in enumerate(s3_keys):
+            print(f"    Directory {i+1}: {dir_path}")
+            print(f"   🔍 Exists locally: {os.path.exists(dir_path)}")
+            if os.path.exists(dir_path):
+                print(f"    Contents: {os.listdir(dir_path)}")
+            else:
+                print(f"   ❌ Directory does not exist locally!")
+        
+        # extracted_dirs = [f.replace("./MECA_packages/", "") for f in extracted_dirs]
+        
+        print(f"   🔍 Extracted directories AFTER replacement: {s3_keys}")
+        
+        for extracted_dir in s3_keys:
+            print(f"\n📁 Processing directory: {extracted_dir}")
             if not os.path.exists(extracted_dir):
-                print(f"   ⚠️  Directory not found: {extracted_dir}")
+                print(f"   ⚠️  Directory from EXTRACTED_DIRS not found LOCALLY: {extracted_dir}")
                 continue
             
-            print(f"\n📁 Processing directory: {os.path.basename(extracted_dir)}")
+            print(f"   ✅ Directory exists, walking through files...")
             
             # Walk through all files in the extracted directory
             for root, dirs, files in os.walk(extracted_dir):
+                print(f"   🔍 Files in directory: {files}")
+                print(f"   🔍 Root: {root}")
+                print(f"   🔍 Dirs: {dirs}")
                 for file in files:
                     file_path = os.path.join(root, file)
                     file_extension = os.path.splitext(file)[1].lower()
@@ -424,7 +482,7 @@ def upload_files_to_minio(extracted_dirs: List[str], file_type: str = "pdf") -> 
         
         # Print upload summary
         print(f"\n📊 Upload Summary:")
-        print(f"   📁 Directories processed: {len(extracted_dirs)}")
+        print(f"   📁 Directories processed: {len(s3_keys)}")
         print(f"   📄 Total files found: {total_files}")
         print(f"   📤 Files uploaded: {uploaded_files}")
         print(f"   ⏭️  Files skipped: {skipped_files}")
@@ -441,67 +499,187 @@ def upload_files_to_minio(extracted_dirs: List[str], file_type: str = "pdf") -> 
         logging.error(f"MinIO upload error: {e}")
 
 
-def main() -> None:
+def parse_arguments():
+    """
+    Parse command line arguments.
+    
+    Returns:
+        argparse.Namespace: Parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description="BioRxiv MECA Package Downloader and MinIO Uploader",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python biorxiv-upload-papers.py                    # Download 5 packages (default)
+  python biorxiv-upload-papers.py -n 10              # Download 10 packages
+  python biorxiv-upload-papers.py --num-packages 20  # Download 20 packages
+  python biorxiv-upload-papers.py --test-minio       # Test MinIO connection only
+  python biorxiv-upload-papers.py -n 0               # Skip download, only process existing files
+        """
+    )
+    
+    parser.add_argument(
+        "-n", "--num-packages",
+        type=int,
+        default=5,
+        help="Number of MECA packages to download and process (default: 5, use 0 to skip download)"
+    )
+    
+    parser.add_argument(
+        "--month",
+        type=str,
+        default="June_2025",
+        help="Target month to search for packages (default: June_2025)"
+    )
+    
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="./MECA_packages",
+        help="Output directory for downloaded packages (default: ./MECA_packages)"
+    )
+    
+    parser.add_argument(
+        "--file-type",
+        type=str,
+        choices=["pdf", "all"],
+        default="pdf",
+        help="Type of files to upload to MinIO (default: pdf)"
+    )
+    
+    parser.add_argument(
+        "--test-minio",
+        action="store_true",
+        help="Test MinIO connection only and exit"
+    )
+    
+    parser.add_argument(
+        "-v", "--verbose",
+        action="count",
+        default=0,
+        help="Increase verbosity (use -v for INFO, -vv for DEBUG)"
+    )
+    
+    return parser.parse_args()
+
+
+def main(num_packages: int = 5, target_month: str = "June_2025", 
+         output_dir: str = "./MECA_packages", file_type: str = "pdf") -> None:
+    """
+    Main function to download and process MECA packages.
+    
+    Args:
+        num_packages: Number of MECA packages to download
+        target_month: Target month to search for packages
+        output_dir: Output directory for downloaded packages
+        file_type: Type of files to upload to MinIO
+    """
     setup_logger(verbosity=1)
     
     try:
         print("🔍 BioRxiv MECA Package Workflow")
         print("=" * 50)
+        print(f" Configuration:")
+        print(f"    Number of packages: {num_packages}")
+        print(f"   Target month: {target_month}")
+        print(f"   Output directory: {output_dir}")
+        print(f"   File type filter: {file_type}")
         
         s3_client = create_s3_client()
         print("✅ S3 client created successfully")
         
-        # Step 1: Find MECA packages in S3
         print("\n1. 🔍 Searching for MECA packages...")
-        s3_keys = find_MECA_packages_in_s3(s3_client, doi=None, target_month="June_2025")
+        s3_keys = find_MECA_packages_in_s3(s3_client, doi=None, target_month=target_month)
         
         if s3_keys is not None:
-            print(f"✅ Found 5 MECA packages in June 2025")
-            
-            # Show first few MECA packages as examples
+            print(f"✅ Found {len(s3_keys)} MECA packages in {target_month}")
             if s3_keys:
-                print("\n📚 Sample MECA packages found:")
-                for i, key in enumerate(s3_keys[:5], 1):
+                # Limit the number of packages to process
+                packages_to_process = min(num_packages, len(s3_keys)) if num_packages > 0 else len(s3_keys)
+                
+                print(f"\n📚 Processing {packages_to_process} MECA packages found in {target_month}:")
+                
+                for i, key in enumerate(s3_keys[:packages_to_process], 1):
                     print(f"   {i}. {key}")
-                
-                if len(s3_keys) > 5:
-                    print(f"   ... and {len(s3_keys) - 5} more MECA packages")
+                if len(s3_keys) > packages_to_process:
+                    print(f"   ... and {len(s3_keys) - packages_to_process} more MECA packages")
 
-                # Step 2: Download MECA packages
-                print(f"\n2. 📥 Downloading MECA packages...")
-                download_MECA_packages_from_s3(s3_client, n_packages=5, s3_keys=s3_keys)
-                print(f"✅ Downloaded packages to ./MECA_packages")
+                # Checking if meca packages already exist in the minio bucket
+                minio_client = create_minio_client()
+                if minio_client.bucket_exists(MINIO_BUCKET):
+                    print(f"   🔍 Checking if the packages are already in MinIO bucket...")
+                    s3_uuids_to_upload_to_minio = []
+                    for s3_key in s3_keys[:packages_to_process]:
+                        package_name = s3_key.split("/")[-1].replace(".meca", "")
+                        # Check if any object in MinIO starts with this package name
+                        package_exists = any(obj.object_name.startswith(package_name + "/") \
+                            for obj in minio_client.list_objects(MINIO_BUCKET, prefix="", recursive=True))
+                        if package_exists:
+                            print(f"    ✅ Package {package_name} already exists in MinIO bucket")
+                        else:
+                            print(f"    ❌ Package {package_name} does not exist in MinIO bucket")
+                            s3_uuids_to_upload_to_minio.append(package_name) # Raw uuid
 
-                # Step 3: Extract MECA packages
-                print(f"\n3. 📦 Extracting MECA packages...")
-                extracted_dirs = unzip_MECA_packages(output_dir="./MECA_packages")
+                # Step 2: Check if MECA packages are already downloaded and unzipped
+                if num_packages > 0:  # Only download if num_packages > 0
+                    print(f"\n2. Verifying locally packages missing from MinIO bucket...")
+
+                    is_s3_key_downloaded = check_if_meca_packages_are_downloaded(
+                        output_dir=output_dir,
+                        s3_keys=s3_uuids_to_upload_to_minio
+                    )
+
+                    s3_uuids_to_download = [
+                        s3_key for i, s3_key in enumerate(s3_uuids_to_upload_to_minio)
+                        if not is_s3_key_downloaded[i]
+                    ]
+
+                    download_MECA_packages_from_s3(
+                        s3_client, 
+                        s3_keys=s3_uuids_to_download)
+                else:
+                    print(f"\n2. Skipping download (num_packages = 0)")
+
+                # Step 3: Extract MECA packages (this will extract all .meca files in the directory)
+                print(f"\n3. Extracting MECA packages...")
+                extracted_dirs = unzip_MECA_packages(output_dir=output_dir)
                 
+                # Step 4: Upload the specific packages that need to be uploaded to MinIO
+                if s3_uuids_to_upload_to_minio:
+                    print(f"\n4. Uploading {len(s3_uuids_to_upload_to_minio)} packages to MinIO...")
+                    local_extracted_dirs = [os.path.join(output_dir, uuid) for uuid in s3_uuids_to_upload_to_minio]
+                    existing_dirs = [dir_path for dir_path in local_extracted_dirs if os.path.exists(dir_path)]
+
+                    if existing_dirs:
+                        print(f"    Found {len(existing_dirs)} existing directories to upload to MinIO:")
+                        for dir_path in existing_dirs:
+                            print(f"      - {dir_path}")
+
+                        print(f"\n5. Testing MinIO connection...")
+                        if test_minio_connection():
+                            upload_files_to_minio(existing_dirs, file_type=file_type)
+                            print(f"   Files uploaded to MinIO")
+                        else:
+                            print(f"   MinIO connection test failed")
+                    else:
+                        print(f"    No existing directories to upload to MinIO")
+                else:
+                    print(f"\n4. No packages need to be uploaded to MinIO (all already exist)")
+
+                # Step 5: Analyze and summarize (if any packages were extracted)
                 if extracted_dirs:
-                    # Step 4: Analyze and summarize
-                    print(f"\n4. 📊 Analyzing MECA package structure...")
+                    print(f"\n6. Analyzing MECA package structure...")
                     print_MECA_summary(extracted_dirs)
 
-                    # Step 5: Test MinIO connection first
-                    print(f"\n5. 🔍 Testing MinIO connection...")
-                    if test_minio_connection():
-                        # Step 6: Upload to MinIO
-                        print(f"\n6. 📤 Uploading files to MinIO...")
-                        upload_files_to_minio(extracted_dirs)
-                        print(f"✅ Files uploaded to MinIO.")
-                    else:
-                        print(f"⚠️  Skipping MinIO upload due to connection failure")
-                        print(f"   💡 Check your MinIO server configuration and try again")
-                    
-                    print(f"\n🎉 MECA workflow complete!")
-                    print(f"📁 Original packages: ./MECA_packages/")
-                    print(f"📂 Extracted content: {len(extracted_dirs)} directories")
-                else:
-                    print("❌ No packages were successfully extracted")
+                print(f"\n MECA workflow complete!")
+                print(f" Original packages: {output_dir}/")
+                print(f" Extracted content: {len(extracted_dirs)} directories")
         else:
-            print("❌ No MECA packages found or error occurred")
+            print(" No MECA packages found or error occurred")
             
     except Exception as e:
-        print(f"❌ Error in main function: {e}")
+        print(f" Error in main function: {e}")
         logging.error(f"Main function error: {e}")
 
 
@@ -535,9 +713,14 @@ def test_minio_only() -> None:
 
 
 if __name__ == "__main__":
-    # Check if user wants to test MinIO only
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--test-minio":
+    args = parse_arguments()
+    
+    if args.test_minio:
         test_minio_only()
     else:
-        main()
+        main(
+            num_packages=args.num_packages,
+            target_month=args.month,
+            output_dir=args.output_dir,
+            file_type=args.file_type
+        )

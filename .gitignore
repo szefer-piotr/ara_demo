@@ -6,6 +6,7 @@ venv/
 env/
 
 # App data (don’t commit)
+rag_agent/
 rag_agent/vectorstore/books/
 rag_agent/arxiv_pdfs/
 rag_agent/preprocessed/
