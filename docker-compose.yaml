@@ -7,3 +7,4 @@ include:
   - services/litellm_with_langfuse.yaml
   - services/minio/service.yaml
   - services/qdrant/service.yaml
+  - services/postgres/service.yaml
