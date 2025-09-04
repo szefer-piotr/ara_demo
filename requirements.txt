@@ -2,3 +2,7 @@
 boto3>=1.26.0
 minio>=7.1.0
 botocore>=1.29.0
+
+# PDF processing
+psycopg2-binary
+PyPDF2
