@@ -39,7 +39,7 @@ load_dotenv()
 
 # Database configuration for bioRxiv processing
 DB_HOST = os.getenv("BIORXIV_DB_HOST", "localhost")
-DB_PORT = int(os.getenv("BIORXIV_DB_PORT", "5432"))
+DB_PORT = int(os.getenv("BIORXIV_DB_PORT", "5433"))
 DB_NAME = os.getenv("BIORXIV_DB_NAME", "biorxiv_processing")
 DB_USER = os.getenv("BIORXIV_DB_USER", "biorxiv_user")
 DB_PASSWORD = os.getenv("BIORXIV_DB_PASSWORD", "biorxiv_password")
