@@ -10,6 +10,7 @@ import random
 import string
 import tempfile
 import hashlib
+import re
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import List, Dict, Optional, Tuple
@@ -58,6 +59,7 @@ minio_client = minio.Minio(
         secure=MINIO_SECURE
     )
 
+
 @dataclass
 class PDFInfo:
     """Data class to store PDF information"""
@@ -67,6 +69,215 @@ class PDFInfo:
     local_path: Optional[str] = None
     is_supplement: bool = False
     is_processed: Optional[bool] = False
+
+
+@dataclass
+class ExtractedText:
+    pdf_hash: str
+    s3_key: str
+    pdf_name: str
+    full_text: str
+    sections: Dict[str, str]
+    metadata: Dict[str, any]
+    text_length: int
+    extracted_at: datetime
+
+
+@dataclass
+class TextSection:
+    section_name: str
+    content: str
+    start_page: int
+    end_page: int
+    word_count: int
+
+
+class ProcessingStatus(Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+
+#Phase 1: Download and extract section text from PDF from MinIO
+
+def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str = None) -> None:
+    """
+    Download a PDF from MinIO to a temporary local file.
+    
+    Args:
+        pdf_info: PDFInfo object containing PDF metadata
+        temp_dir: Temporary directory to save the file (optional)
+
+    Returns:
+        Local file path to the downloaded PDF if successful, None otherwise
+    """
+    try:
+        if temp_dir is None:
+            temp_dir = tempfile.gettempdir()
+        
+        safe_filename = f"{pdf_info.s3_key}_{pdf_info.pdf_name}"
+        safe_filename = re.sub(r'[^\w\-_.]', '_', safe_filename)
+        local_path = os.path.join(temp_dir, safe_filename)
+
+        minio_client.fget_object(MINIO_BUCKET, pdf_info.pdf_path, local_path)
+
+        pdf_info.local_path = local_path
+
+        logging.info(f"Downloaded PDF {pdf_info.pdf_name} to {local_path}")
+        return local_path
+
+    except Exception as e:
+        logging.error(f"Error downloading PDF {pdf_info.pdf_name} from MinIO: {e}")
+        return None
+
+
+def extract_text_from_pdf(pdf_path: str) -> Tuple[str, Dict]:
+    """
+    Extract text from a PDF file and return the full text and sections.
+    
+    Args:
+        pdf_path: Path to the PDF file
+    
+    Returns:
+        Tuple containing the full text and a dictionary of sections
+    """
+    if PDF_LIBRARY is None:
+        raise Exception("No PDF library found. Please install one of: PyPDF2, pypdf, or PyMuPDF")
+
+    try:
+        if PDF_LIBRARY == "PyPDF2":
+            return _extract_text_from_pdf_pypdf2(pdf_path)
+        elif PDF_LIBRARY == "pypdf":
+            return _extract_text_from_pdf_pypdf(pdf_path)
+        elif PDF_LIBRARY == "PyMuPDF":
+            return _extract_text_from_pdf_pymupdf(pdf_path)
+        else:
+            raise Exception(f"Unsupported PDF library: {PDF_LIBRARY}")
+    
+    except Exception as e:
+        logging.error(f"Error extracting text from PDF {pdf_path}: {e}")
+        return "", {}
+
+def _extract_text_from_pdf_pypdf2(pdf_path: str) -> Tuple[str, Dict]:
+    """Extract text from a PDF file using PyPDF2."""
+    text = ""
+    metadata = {}
+
+    with open(pdf_path, 'rb') as file:
+        pdf_reader = PyPDF2.PdfReader(file)
+
+        if pdf_reader.metadata:
+            metadata = {
+                'title': pdf_reader.metadata.get('/Title', ''),
+                'author': pdf_reader.metadata.get('/Author', ''),
+                'subject': pdf_reader.metadata.get('/Subject', ''),
+                'creator': pdf_reader.metadata.get('/Creator', ''),
+                'producer': pdf_reader.metadata.get('/Producer', ''),
+                'creation_date': str(pdf_reader.metadata.get('/CreationDate', '')),
+                'modification_date': str(pdf_reader.metadata.get('/ModDate', ''))
+            }
+
+        for page_num, page in enumerate(pdf_reader.pages):
+            try:
+                page_text = page.extract_text()
+                if page_text:
+                    # text += f"\n--- Page {page_num + 1} ---\n"
+                    text += page_text
+            except Exception as e:
+                logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
+                continue
+
+    metadata['total_pages'] = len(pdf_reader.pages)
+    metadata['extraction_library'] = 'PyPDF2'
+
+    return text, metadata
+
+
+def _extract_text_pypdf(pdf_path: str) -> Tuple[str, Dict]:
+    """Extract text using pypdf"""
+    text = ""
+    metadata = {}
+    
+    with open(pdf_path, 'rb') as file:
+        pdf_reader = pypdf.PdfReader(file)
+        
+        # Extract metadata
+        if pdf_reader.metadata:
+            metadata = {
+                'title': pdf_reader.metadata.get('/Title', ''),
+                'author': pdf_reader.metadata.get('/Author', ''),
+                'subject': pdf_reader.metadata.get('/Subject', ''),
+                'creator': pdf_reader.metadata.get('/Creator', ''),
+                'producer': pdf_reader.metadata.get('/Producer', ''),
+                'creation_date': str(pdf_reader.metadata.get('/CreationDate', '')),
+                'modification_date': str(pdf_reader.metadata.get('/ModDate', ''))
+            }
+        
+        # Extract text from all pages
+        for page_num, page in enumerate(pdf_reader.pages):
+            try:
+                page_text = page.extract_text()
+                if page_text:
+                    # text += f"\n--- Page {page_num + 1} ---\n"
+                    text += page_text
+            except Exception as e:
+                logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
+                continue
+    
+    metadata['total_pages'] = len(pdf_reader.pages)
+    metadata['extraction_library'] = 'pypdf'
+    
+    return text, metadata
+
+
+def _extract_text_pymupdf(pdf_path: str) -> Tuple[str, Dict]:
+    """Extract text using PyMuPDF (fitz)"""
+    text = ""
+    metadata = {}
+    
+    doc = fitz.open(pdf_path)
+    
+    # Extract metadata
+    metadata = doc.metadata
+    metadata['extraction_library'] = 'PyMuPDF'
+    
+    # Extract text from all pages
+    for page_num in range(len(doc)):
+        try:
+            page = doc.load_page(page_num)
+            page_text = page.get_text()
+            if page_text:
+                # text += f"\n--- Page {page_num + 1} ---\n"
+                text += page_text
+        except Exception as e:
+            logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
+            continue
+    
+    metadata['total_pages'] = len(doc)
+    doc.close()
+    
+    return text, metadata
+
+
+
+def remove_bibliography_references(text: str) -> str:
+    """Remove bibliography and references from the text"""
+    bibliography_patterns = [
+        r'\n\s*(?:Bibliography|References|References and Notes|Literature Cited|Works Cited)\s*\n',
+        r'\n\s*(?:REFERENCES|BIBLIOGRAPHY|LITERATURE CITED|WORKS CITED)\s*\n',
+        r'\n\s*(?:References|Bibliography)\s*[:\-]?\s*\n',
+        r'\n\s*(?:References|Bibliography)\s*\.?\s*\n',
+    ]
+
+
+
+# End of Phase 1.
+
+
+
+
 
 
 def setup_logger(verbosity: int) -> None:
@@ -171,7 +382,10 @@ def print_pdfs(pdfs: List[PDFInfo]):
     print(f"    Total supplements: {sum(1 for pdf in pdfs if pdf.is_supplement)}")
     print(f"    Total content: {sum(1 for pdf in pdfs if not pdf.is_supplement)}")
 
-# =========== POSTGRES DATABASE FUNCTIONS ===========
+
+
+
+# POSTGRES DATABASE FUNCTIONS
 # This functions will be later moved to a separate file
 
 def get_db_connection():
@@ -278,6 +492,12 @@ def main():
         pdfs = fetch_pdfs_from_minio()
         print_pdfs(pdfs)
 
+        # Example of downloading and extracting text from a PDF
+        example_pdf = download_pdf_from_minio(pdfs[0], temp_dir="./temp_dir")
+        example_text, example_metadata = extract_text_from_pdf(example_pdf)
+        print(example_text[:500])
+        print(example_metadata)
+        
     except Exception as e:
         logging.error(f"Main function error: {e}")
         raise

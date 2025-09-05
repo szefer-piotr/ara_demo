@@ -1,0 +1,20 @@
+{
+    "paper_id": "uuid",
+    "metadata": {
+      "title": "...",
+      "authors": [...],
+      "doi": "...",
+      "abstract": "..."
+    },
+    "extracted_content": {
+      "hypotheses": [...],
+      "statistical_approaches": [...],
+      "conceptual_approaches": [...],
+      "datasets": [...],
+      "results": [...],
+      "conclusions": [...],
+      "future_directions": [...]
+    },
+    "images": [...],
+    "processing_timestamp": "..."
+  }
