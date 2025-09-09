@@ -88,7 +88,6 @@ def create_s3_client(aws_access_key_id: str = None, aws_secret_access_key: str =
     
     return session.client("s3", config=cfg)
 
-
 def find_MECA_packages_in_s3(s3_client, doi: Optional[List[str]], target_month: str = "June_2025") -> Optional[List[str]]:
     """
     Find MECA packages in the bioRxiv S3 bucket by month or a list of DOIs.
@@ -142,13 +141,11 @@ def find_MECA_packages_in_s3(s3_client, doi: Optional[List[str]], target_month: 
 
     return s3_keys
 
-
 def extract_keys_from_s3_keys(s3_keys: list[str]) -> list[str]:
     """
     Extract keys from a list of S3 keys.
     """
     return [k.replace("Current_Content/June_2025/", "").replace(".meca", "") for k in s3_keys]
-
 
 def check_if_packages_exist_in_minio(minio_client: Minio, bucket_name: str, s3_keys: list[str]) -> list[str]:
     """
@@ -186,7 +183,6 @@ def check_if_meca_packages_are_downloaded(output_dir: str, s3_keys: list[str]) -
         else:
             exists_unzipped.append(False)
     return exists_unzipped
-
 
 def download_MECA_packages_from_s3(
     s3_client,
@@ -243,7 +239,6 @@ def download_MECA_packages_from_s3(
     print(f"   ⏭️  Skipped (already exist): {skipped_packages} packages")
     print(f"   📊 Total processed: {len(s3_keys)} packages")
 
-
 def unzip_MECA_packages(output_dir: str = "./MECA_packages") -> None:
     """
     Unzip MECA packages from the local directory.
@@ -279,7 +274,6 @@ def unzip_MECA_packages(output_dir: str = "./MECA_packages") -> None:
     print(f"   ✅ Successfully extracted {len(extracted_dirs)} MECA packages")
     return extracted_dirs
 
-
 def print_MECA_summary(extracted_dirs: List[str]) -> None:
     """
     Print a summary of extracted MECA packages.
@@ -314,7 +308,6 @@ def print_MECA_summary(extracted_dirs: List[str]) -> None:
         print(f"   📖 PDF files: {pdf_files}")
         print(f"   📋 XML files: {xml_files}")
         print(f"   🔧 Other files: {other_files}")   
-
 
 def test_minio_connection(endpoint: str = None, access_key: str = None, secret_key: str = None, secure: bool = None) -> bool:
     """
@@ -367,7 +360,6 @@ def test_minio_connection(endpoint: str = None, access_key: str = None, secret_k
         print(f"❌ MinIO connection test failed: {e}")
         return False
 
-
 def create_minio_client() -> Minio:
     """
     Create a MinIO client for uploading files.
@@ -394,7 +386,6 @@ def create_minio_client() -> Minio:
         print(f"❌ Failed to create MinIO client: {e}")
         raise
     
-
 def upload_files_to_minio(s3_keys: List[str], file_type: str = "pdf") -> None:
     """
     Upload given s3 keys, extracted locally or already downloaded from S3, to MinIO.
@@ -498,7 +489,6 @@ def upload_files_to_minio(s3_keys: List[str], file_type: str = "pdf") -> None:
         print(f"❌ Error during MinIO upload: {e}")
         logging.error(f"MinIO upload error: {e}")
 
-
 def parse_arguments():
     """
     Parse command line arguments.
@@ -510,12 +500,12 @@ def parse_arguments():
         description="BioRxiv MECA Package Downloader and MinIO Uploader",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  python biorxiv-upload-papers.py                    # Download 5 packages (default)
-  python biorxiv-upload-papers.py -n 10              # Download 10 packages
-  python biorxiv-upload-papers.py --num-packages 20  # Download 20 packages
-  python biorxiv-upload-papers.py --test-minio       # Test MinIO connection only
-  python biorxiv-upload-papers.py -n 0               # Skip download, only process existing files
+            Examples:
+            python biorxiv-upload-papers.py                    # Download 5 packages (default)
+            python biorxiv-upload-papers.py -n 10              # Download 10 packages
+            python biorxiv-upload-papers.py --num-packages 20  # Download 20 packages
+            python biorxiv-upload-papers.py --test-minio       # Test MinIO connection only
+            python biorxiv-upload-papers.py -n 0               # Skip download, only process existing files
         """
     )
     
@@ -563,6 +553,33 @@ Examples:
     
     return parser.parse_args()
 
+def test_minio_only() -> None:
+    """
+    Standalone function to test only MinIO connection.
+    Useful for debugging MinIO issues without running the full workflow.
+    """
+    print("🔍 MinIO Connection Test Only")
+    print("=" * 40)
+    
+    # Test with default configuration
+    print("\n📋 Testing with default configuration:")
+    success = test_minio_connection()
+    
+    if not success:
+        print(f"\n🔄 Testing alternative configurations...")
+        
+        # Test different ports
+        test_ports = ["9001", "9003", "9004"]
+        for port in test_ports:
+            endpoint = f"localhost:{port}"
+            print(f"\n🔍 Testing port {port}...")
+            if test_minio_connection(endpoint=endpoint):
+                print(f"✅ Found working MinIO on port {port}")
+                print(f"💡 Update your MINIO_ENDPOINT to: {endpoint}")
+                break
+        else:
+            print(f"❌ No working MinIO found on tested ports")
+            print(f"💡 Make sure MinIO is running and accessible")
 
 def main(num_packages: int = 5, target_month: str = "June_2025", 
          output_dir: str = "./MECA_packages", file_type: str = "pdf") -> None:
@@ -681,36 +698,6 @@ def main(num_packages: int = 5, target_month: str = "June_2025",
     except Exception as e:
         print(f" Error in main function: {e}")
         logging.error(f"Main function error: {e}")
-
-
-def test_minio_only() -> None:
-    """
-    Standalone function to test only MinIO connection.
-    Useful for debugging MinIO issues without running the full workflow.
-    """
-    print("🔍 MinIO Connection Test Only")
-    print("=" * 40)
-    
-    # Test with default configuration
-    print("\n📋 Testing with default configuration:")
-    success = test_minio_connection()
-    
-    if not success:
-        print(f"\n🔄 Testing alternative configurations...")
-        
-        # Test different ports
-        test_ports = ["9001", "9003", "9004"]
-        for port in test_ports:
-            endpoint = f"localhost:{port}"
-            print(f"\n🔍 Testing port {port}...")
-            if test_minio_connection(endpoint=endpoint):
-                print(f"✅ Found working MinIO on port {port}")
-                print(f"💡 Update your MINIO_ENDPOINT to: {endpoint}")
-                break
-        else:
-            print(f"❌ No working MinIO found on tested ports")
-            print(f"💡 Make sure MinIO is running and accessible")
-
 
 if __name__ == "__main__":
     args = parse_arguments()

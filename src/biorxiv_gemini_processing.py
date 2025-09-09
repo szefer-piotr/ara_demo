@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
- 
+
 import os
 import sys
 import argparse
@@ -40,10 +40,39 @@ load_dotenv()
 
 # Database configuration for bioRxiv processing
 DB_HOST = os.getenv("BIORXIV_DB_HOST", "localhost")
-DB_PORT = int(os.getenv("BIORXIV_DB_PORT", "5433"))
+DB_PORT = int(os.getenv("BIORXIV_DB_PORT", "5432"))
 DB_NAME = os.getenv("BIORXIV_DB_NAME", "biorxiv_processing")
 DB_USER = os.getenv("BIORXIV_DB_USER", "biorxiv_user")
 DB_PASSWORD = os.getenv("BIORXIV_DB_PASSWORD", "biorxiv_password")
+
+
+print(f"Testing connection to database with configuration: {DB_HOST}, {DB_PORT}, {DB_NAME}, {DB_USER}, {DB_PASSWORD}")
+
+try:
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD
+    )
+    print("Connection to database successful")
+
+    with conn.cursor() as cur:
+        cur.execute('SELECT current_database(), current_user, version();')
+        result = cur.fetchone()
+        print(f"Databas: {result[0]}")
+        print(f"User: {result[1]}")
+        print(f"Version: {result[2]}")
+
+    conn.close()
+
+except Exception as e:
+    print(f"Error connecting to database: {e}")
+    raise
+
+
+
 
 # Minio configuration
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "localhost:9002")
@@ -59,7 +88,6 @@ minio_client = minio.Minio(
         secure=MINIO_SECURE
     )
 
-
 @dataclass
 class PDFInfo:
     """Data class to store PDF information"""
@@ -73,211 +101,23 @@ class PDFInfo:
 
 @dataclass
 class ExtractedText:
+    """Data class to store extracted text"""
     pdf_hash: str
     s3_key: str
     pdf_name: str
     full_text: str
     sections: Dict[str, str]
     metadata: Dict[str, any]
-    text_length: int
     extracted_at: datetime
-
+    text_length: int
 
 @dataclass
-class TextSection:
-    section_name: str
-    content: str
-    start_page: int
-    end_page: int
-    word_count: int
-
-
-class ProcessingStatus(Enum):
+class ProcessingSatus(Enum):
+    """Data class to store processing status"""
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
-
-
-
-#Phase 1: Download and extract section text from PDF from MinIO
-
-def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str = None) -> None:
-    """
-    Download a PDF from MinIO to a temporary local file.
-    
-    Args:
-        pdf_info: PDFInfo object containing PDF metadata
-        temp_dir: Temporary directory to save the file (optional)
-
-    Returns:
-        Local file path to the downloaded PDF if successful, None otherwise
-    """
-    try:
-        if temp_dir is None:
-            temp_dir = tempfile.gettempdir()
-        
-        safe_filename = f"{pdf_info.s3_key}_{pdf_info.pdf_name}"
-        safe_filename = re.sub(r'[^\w\-_.]', '_', safe_filename)
-        local_path = os.path.join(temp_dir, safe_filename)
-
-        minio_client.fget_object(MINIO_BUCKET, pdf_info.pdf_path, local_path)
-
-        pdf_info.local_path = local_path
-
-        logging.info(f"Downloaded PDF {pdf_info.pdf_name} to {local_path}")
-        return local_path
-
-    except Exception as e:
-        logging.error(f"Error downloading PDF {pdf_info.pdf_name} from MinIO: {e}")
-        return None
-
-
-def extract_text_from_pdf(pdf_path: str) -> Tuple[str, Dict]:
-    """
-    Extract text from a PDF file and return the full text and sections.
-    
-    Args:
-        pdf_path: Path to the PDF file
-    
-    Returns:
-        Tuple containing the full text and a dictionary of sections
-    """
-    if PDF_LIBRARY is None:
-        raise Exception("No PDF library found. Please install one of: PyPDF2, pypdf, or PyMuPDF")
-
-    try:
-        if PDF_LIBRARY == "PyPDF2":
-            return _extract_text_from_pdf_pypdf2(pdf_path)
-        elif PDF_LIBRARY == "pypdf":
-            return _extract_text_from_pdf_pypdf(pdf_path)
-        elif PDF_LIBRARY == "PyMuPDF":
-            return _extract_text_from_pdf_pymupdf(pdf_path)
-        else:
-            raise Exception(f"Unsupported PDF library: {PDF_LIBRARY}")
-    
-    except Exception as e:
-        logging.error(f"Error extracting text from PDF {pdf_path}: {e}")
-        return "", {}
-
-def _extract_text_from_pdf_pypdf2(pdf_path: str) -> Tuple[str, Dict]:
-    """Extract text from a PDF file using PyPDF2."""
-    text = ""
-    metadata = {}
-
-    with open(pdf_path, 'rb') as file:
-        pdf_reader = PyPDF2.PdfReader(file)
-
-        if pdf_reader.metadata:
-            metadata = {
-                'title': pdf_reader.metadata.get('/Title', ''),
-                'author': pdf_reader.metadata.get('/Author', ''),
-                'subject': pdf_reader.metadata.get('/Subject', ''),
-                'creator': pdf_reader.metadata.get('/Creator', ''),
-                'producer': pdf_reader.metadata.get('/Producer', ''),
-                'creation_date': str(pdf_reader.metadata.get('/CreationDate', '')),
-                'modification_date': str(pdf_reader.metadata.get('/ModDate', ''))
-            }
-
-        for page_num, page in enumerate(pdf_reader.pages):
-            try:
-                page_text = page.extract_text()
-                if page_text:
-                    # text += f"\n--- Page {page_num + 1} ---\n"
-                    text += page_text
-            except Exception as e:
-                logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
-                continue
-
-    metadata['total_pages'] = len(pdf_reader.pages)
-    metadata['extraction_library'] = 'PyPDF2'
-
-    return text, metadata
-
-
-def _extract_text_pypdf(pdf_path: str) -> Tuple[str, Dict]:
-    """Extract text using pypdf"""
-    text = ""
-    metadata = {}
-    
-    with open(pdf_path, 'rb') as file:
-        pdf_reader = pypdf.PdfReader(file)
-        
-        # Extract metadata
-        if pdf_reader.metadata:
-            metadata = {
-                'title': pdf_reader.metadata.get('/Title', ''),
-                'author': pdf_reader.metadata.get('/Author', ''),
-                'subject': pdf_reader.metadata.get('/Subject', ''),
-                'creator': pdf_reader.metadata.get('/Creator', ''),
-                'producer': pdf_reader.metadata.get('/Producer', ''),
-                'creation_date': str(pdf_reader.metadata.get('/CreationDate', '')),
-                'modification_date': str(pdf_reader.metadata.get('/ModDate', ''))
-            }
-        
-        # Extract text from all pages
-        for page_num, page in enumerate(pdf_reader.pages):
-            try:
-                page_text = page.extract_text()
-                if page_text:
-                    # text += f"\n--- Page {page_num + 1} ---\n"
-                    text += page_text
-            except Exception as e:
-                logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
-                continue
-    
-    metadata['total_pages'] = len(pdf_reader.pages)
-    metadata['extraction_library'] = 'pypdf'
-    
-    return text, metadata
-
-
-def _extract_text_pymupdf(pdf_path: str) -> Tuple[str, Dict]:
-    """Extract text using PyMuPDF (fitz)"""
-    text = ""
-    metadata = {}
-    
-    doc = fitz.open(pdf_path)
-    
-    # Extract metadata
-    metadata = doc.metadata
-    metadata['extraction_library'] = 'PyMuPDF'
-    
-    # Extract text from all pages
-    for page_num in range(len(doc)):
-        try:
-            page = doc.load_page(page_num)
-            page_text = page.get_text()
-            if page_text:
-                # text += f"\n--- Page {page_num + 1} ---\n"
-                text += page_text
-        except Exception as e:
-            logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
-            continue
-    
-    metadata['total_pages'] = len(doc)
-    doc.close()
-    
-    return text, metadata
-
-
-
-def remove_bibliography_references(text: str) -> str:
-    """Remove bibliography and references from the text"""
-    bibliography_patterns = [
-        r'\n\s*(?:Bibliography|References|References and Notes|Literature Cited|Works Cited)\s*\n',
-        r'\n\s*(?:REFERENCES|BIBLIOGRAPHY|LITERATURE CITED|WORKS CITED)\s*\n',
-        r'\n\s*(?:References|Bibliography)\s*[:\-]?\s*\n',
-        r'\n\s*(?:References|Bibliography)\s*\.?\s*\n',
-    ]
-
-
-
-# End of Phase 1.
-
-
-
-
 
 
 def setup_logger(verbosity: int) -> None:
@@ -288,6 +128,268 @@ def setup_logger(verbosity: int) -> None:
         level = logging.DEBUG
     logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(message)s", datefmt="%H:%M:%S")
 
+
+# =========== PHASE 1: BASIC TEXT EXTRACTION ===========
+
+
+def calculate_pdf_hash(pdf_path: str) -> str:
+    """Calculate the hash of a PDF file"""
+    hash_md5 = hashlib.md5()
+    try:
+        with open(pdf_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except Exception as e:
+        logging.error(f"Error calculating hash for {pdf_path}: {e}")
+        return ""
+
+
+def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str) -> Optional[str]:
+    """Download a PDF from MinIO to a temporary directory"""
+    try:
+        # Create safe filename
+        safe_filename = pdf_info.pdf_name.replace("/", "_").replace("\\", "_")
+        local_path = os.path.join(temp_dir, safe_filename)
+
+        #Download PDF from MinIO
+        minio_client.fget_object(MINIO_BUCKET, pdf_info.pdf_path, local_path)
+        logging.info(f"Downloaded PDF {pdf_info.pdf_name} to {local_path}")
+        return local_path
+
+    except Exception as e:
+        logging.error(f"Error downloading PDF {pdf_info.pdf_name}: {e}")
+        return None
+
+
+def extract_text_from_pdf(pdf_path: str) -> str:
+    """Extract text from PDF using available library"""
+    if PDF_LIBRARY is None:
+        raise ImportError("No PDF library available. Please install PyPDF2, pypdf, or PyMuPDF")
+    
+    text = ""
+    
+    try:
+        if PDF_LIBRARY == "PyPDF2":
+            with open(pdf_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                for page_num, page in enumerate(pdf_reader.pages):
+                    try:
+                        page_text = page.extract_text()
+                        if page_text:
+                            text += f"\n--- Page {page_num + 1} ---\n"
+                            text += page_text
+                    except Exception as e:
+                        logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
+                        
+        elif PDF_LIBRARY == "pypdf":
+            with open(pdf_path, 'rb') as file:
+                pdf_reader = pypdf.PdfReader(file)
+                for page_num, page in enumerate(pdf_reader.pages):
+                    try:
+                        page_text = page.extract_text()
+                        if page_text:
+                            text += f"\n--- Page {page_num + 1} ---\n"
+                            text += page_text
+                    except Exception as e:
+                        logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
+                        
+        elif PDF_LIBRARY == "PyMuPDF":
+            doc = fitz.open(pdf_path)
+            for page_num in range(len(doc)):
+                try:
+                    page = doc.load_page(page_num)
+                    page_text = page.get_text()
+                    if page_text:
+                        text += f"\n--- Page {page_num + 1} ---\n"
+                        text += page_text
+                except Exception as e:
+                    logging.warning(f"Error extracting text from page {page_num + 1}: {e}")
+            doc.close()
+            
+    except Exception as e:
+        logging.error(f"Error extracting text from PDF {pdf_path}: {e}")
+        raise
+    
+    return text
+        
+
+def remove_bibliography_references(text: str) -> str:
+    """Remove bibliography and references section from text"""
+    # Common bibliography/references section patterns
+    bibliography_patterns = [
+        r'(?i)\n\s*(references|bibliography|works\s+cited|literature\s+cited)\s*\n.*$',
+        r'(?i)\n\s*(acknowledgments?|acknowledgements?)\s*\n.*$',
+        r'(?i)\n\s*(supplementary\s+material|supplementary\s+information)\s*\n.*$',
+        r'(?i)\n\s*(author\s+contributions?)\s*\n.*$',
+        r'(?i)\n\s*(competing\s+interests?|conflict\s+of\s+interest)\s*\n.*$',
+        r'(?i)\n\s*(data\s+availability)\s*\n.*$',
+        r'(?i)\n\s*(funding)\s*\n.*$',
+    ]
+    
+    cleaned_text = text
+    
+    for pattern in bibliography_patterns:
+        # Remove everything from the pattern match to the end
+        cleaned_text = re.sub(pattern, '', cleaned_text, flags=re.DOTALL)
+    
+    # Remove common reference patterns (e.g., [1], [2], etc.)
+    reference_patterns = [
+        r'\[\d+\]',  # [1], [2], etc.
+        r'\(\d{4}[a-z]?\)',  # (2023), (2023a), etc.
+        r'\([A-Za-z]+\s+et\s+al\.?\s*,\s*\d{4}\)',  # (Smith et al., 2023)
+    ]
+    
+    for pattern in reference_patterns:
+        cleaned_text = re.sub(pattern, '', cleaned_text)
+    
+    return cleaned_text.strip()
+
+
+def detect_sections(text: str) -> Dict[str, str]:
+    """Detect and extract main sections from the text"""
+    sections = {}
+    
+    # Common section headers in scientific papers
+    section_patterns = {
+        'abstract': r'(?i)\n\s*(abstract)\s*\n',
+        'introduction': r'(?i)\n\s*(introduction)\s*\n',
+        'methods': r'(?i)\n\s*(methods?|methodology|materials?\s+and\s+methods?)\s*\n',
+        'results': r'(?i)\n\s*(results?)\s*\n',
+        'discussion': r'(?i)\n\s*(discussion)\s*\n',
+        'conclusion': r'(?i)\n\s*(conclusions?|concluding\s+remarks?)\s*\n',
+        'background': r'(?i)\n\s*(background|background\s+and\s+significance)\s*\n',
+        'data_analysis': r'(?i)\n\s*(data\s+analysis|statistical\s+analysis)\s*\n',
+        'limitations': r'(?i)\n\s*(limitations?|study\s+limitations?)\s*\n',
+        'future_work': r'(?i)\n\s*(future\s+work|future\s+directions?|future\s+research)\s*\n',
+    }
+    
+    # Split text into lines for better processing
+    lines = text.split('\n')
+    current_section = 'header'
+    current_content = []
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Check if this line matches any section header
+        section_found = None
+        for section_name, pattern in section_patterns.items():
+            if re.match(pattern, f'\n{line}\n', re.IGNORECASE):
+                section_found = section_name
+                break
+        
+        if section_found:
+            # Save previous section
+            if current_section != 'header' and current_content:
+                sections[current_section] = '\n'.join(current_content).strip()
+            
+            # Start new section
+            current_section = section_found
+            current_content = []
+        else:
+            # Add line to current section
+            current_content.append(line)
+    
+    # Save the last section
+    if current_section != 'header' and current_content:
+        sections[current_section] = '\n'.join(current_content).strip()
+    
+    # If no sections were found, put everything in a 'full_text' section
+    if not sections:
+        sections['full_text'] = text
+    
+    return sections
+
+
+def process_pdf_text_extraction(pdf_info: PDFInfo) -> Optional[ExtractedText]:
+    """Main function to process PDF text extraction (Phase 1)"""
+    try:
+        # Create temporary directory for PDF processing
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Download PDF from MinIO
+            local_pdf_path = download_pdf_from_minio(pdf_info, temp_dir)
+            if not local_pdf_path:
+                return None
+            
+            # Calculate PDF hash
+            pdf_hash = calculate_pdf_hash(local_pdf_path)
+            if not pdf_hash:
+                return None
+            
+            # Extract text from PDF
+            logging.info(f"Extracting text from {pdf_info.pdf_name}...")
+            full_text = extract_text_from_pdf(local_pdf_path)
+            
+            if not full_text.strip():
+                logging.warning(f"No text extracted from {pdf_info.pdf_name}")
+                return None
+            
+            # Remove bibliography and references
+            logging.info(f"Removing bibliography from {pdf_info.pdf_name}...")
+            cleaned_text = remove_bibliography_references(full_text)
+            
+            # Detect sections
+            logging.info(f"Detecting sections in {pdf_info.pdf_name}...")
+            sections = detect_sections(cleaned_text)
+            
+            # Create metadata
+            metadata = {
+                'original_text_length': len(full_text),
+                'cleaned_text_length': len(cleaned_text),
+                'sections_found': list(sections.keys()),
+                'pdf_library_used': PDF_LIBRARY,
+                'processing_timestamp': datetime.now().isoformat()
+            }
+            
+            # Create ExtractedText object
+            extracted_text = ExtractedText(
+                pdf_hash=pdf_hash,
+                s3_key=pdf_info.s3_key,
+                pdf_name=pdf_info.pdf_name,
+                full_text=cleaned_text,
+                sections=sections,
+                metadata=metadata,
+                extracted_at=datetime.now(),
+                text_length=len(cleaned_text)
+            )
+            
+            logging.info(f"Successfully processed {pdf_info.pdf_name}")
+            logging.info(f"  - Text length: {len(cleaned_text)} characters")
+            logging.info(f"  - Sections found: {list(sections.keys())}")
+            
+            return extracted_text
+            
+    except Exception as e:
+        logging.error(f"Error processing PDF {pdf_info.pdf_name}: {e}")
+        return None
+
+
+def batch_process_pdfs(pdf_list: List[PDFInfo]) -> List[ExtractedText]:
+    """Process multiple PDFs in batch"""
+    extracted_texts = []
+    
+    logging.info(f"Starting batch processing of {len(pdf_list)} PDFs...")
+    
+    for i, pdf_info in enumerate(pdf_list, 1):
+        logging.info(f"Processing PDF {i}/{len(pdf_list)}: {pdf_info.pdf_name}")
+        
+        extracted_text = process_pdf_text_extraction(pdf_info)
+        if extracted_text:
+            extracted_texts.append(extracted_text)
+        else:
+            logging.warning(f"Failed to process PDF: {pdf_info.pdf_name}")
+    
+    logging.info(f"Batch processing completed. Successfully processed {len(extracted_texts)}/{len(pdf_list)} PDFs")
+    return extracted_texts
+
+
+
+
+
+# ======= HELPER FUNCTIONS ===========
 
 def fetch_pdfs_from_minio(
     bucket: str = "biorxiv-papers", 
@@ -385,7 +487,10 @@ def print_pdfs(pdfs: List[PDFInfo]):
 
 
 
-# POSTGRES DATABASE FUNCTIONS
+
+
+
+# =========== POSTGRES DATABASE FUNCTIONS ===========
 # This functions will be later moved to a separate file
 
 def get_db_connection():
@@ -405,66 +510,109 @@ def get_db_connection():
 
 
 def create_tables():
-    """Create the necessry tables in for PDF processing state management"""
+    """Create the necessary tables for PDF processing state management"""
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
+            # Check if tables already exist
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS pdf_processing_state (
-                    id SERIAL PRIMARY KEY,
-                    pdf_hash VARCHAR(64) UNIQUE NOT NULL,
-                    s3_key VARCHAR(255) NOT NULL,
-                    status VARCHAR(20) NOT NULL DEFAULT 'pending',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    processed_at TIMESTAMP,
-                    error_message TEXT,
-                    metadata JSONB
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'pdf_processing_state'
                 );
             """)
-
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS text_chunks (
-                    id SERIAL PRIMARY KEY,
-                    pdf_hash VARCHAR(64) NOT NULL,
-                    chunk_index INTEGER NOT NULL,
-                    chunk_text TEXT NOT NULL,
-                    chunk_hash VARCHAR(64) NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    metadata JSONB,
-                    FOREIGN KEY (pdf_hash) REFERENCES pdf_processing_state(pdf_hash)
-                );
-            """)
-
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS processing_logs (
-                    id SERIAL PRIMARY KEY,
-                    pdf_hash VARCHAR(64) NOT NULL,
-                    log_level VARCHAR(10) NOT NULL,
-                    message TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (pdf_hash) REFERENCES pdf_processing_state(pdf_hash)
-                );
-            """)
-
-            cur.execute("""CREATE INDEX IF NOT EXISTS idx_pdf_processing_status ON pdf_processing_state(status);""")
-            cur.execute("""CREATE INDEX IF NOT EXISTS idx_pdf_processing_created_at ON pdf_processing_state(created_at);""")
-            cur.execute("""CREATE INDEX IF NOT EXISTS idx_text_chunks_pdf_hash ON text_chunks(pdf_hash);""")
-            cur.execute("""CREATE INDEX IF NOT EXISTS idx_processing_logs_pdf_hash ON processing_logs(pdf_hash);""")
+            tables_exist = cur.fetchone()[0]
+            
+            if not tables_exist:
+                logging.info("Tables don't exist, they should be created by the database initialization script")
+                logging.info("Please ensure the bioRxiv PostgreSQL service is running and the init script has been executed")
+            else:
+                logging.info("Tables already exist in the database")
             
             conn.commit()
-            logging.info("  Tables created successfully")
     
     except Exception as e:
-        print(f"Error creating tables: {e}")
+        logging.error(f"Error checking tables: {e}")
+    finally:
+        conn.close()
+
+
+def save_extracted_text(extracted_text: ExtractedText) -> bool:
+    """Save extracted text to the database"""
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Insert or update processing state
+            cur.execute("""
+                INSERT INTO pdf_processing_state (pdf_hash, s3_key, pdf_name, status, processed_at, metadata)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (pdf_hash) 
+                DO UPDATE SET 
+                    status = EXCLUDED.status,
+                    processed_at = EXCLUDED.processed_at,
+                    updated_at = CURRENT_TIMESTAMP,
+                    metadata = EXCLUDED.metadata
+            """, (
+                extracted_text.pdf_hash,
+                extracted_text.s3_key,
+                extracted_text.pdf_name,
+                'completed',
+                extracted_text.extracted_at,
+                json.dumps(extracted_text.metadata)
+            ))
+            
+            # Insert extracted text
+            cur.execute("""
+                INSERT INTO extracted_texts (pdf_hash, s3_key, pdf_name, full_text, sections, metadata, text_length)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (pdf_hash) 
+                DO UPDATE SET 
+                    full_text = EXCLUDED.full_text,
+                    sections = EXCLUDED.sections,
+                    metadata = EXCLUDED.metadata,
+                    text_length = EXCLUDED.text_length
+            """, (
+                extracted_text.pdf_hash,
+                extracted_text.s3_key,
+                extracted_text.pdf_name,
+                extracted_text.full_text,
+                json.dumps(extracted_text.sections),
+                json.dumps(extracted_text.metadata),
+                extracted_text.text_length
+            ))
+            
+            conn.commit()
+            logging.info(f"Saved extracted text for {extracted_text.pdf_name}")
+            return True
+            
+    except Exception as e:
+        logging.error(f"Error saving extracted text: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def get_processing_status(pdf_hash: str) -> Optional[str]:
+    """Get the processing status of a PDF"""
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT status FROM pdf_processing_state WHERE pdf_hash = %s", (pdf_hash,))
+            result = cur.fetchone()
+            return result[0] if result else None
+    except Exception as e:
+        logging.error(f"Error getting processing status: {e}")
+        return None
     finally:
         conn.close()
 
 
 def test_database_connection():
-    """Test the database connection and create tables if they don't exist"""
+    """Test the database connection and check if tables exist"""
     try:
-        logging.info("Testing database connection...")
+        logging.info("Testing bioRxiv database connection...")
         conn = get_db_connection()
         with conn.cursor() as cur:
             cur.execute("SELECT version();")
@@ -472,7 +620,7 @@ def test_database_connection():
             logging.info(f"Connected to PostgreSQL version: {version[0]}")
 
         create_tables()
-        logging.info("Database setup completed successfully")
+        logging.info("BioRxiv database setup completed successfully")
     
     except Exception as e:
         logging.error(f"Error testing database connection: {e}")
@@ -487,21 +635,43 @@ def test_database_connection():
 def main():
     setup_logger(verbosity=1)
 
+    parser = argparse.ArgumentParser(description="Process bioRxiv PDFs")
+    parser.add_argument("--max-pdfs", type=int, default=5, help="Maximum number of PDFs to process")
+    parser.add_argument("--include-supplements", action="store_true", help="Include supplements")
+    parser.add_argument("--verbosity", type=int, default=1, help="Verbosity level")
+    args = parser.parse_args()
+
     try:
+        # Test database connection
         test_database_connection()
-        pdfs = fetch_pdfs_from_minio()
+
+        # Fetch PDFs from MinIO
+        pdfs = fetch_pdfs_from_minio(
+            max_pdfs=args.max_pdfs,
+            include_supplements=args.include_supplements
+        )
+
+        if not pdfs:
+            logging.error("No PDFs found to process")
+            return
+
+        print("PDFs found:")
         print_pdfs(pdfs)
 
-        # Example of downloading and extracting text from a PDF
-        example_pdf = download_pdf_from_minio(pdfs[0], temp_dir="./temp_dir")
-        example_text, example_metadata = extract_text_from_pdf(example_pdf)
-        print(example_text[:500])
-        print(example_metadata)
-        
-    except Exception as e:
-        logging.error(f"Main function error: {e}")
-        raise
+        # Process PDFs
+        logging.info(f"Starting to process {len(pdfs)} PDFs...")
+        extracted_texts = batch_process_pdfs(pdfs)
 
+        # Save extracted texts to database
+        logging.info(f"Saving {len(extracted_texts)} extracted texts to database...")
+        for extracted_text in extracted_texts:
+            save_extracted_text(extracted_text)
+
+        logging.info("PDF processing completed successfully!")
+    
+    except Exception as e:
+        logging.error(f"Error in main function: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
