@@ -46,30 +46,30 @@ DB_USER = os.getenv("BIORXIV_DB_USER", "biorxiv_user")
 DB_PASSWORD = os.getenv("BIORXIV_DB_PASSWORD", "biorxiv_password")
 
 
-print(f"Testing connection to database with configuration: {DB_HOST}, {DB_PORT}, {DB_NAME}, {DB_USER}, {DB_PASSWORD}")
+# print(f"Testing connection to database with configuration: {DB_HOST}, {DB_PORT}, {DB_NAME}, {DB_USER}, {DB_PASSWORD}")
 
-try:
-    conn = psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
-    )
-    print("Connection to database successful")
+# try:
+#     conn = psycopg2.connect(
+#         host=DB_HOST,
+#         port=DB_PORT,
+#         database=DB_NAME,
+#         user=DB_USER,
+#         password=DB_PASSWORD
+#     )
+#     print("Connection to database successful")
 
-    with conn.cursor() as cur:
-        cur.execute('SELECT current_database(), current_user, version();')
-        result = cur.fetchone()
-        print(f"Databas: {result[0]}")
-        print(f"User: {result[1]}")
-        print(f"Version: {result[2]}")
+#     with conn.cursor() as cur:
+#         cur.execute('SELECT current_database(), current_user, version();')
+#         result = cur.fetchone()
+#         print(f"Databas: {result[0]}")
+#         print(f"User: {result[1]}")
+#         print(f"Version: {result[2]}")
 
-    conn.close()
+#     conn.close()
 
-except Exception as e:
-    print(f"Error connecting to database: {e}")
-    raise
+# except Exception as e:
+#     print(f"Error connecting to database: {e}")
+#     raise
 
 
 
@@ -386,6 +386,145 @@ def batch_process_pdfs(pdf_list: List[PDFInfo]) -> List[ExtractedText]:
     return extracted_texts
 
 
+@dataclass
+class GeminiProcessingResult:
+    """Data class to store Gemini processing result"""
+    pdf_hash: str
+    s3_key: str
+    pdf_name: str
+    sections_used: List[str]
+    instructions: str
+    prompt_template: str
+    response: str
+    processed_at: datetime
+    metadata: Dict[str, any]
+
+
+INSTRUCTIONS_TEMPLATE = """
+You are an expert research assistant.
+Your task is to transform sections of a scientific paper into a structured RAG document in strict JSON format.
+Follow these instructions carefully:
+
+# Task
+From the given context (sections of a research paper), extract the following and output a JSON object that adheres to the schema below.
+📘 Required JSON Schema
+{ 
+  "paper_id": "uuid",
+  "metadata": {
+    "title": "...",
+    "authors": ["..."],
+    "doi": "...",
+    "abstract": "..."
+  },
+  "extracted_content": {
+    "hypotheses": [
+      {
+        "text": "...",
+        "motivation": "...",
+        "validation_approaches": {
+          "experimental": "...",
+          "statistical": "..."
+        },
+        "results": {
+          "outcome": "true/false/partial",
+          "explanation": "..."
+        },
+        "discussion": "...",
+        "future_considerations": "..."
+      }
+    ],
+    "statistical_approaches": ["..."],
+    "conceptual_approaches": ["..."],
+    "datasets": ["..."],
+    "results": ["..."],
+    "conclusions": ["..."],
+    "future_directions": ["..."]
+  },
+  "images": ["..."],
+  "processing_timestamp": "ISO8601 string"
+}
+
+# Extraction Guidelines
+
+## Hypotheses
+- Extract each explicit or implicit hypothesis.
+- Include:
+    - text: the hypothesis itself.
+    - motivation: why the authors test this hypothesis.
+    - validation_approaches: both experimental design and statistical methods.
+    - results: whether the hypothesis was supported, refuted, or partially supported, plus a short explanation.
+    - discussion: why the result occurred, whether predictable or surprising.
+    - future_considerations: what future work is suggested.
+
+## Statistical Approaches
+- List all statistical tests, models, or computational techniques.
+
+##Conceptual Approaches
+- Extract theoretical or conceptual frameworks (e.g., niche theory, succession theory, network theory).
+
+## Datasets
+- Mention datasets used, including their sources, characteristics, and size if available.
+
+## Results
+- Summarize key findings (not hypothesis-specific).
+
+## Conclusions
+- State the overall conclusions of the paper.
+
+## Future Directions
+- Extract authors’ suggestions for further work, open questions, or methodological improvements.
+
+## Images
+- Include figure numbers, captions, or image references if present.
+
+## Metadata
+- Fill in title, authors, doi, and abstract from the paper’s metadata if provided.
+
+## Timestamp
+- Add the current time in ISO8601 format (e.g., "2025-09-10T12:34:56Z").
+
+# Output Constraints
+
+- Always return valid JSON.
+- If a field is not found, use an empty string "" or empty list [].
+- Do not invent content beyond what is present in the context.
+- Do not include explanations outside the JSON—output the JSON only.
+
+# Final instruction
+Return only the output_rag_document JSON object, nothing else.
+"""
+
+
+def build_gemini_prompt(
+    extracted_text: ExtractedText,
+    sections: List[str],
+    instructions: str
+) -> str:
+    """Build a Gemini prompt for the specified sections and instructions"""
+    available_sections = list(extracted_text.sections.keys())
+    valid_sections = [section for section in sections if section in available_sections]
+    invalid_sections = [section for section in sections if section not in available_sections]
+
+    if invalid_sections:
+        logging.warning(f"Sections not found in {extracted_text.pdf_name}: {invalid_sections}")
+
+    if not valid_sections:
+        logging.warning(f"No valid sections found in {extracted_text.pdf_name}")
+        context = extracted_text.full_text
+    else:
+        context_parts = []
+        for section in valid_sections:
+            context_parts.append(f"## {section.upper()}\n{extracted_text.sections[section]}")
+        context = "\n\n".join(context_parts)
+
+    prompt = f"""
+    CONTEXT:
+    {context}
+
+    INSTRUCTIONS:
+    {instructions}
+    """
+    return prompt.strip()
 
 
 
@@ -629,7 +768,8 @@ def test_database_connection():
         if 'conn' in locals():
             conn.close()
 
-#===================================================
+
+
 
 
 def main():
@@ -639,11 +779,14 @@ def main():
     parser.add_argument("--max-pdfs", type=int, default=5, help="Maximum number of PDFs to process")
     parser.add_argument("--include-supplements", action="store_true", help="Include supplements")
     parser.add_argument("--verbosity", type=int, default=1, help="Verbosity level")
+    parser.add_argument("--skip-database", action="store_true", help="Skip PostgreSQL database processing")
     args = parser.parse_args()
 
     try:
         # Test database connection
-        test_database_connection()
+        if not args.skip_database:
+            print("Testing database connection...")
+            test_database_connection()
 
         # Fetch PDFs from MinIO
         pdfs = fetch_pdfs_from_minio(
@@ -662,10 +805,13 @@ def main():
         logging.info(f"Starting to process {len(pdfs)} PDFs...")
         extracted_texts = batch_process_pdfs(pdfs)
 
+        breakpoint()
+
         # Save extracted texts to database
-        logging.info(f"Saving {len(extracted_texts)} extracted texts to database...")
-        for extracted_text in extracted_texts:
-            save_extracted_text(extracted_text)
+        if not args.skip_database:
+            logging.info(f"Saving {len(extracted_texts)} extracted texts to database...")
+            for extracted_text in extracted_texts:
+                save_extracted_text(extracted_text)
 
         logging.info("PDF processing completed successfully!")
     
