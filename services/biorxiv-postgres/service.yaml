@@ -12,10 +12,10 @@ services:
       POSTGRES_USER: ${BIORXIV_DB_USER:-biorxiv_user}
       POSTGRES_PASSWORD: ${BIORXIV_DB_PASSWORD:-biorxiv_password}
     ports:
-      - "5433:5432"  # Different port to avoid conflict
+      - "5433:5432"
     volumes:
-      - ./data:/var/lib/postgresql/data
-      - ./init:/docker-entrypoint-initdb.d
+      - ../../data/postgres-biorxiv:/var/lib/postgresql/data
+      - ../../data/postgres-biorxiv-init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${BIORXIV_DB_USER:-biorxiv_user} -d ${BIORXIV_DB_NAME:-biorxiv_processing}"]
       interval: 5s
