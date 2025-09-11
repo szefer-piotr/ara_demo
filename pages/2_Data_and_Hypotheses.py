@@ -16,7 +16,7 @@ from typing import Any, List
 from utils import mock_llm, create_web_search_tool, create_code_interpreter_tool, get_llm_response
 
 from schemas import ColumnSummary, DatasetSummary
-from instructions import data_summary_instructions
+from utils.prompt_templates import data_summary_instructions
 
 st.set_page_config(layout="wide")
 

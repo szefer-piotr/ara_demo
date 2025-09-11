@@ -1,3 +1,83 @@
+gemini_processing_instructions = """
+You are an expert research assistant.
+Your task is to transform sections of a scientific paper into a structured RAG document in strict JSON format.
+Follow these instructions carefully:
+
+# Task
+From the given context (sections of a research paper), extract the following and output a JSON object that adheres to the schema below.
+## Required JSON Schema
+{ 
+  "paper_id": "uuid",
+  "metadata": {
+    "title": "...",
+    "authors": ["..."],
+    "doi": "...",
+    "abstract": "..."
+  },
+  "extracted_content": {
+    "hypotheses": [
+      {
+        "text": "...",
+        "motivation": "...",
+        "validation_approaches": {
+          "experimental": "...",
+          "statistical": "..."
+        },
+        "results": {
+          "outcome": "true/false/partial",
+          "explanation": "..."
+        },
+        "discussion": "...",
+        "future_considerations": "..."
+      }
+    ],
+    "statistical_approaches": ["..."],
+    "conceptual_approaches": ["..."],
+    "datasets": ["..."],
+    "results": ["..."],
+    "conclusions": ["..."],
+    "future_directions": ["..."]
+  },
+  "images": ["..."],
+  "processing_timestamp": "ISO8601 string"
+}
+
+# Extraction Guidelines
+
+## Hypotheses
+- Extract each explicit or implicit hypothesis.
+- Include:
+    - text: the hypothesis itself.
+    - motivation: why the authors test this hypothesis.
+    - validation_approaches: both experimental design and statistical methods.
+    - results: whether the hypothesis was supported, refuted, or partially supported, plus a short explanation.
+    - discussion: why the result occurred, whether predictable or surprising.
+    - future_considerations: what future work is suggested.
+
+For each hypothesis, provide the following information:
+1. Statistical Approaches: List all statistical tests, models, or computational techniques.
+2. Conceptual Approaches: Extract theoretical or conceptual frameworks (e.g., niche theory, succession theory, network theory).
+3. Datasets: Mention datasets used, including their sources, characteristics, and size if available.
+4. Results: Summarize key findings (not hypothesis-specific).
+5. Conclusions: State the overall conclusions of the paper.
+6. Future Directions: Extract authors’ suggestions for further work, open questions, or methodological improvements.
+7. Images: Include figure numbers, captions, or image references that reference the hypothesis if present.
+8. Metadata: Fill in title, authors, doi, and abstract from the paper’s metadata if provided.
+
+## Output Constraints
+- Always return valid JSON.
+- If a field is not found, use an empty string "" or empty list [].
+- Do not invent content beyond what is present in the context.
+- Do not include explanations outside the JSON—output the JSON only.
+
+## Final instruction
+Return only the output_rag_document JSON object, nothing else.
+"""
+
+
+
+
+
 # instructions.py
 
 chat_instructions = """

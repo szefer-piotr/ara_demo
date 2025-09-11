@@ -12,6 +12,8 @@ import tempfile
 import hashlib
 import re
 import psycopg2
+import google.generativeai as genai
+
 from psycopg2.extras import RealDictCursor
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, asdict
@@ -20,6 +22,8 @@ from enum import Enum
 
 import minio
 from dotenv import load_dotenv
+
+from utils.prompt_templates import gemini_processing_instructions
 
 # PDF processing imports
 try:
@@ -40,36 +44,13 @@ load_dotenv()
 
 # Database configuration for bioRxiv processing
 DB_HOST = os.getenv("BIORXIV_DB_HOST", "localhost")
-DB_PORT = int(os.getenv("BIORXIV_DB_PORT", "5432"))
-DB_NAME = os.getenv("BIORXIV_DB_NAME", "biorxiv_processing")
-DB_USER = os.getenv("BIORXIV_DB_USER", "biorxiv_user")
-DB_PASSWORD = os.getenv("BIORXIV_DB_PASSWORD", "biorxiv_password")
-
-
-# print(f"Testing connection to database with configuration: {DB_HOST}, {DB_PORT}, {DB_NAME}, {DB_USER}, {DB_PASSWORD}")
-
-# try:
-#     conn = psycopg2.connect(
-#         host=DB_HOST,
-#         port=DB_PORT,
-#         database=DB_NAME,
-#         user=DB_USER,
-#         password=DB_PASSWORD
-#     )
-#     print("Connection to database successful")
-
-#     with conn.cursor() as cur:
-#         cur.execute('SELECT current_database(), current_user, version();')
-#         result = cur.fetchone()
-#         print(f"Databas: {result[0]}")
-#         print(f"User: {result[1]}")
-#         print(f"Version: {result[2]}")
-
-#     conn.close()
-
-# except Exception as e:
-#     print(f"Error connecting to database: {e}")
-#     raise
+DB_PORT = int(os.getenv("BIORXIV_DB_PORT", "9999"))
+# DB_NAME = os.getenv("BIORXIV_DB_NAME", "biorxiv_processing")
+# DB_USER = os.getenv("BIORXIV_DB_USER", "biorxiv_user")
+# DB_PASSWORD = os.getenv("BIORXIV_DB_PASSWORD", "biorxiv_password")
+DB_NAME = "postgres"
+DB_USER = "postgres"
+DB_PASSWORD = "postgres"
 
 
 
@@ -385,10 +366,16 @@ def batch_process_pdfs(pdf_list: List[PDFInfo]) -> List[ExtractedText]:
     logging.info(f"Batch processing completed. Successfully processed {len(extracted_texts)}/{len(pdf_list)} PDFs")
     return extracted_texts
 
+#========= GEMINI PROCESSING FUNCTIONS ===========
 
 @dataclass
 class GeminiProcessingResult:
-    """Data class to store Gemini processing result"""
+    """Data class to store Gemini processing result with prompt information"""
+    prompt: str
+    token_count: int
+    sections_used: List[str]
+    context_length: int
+
     pdf_hash: str
     s3_key: str
     pdf_name: str
@@ -399,142 +386,154 @@ class GeminiProcessingResult:
     processed_at: datetime
     metadata: Dict[str, any]
 
+    def __str__(self):
+        return self.prompt
 
-INSTRUCTIONS_TEMPLATE = """
-You are an expert research assistant.
-Your task is to transform sections of a scientific paper into a structured RAG document in strict JSON format.
-Follow these instructions carefully:
+    @property
+    def is_too_long(self, max_tokens: int = 1048576):
+        return self.token_count > max_tokens
 
-# Task
-From the given context (sections of a research paper), extract the following and output a JSON object that adheres to the schema below.
-📘 Required JSON Schema
-{ 
-  "paper_id": "uuid",
-  "metadata": {
-    "title": "...",
-    "authors": ["..."],
-    "doi": "...",
-    "abstract": "..."
-  },
-  "extracted_content": {
-    "hypotheses": [
-      {
-        "text": "...",
-        "motivation": "...",
-        "validation_approaches": {
-          "experimental": "...",
-          "statistical": "..."
-        },
-        "results": {
-          "outcome": "true/false/partial",
-          "explanation": "..."
-        },
-        "discussion": "...",
-        "future_considerations": "..."
-      }
-    ],
-    "statistical_approaches": ["..."],
-    "conceptual_approaches": ["..."],
-    "datasets": ["..."],
-    "results": ["..."],
-    "conclusions": ["..."],
-    "future_directions": ["..."]
-  },
-  "images": ["..."],
-  "processing_timestamp": "ISO8601 string"
-}
+    @property
+    def prompt_preview(self, max_length: int = 100):
+        return self.prompt[:max_length] + "..." if len(self.prompt) > max_length else self.prompt
 
-# Extraction Guidelines
-
-## Hypotheses
-- Extract each explicit or implicit hypothesis.
-- Include:
-    - text: the hypothesis itself.
-    - motivation: why the authors test this hypothesis.
-    - validation_approaches: both experimental design and statistical methods.
-    - results: whether the hypothesis was supported, refuted, or partially supported, plus a short explanation.
-    - discussion: why the result occurred, whether predictable or surprising.
-    - future_considerations: what future work is suggested.
-
-## Statistical Approaches
-- List all statistical tests, models, or computational techniques.
-
-##Conceptual Approaches
-- Extract theoretical or conceptual frameworks (e.g., niche theory, succession theory, network theory).
-
-## Datasets
-- Mention datasets used, including their sources, characteristics, and size if available.
-
-## Results
-- Summarize key findings (not hypothesis-specific).
-
-## Conclusions
-- State the overall conclusions of the paper.
-
-## Future Directions
-- Extract authors’ suggestions for further work, open questions, or methodological improvements.
-
-## Images
-- Include figure numbers, captions, or image references if present.
-
-## Metadata
-- Fill in title, authors, doi, and abstract from the paper’s metadata if provided.
-
-## Timestamp
-- Add the current time in ISO8601 format (e.g., "2025-09-10T12:34:56Z").
-
-# Output Constraints
-
-- Always return valid JSON.
-- If a field is not found, use an empty string "" or empty list [].
-- Do not invent content beyond what is present in the context.
-- Do not include explanations outside the JSON—output the JSON only.
-
-# Final instruction
-Return only the output_rag_document JSON object, nothing else.
-"""
+    @classmethod
+    def create_from_prompt(
+        cls, prompt: str, token_count: int, sections_used: List[str], 
+        context_length: int, pdf_hash: str, s3_key: str, pdf_name: str, 
+        instructions: str, prompt_template: str, response: str = "", 
+        processed_at: datetime = None, metadata: Dict[str, any] = None):
+        """Create a GeminiProcessingResult from prompt data"""
+        if processed_at is None:
+            processed_at = datetime.now()
+        if metadata is None:
+            metadata = {}
+        
+        return cls(
+            prompt=prompt,
+            token_count=token_count,
+            sections_used=sections_used,
+            context_length=context_length,
+            pdf_hash=pdf_hash,
+            s3_key=s3_key,
+            pdf_name=pdf_name,
+            instructions=instructions,
+            prompt_template=prompt_template,
+            response=response,
+            processed_at=processed_at,
+            metadata=metadata
+        )
 
 
-def build_gemini_prompt(
-    extracted_text: ExtractedText,
-    sections: List[str],
-    instructions: str
-) -> str:
+def count_tokens_gemini(text: str) -> int:
+    """Count tokens using Gemini's official tokenizer"""
+    try:        
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        response = model.count_tokens(text)
+        return response.total_tokens
+    except Exception as e:
+        logging.warning(f"Could not count tokens with Gemini API: {e}")
+        # Fallback to word-based approximation
+        return int(len(text.split()) * 1.3)
+
+
+
+def build_gemini_prompt(extracted_texts: List[ExtractedText], sections: List[str], instructions: str) -> str:
     """Build a Gemini prompt for the specified sections and instructions"""
-    available_sections = list(extracted_text.sections.keys())
-    valid_sections = [section for section in sections if section in available_sections]
-    invalid_sections = [section for section in sections if section not in available_sections]
+    # Handle both single ExtractedText and list of ExtractedText objects
+    if isinstance(extracted_texts, list):
+        if not extracted_texts:
+            logging.warning("No extracted texts provided")
+            return instructions
+        
+        # Process all extracted texts
+        all_context_parts = []
+        for i, extracted_text in enumerate(extracted_texts):
+            available_sections = list(extracted_text.sections.keys())
+            
+            # Check if 'all' is requested
+            if 'all' in sections:
+                valid_sections = available_sections
+                invalid_sections = []
+            else:
+                valid_sections = [section for section in sections if section in available_sections]
+                invalid_sections = [section for section in sections if section not in available_sections]
 
-    if invalid_sections:
-        logging.warning(f"Sections not found in {extracted_text.pdf_name}: {invalid_sections}")
+            if invalid_sections:
+                logging.warning(f"Sections not found in {extracted_text.pdf_name}: {invalid_sections}")
 
-    if not valid_sections:
-        logging.warning(f"No valid sections found in {extracted_text.pdf_name}")
-        context = extracted_text.full_text
+            if not valid_sections:
+                logging.warning(f"No valid sections found in {extracted_text.pdf_name}")
+                paper_context = extracted_text.full_text
+            else:
+                context_parts = []
+                for section in valid_sections:
+                    context_parts.append(f"## {section.upper()}\n{extracted_text.sections[section]}")
+                paper_context = "\n\n".join(context_parts)
+            
+            # Add paper identifier and context
+            all_context_parts.append(f"# PAPER {i+1}: {extracted_text.pdf_name}\n{paper_context}")
+        
+        context = "\n\n" + "="*80 + "\n\n".join(all_context_parts)
     else:
-        context_parts = []
-        for section in valid_sections:
-            context_parts.append(f"## {section.upper()}\n{extracted_text.sections[section]}")
-        context = "\n\n".join(context_parts)
+        logging.warning("No extracted texts provided")
+        return instructions
+    
+    prompt = f"CONTEXT:\n{context}\n\nINSTRUCTIONS:\n{instructions}"
+    token_count = count_tokens_gemini(prompt)
+    logging.info(f"Number of tokens in prompt: {token_count}")
 
-    prompt = f"""
-    CONTEXT:
-    {context}
+    return GeminiProcessingResult.create_from_prompt(
+        prompt=prompt.strip(),
+        token_count=token_count,
+        sections_used=valid_sections if 'all' not in sections else ["all"],
+        context_length=len(context),
+        pdf_hash="",
+        s3_key="",
+        pdf_name="",
+        instructions=instructions,
+        prompt_template=gemini_processing_instructions,
+        response="",
+        metadata={}
+    )
 
-    INSTRUCTIONS:
-    {instructions}
-    """
-    return prompt.strip()
 
+def get_response_from_gemini(prompt: GeminiProcessingResult) -> str:
+    """Get a response from Gemini"""
+    try:
+        genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+        model = genai.GenerativeModel('gemini-2.0-flash-lite')
+
+        logging.info(f"Sending request to gemini-2.0-flash-lite with prompt: {prompt.prompt_preview}...")
+
+        if prompt.is_too_long:
+            logging.warning(f"Prompt is too long. Truncating to {prompt.max_tokens} tokens.")
+            prompt.prompt = prompt.prompt[:prompt.max_tokens]
+
+        response = model.generate_content(
+            prompt.prompt,
+            generation_config=genai.GenerationConfig(
+                temperature=0.1,
+                max_output_tokens=65536,
+                response_mime_type="application/json"
+            )
+        )
+
+        if not response.text:
+            logging.warning(f"No response from Gemini. Returning empty string.")
+            return ""
+
+        logging.info(f"Response from Gemini: {response.text[:100]}...")
+        return response.text
+
+    except Exception as e:
+        logging.error(f"Error getting response from Gemini: {e}")
+        return ""
 
 
 # ======= HELPER FUNCTIONS ===========
 
-def fetch_pdfs_from_minio(
-    bucket: str = "biorxiv-papers", 
-    max_pdfs: int = 10,
-    include_supplements: bool = True,
-) -> List[PDFInfo]:
+def fetch_pdfs_from_minio(bucket: str = "biorxiv-papers", max_pdfs: int = 10, include_supplements: bool = True) -> List[PDFInfo]:
     if bucket is None:
         bucket = MINIO_BUCKET
 
@@ -624,13 +623,7 @@ def print_pdfs(pdfs: List[PDFInfo]):
     print(f"    Total content: {sum(1 for pdf in pdfs if not pdf.is_supplement)}")
 
 
-
-
-
-
-
 # =========== POSTGRES DATABASE FUNCTIONS ===========
-# This functions will be later moved to a separate file
 
 def get_db_connection():
     """Get a database connection to the bioRxiv processing database"""
@@ -684,7 +677,7 @@ def save_extracted_text(extracted_text: ExtractedText) -> bool:
         with conn.cursor() as cur:
             # Insert or update processing state
             cur.execute("""
-                INSERT INTO pdf_processing_state (pdf_hash, s3_key, pdf_name, status, processed_at, metadata)
+                INSERT INTO public.pdf_processing_state (pdf_hash, s3_key, pdf_name, status, processed_at, metadata)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 ON CONFLICT (pdf_hash) 
                 DO UPDATE SET 
@@ -805,8 +798,6 @@ def main():
         logging.info(f"Starting to process {len(pdfs)} PDFs...")
         extracted_texts = batch_process_pdfs(pdfs)
 
-        breakpoint()
-
         # Save extracted texts to database
         if not args.skip_database:
             logging.info(f"Saving {len(extracted_texts)} extracted texts to database...")
@@ -814,6 +805,18 @@ def main():
                 save_extracted_text(extracted_text)
 
         logging.info("PDF processing completed successfully!")
+        logging.info("Starting Gemini processing...")
+        
+        prompt = build_gemini_prompt(extracted_texts, "all", gemini_processing_instructions)
+        
+        response = get_response_from_gemini(prompt=prompt)
+
+        breakpoint()
+
+        logging.info(f"Gemini prompt: {prompt.prompt_preview}...")
+        logging.info(f"Number of tokens in prompt: {prompt.token_count}. Is too long: {prompt.is_too_long}.")
+        
+        logging.info("Gemini processing completed successfully!")
     
     except Exception as e:
         logging.error(f"Error in main function: {e}")

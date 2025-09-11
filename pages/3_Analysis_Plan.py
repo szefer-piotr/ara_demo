@@ -38,7 +38,7 @@ from utils import (
 from sidebar import render_sidebar
 from openai import OpenAI
 from dotenv import load_dotenv
-from instructions import (
+from utils.prompt_templates import (
     analysis_steps_generation_instructions,
     analysis_step_execution_instructions,
     run_execution_chat_instructions
