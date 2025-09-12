@@ -1,77 +1,106 @@
 gemini_processing_instructions = """
-You are an expert research assistant.
-Your task is to transform sections of a scientific paper into a structured RAG document in strict JSON format.
-Follow these instructions carefully:
-
 # Task
-From the given context (sections of a research paper), extract the following and output a JSON object that adheres to the schema below.
-## Required JSON Schema
-{ 
+
+Build a structured RAG document from a scientific paper
+
+# Input
+One paper (full text and/or metadata).
+
+# Output 
+Must be valid JSON, exactly this shape; no comments, no extra keys):
+{
   "paper_id": "uuid",
   "metadata": {
-    "title": "...",
-    "authors": ["..."],
-    "doi": "...",
-    "abstract": "..."
+    "title": "string",
+    "authors": ["string"],
+    "doi": "string",
+    "abstract": "string"
   },
   "extracted_content": {
     "hypotheses": [
       {
-        "text": "...",
-        "motivation": "...",
+        "text": "string",
+        "motivation": "string",
+        "conceptual_approaches": ["string"],
         "validation_approaches": {
-          "experimental": "...",
-          "statistical": "..."
+          "experimental": "string",
+          "statistical": ["string"]
         },
+        "datasets": ["string"],
         "results": {
-          "outcome": "true/false/partial",
-          "explanation": "..."
+          "outcome": "true | false | partial",
+          "explanation": "string"
         },
-        "discussion": "...",
-        "future_considerations": "..."
+        "discussion": "string",
+        "future_considerations": "string",
+        "images": [
+          {
+            "figure_number": "string",
+            "caption": "string",
+            "image_reference": "string"
+          }
+        ]
       }
-    ],
-    "statistical_approaches": ["..."],
-    "conceptual_approaches": ["..."],
-    "datasets": ["..."],
-    "results": ["..."],
-    "conclusions": ["..."],
-    "future_directions": ["..."]
+    ]
   },
-  "images": ["..."],
   "processing_timestamp": "ISO8601 string"
 }
 
-# Extraction Guidelines
+# Field requirements & extraction rules
+1) paper_id
+  Provide a UUID v4. If an external ID is available, still generate a UUID here.
+2) metadata
+  title: Exact paper title, or "" if unavailable.
+  authors: Array of author names as strings, in the paper’s order. Use [] if unavailable.
+  doi: Canonical DOI string (e.g., 10.1234/abcd.5678) or "" if none.
+  abstract: Full abstract text, or "" if none.
+3) extracted_content.hypotheses (array)
+  Extract every explicit or implicit hypothesis. For each:
+  text: A faithful, concise statement of the hypothesis in your own words if needed; quote if it’s explicitly stated.
+  motivation: Why the authors tested it (background theory, empirical gap, prior findings).
+  conceptual_approaches: Theories/frameworks used to frame this hypothesis (e.g., niche theory, succession theory, network theory). Use an array; [] if none stated.
+  validation_approaches:
+  experimental: Study design relevant to this hypothesis (manipulations, controls, sampling scheme, time span, units of analysis).
+  statistical: Array of all models/tests/algorithms used to evaluate this hypothesis (e.g., “GLMM (binomial, logit link)”, “ANOVA”, “Permutation test (10k)”, “Random forest (n=500 trees)”). [] if purely descriptive.
+  datasets: Array naming/characterizing the data used to test this hypothesis (source, size, years, key variables). If described only generally, summarize; use [] if not specified.
+  results:
+  outcome: One of "true", "false", "partial" indicating support status.
+  explanation: Brief reasoning tied to the reported evidence (effect sizes, directions, p-values/CIs, model summaries, or qualitative outcomes).
+  discussion: Key interpretation specific to this hypothesis (mechanisms, context, limitations, surprising vs. expected).
+  future_considerations: Authors’ suggested next steps or open questions that pertain to this hypothesis (data gaps, alternative designs, new variables).
+  images: Figures that directly support this hypothesis.
+  figure_number: As labeled in the paper (e.g., “Fig. 2”, “Figure S3”).
+  caption: The figure caption (summarized if long).
+  image_reference: URL, DOI fragment, or internal figure ID. If none, use an internal label like "fig_2".
+4) processing_timestamp
+  ISO 8601 UTC timestamp, e.g., 2025-09-12T14:05:00Z.
 
-## Hypotheses
-- Extract each explicit or implicit hypothesis.
-- Include:
-    - text: the hypothesis itself.
-    - motivation: why the authors test this hypothesis.
-    - validation_approaches: both experimental design and statistical methods.
-    - results: whether the hypothesis was supported, refuted, or partially supported, plus a short explanation.
-    - discussion: why the result occurred, whether predictable or surprising.
-    - future_considerations: what future work is suggested.
+# General principles
+- Grounded extraction only: Do not invent content. If a field is not available, use an empty string "" (for strings) or an empty array [] (for lists).
+- Per-hypothesis focus: All methods/datasets/results/discussion/future work must be captured inside the corresponding hypothesis object. Do not include paper-wide arrays or keys outside hypotheses.
+- Completeness: Include all hypotheses found; if multiple analyses test the same hypothesis, aggregate succinctly within that hypothesis entry.
+- Clarity & brevity: Keep entries concise but informative (1–3 sentences per textual field is ideal).
+- Terminology: Preserve domain terms (model names, statistics) exactly as reported where possible.
 
-For each hypothesis, provide the following information:
-1. Statistical Approaches: List all statistical tests, models, or computational techniques.
-2. Conceptual Approaches: Extract theoretical or conceptual frameworks (e.g., niche theory, succession theory, network theory).
-3. Datasets: Mention datasets used, including their sources, characteristics, and size if available.
-4. Results: Summarize key findings (not hypothesis-specific).
-5. Conclusions: State the overall conclusions of the paper.
-6. Future Directions: Extract authors’ suggestions for further work, open questions, or methodological improvements.
-7. Images: Include figure numbers, captions, or image references that reference the hypothesis if present.
-8. Metadata: Fill in title, authors, doi, and abstract from the paper’s metadata if provided.
+# Outcome mapping:
+- Reported support ⇒ "true"
+- Reported refutation ⇒ "false"
+- Mixed/conditional/partial support ⇒ "partial"
 
-## Output Constraints
-- Always return valid JSON.
-- If a field is not found, use an empty string "" or empty list [].
-- Do not invent content beyond what is present in the context.
-- Do not include explanations outside the JSON—output the JSON only.
+# Formatting constraints
+- Return valid JSON.
+- Use only the keys shown in the schema; do not add extra keys.
+- No inline comments, markdown, or trailing commas.
+- Strings must not contain unescaped newlines or quotes that would break JSON.
 
-## Final instruction
-Return only the output_rag_document JSON object, nothing else.
+#Quality checks before returning
+- JSON parses successfully.
+- Every hypothesis has text, results.outcome, and results.explanation.
+- validation_approaches.statistical is an array (may be empty).
+- No paper-wide sections beyond metadata, extracted_content.hypotheses, and processing_timestamp.
+- All outcomes are one of: "true", "false", "partial".
+- Empty/missing info uses "" or [] (never null, unless your downstream requires it).
+
 """
 
 
