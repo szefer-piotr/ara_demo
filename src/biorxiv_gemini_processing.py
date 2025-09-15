@@ -11,7 +11,9 @@ import string
 import tempfile
 import hashlib
 import re
+from token import OP
 import psycopg2
+import minio
 import google.generativeai as genai
 
 from psycopg2.extras import RealDictCursor
@@ -19,9 +21,10 @@ from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
-
-import minio
 from dotenv import load_dotenv
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.http.exceptions import UnexpectedResponse
 
 from utils.prompt_templates import gemini_processing_instructions
 
@@ -61,6 +64,11 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
 MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
 MINIO_BUCKET = os.getenv("MINIO_BUCKET", "biorxiv-papers")
+
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", None)
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "gemini_responses")
+
 
 minio_client = minio.Minio(
         MINIO_ENDPOINT,
@@ -126,7 +134,35 @@ def calculate_pdf_hash(pdf_path: str) -> str:
         return ""
 
 
-def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str) -> Optional[str]:
+def list_folders_in_minio_bucket(bucket_name: str = "biorxiv-unpacked") -> List[str]:
+    """List all folders in the specified MinIO bucket"""
+    try:
+        if not minio_client.bucket_exists(bucket_name):
+            logging.warning(f"Bucket {bucket_name} does not exist")
+            return []
+        
+        folders = set()
+        objects = minio_client.list_objects(bucket_name, prefix="", recursive=True)
+        
+        for obj in objects:
+            # Split the object name by '/' to get path components
+            path_parts = obj.object_name.split("/")
+            
+            # Add each folder level to the set
+            for i in range(1, len(path_parts)):  # Skip the first part (empty string from leading '/')
+                folder_path = "/".join(path_parts[:i+1])
+                folders.add(folder_path)
+        
+        folder_list = sorted(list(folders))
+        logging.info(f"Found {len(folder_list)} folders in bucket {bucket_name}")
+        return folder_list
+        
+    except Exception as e:
+        logging.error(f"Error listing folders in bucket {bucket_name}: {e}")
+        return []
+
+
+def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str, bucket_name: str = "biorxiv-unpacked") -> Optional[str]:
     """Download a PDF from MinIO to a temporary directory"""
     try:
         # Create safe filename
@@ -134,7 +170,7 @@ def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str) -> Optional[str]:
         local_path = os.path.join(temp_dir, safe_filename)
 
         #Download PDF from MinIO
-        minio_client.fget_object(MINIO_BUCKET, pdf_info.pdf_path, local_path)
+        minio_client.fget_object(bucket_name, pdf_info.pdf_path, local_path)
         logging.info(f"Downloaded PDF {pdf_info.pdf_name} to {local_path}")
         return local_path
 
@@ -438,7 +474,7 @@ def count_tokens_gemini(text: str) -> int:
 
 
 
-def build_gemini_prompt(extracted_texts: List[ExtractedText], sections: List[str], instructions: str) -> str:
+def build_gemini_prompt(extracted_texts: List[ExtractedText], sections: List[str], instructions: str) -> GeminiProcessingResult:
     """Build a Gemini prompt for the specified sections and instructions"""
     # Handle both single ExtractedText and list of ExtractedText objects
     if isinstance(extracted_texts, list):
@@ -533,7 +569,12 @@ def get_response_from_gemini(prompt: GeminiProcessingResult) -> str:
 
 # ======= HELPER FUNCTIONS ===========
 
-def fetch_pdfs_from_minio(bucket: str = "biorxiv-papers", max_pdfs: int = 10, include_supplements: bool = True) -> List[PDFInfo]:
+def fetch_pdfs_from_minio(
+    bucket: str = "biorxiv-papers", 
+    max_pdfs: int = 10, 
+    include_supplements: bool = True
+) -> List[PDFInfo]:
+
     if bucket is None:
         bucket = MINIO_BUCKET
 
@@ -762,8 +803,151 @@ def test_database_connection():
             conn.close()
 
 
+# QDRANT FUNCTIONS
+def get_qdrant_client() -> QdrantClient:
+    """Get a Qdrant client connection"""
+    try:
+        if QDRANT_API_KEY:
+            client = QdrantClient(
+                url=QDRANT_URL,
+                api_key=QDRANT_API_KEY
+            )
+        else:
+            client = QdrantClient(url=QDRANT_URL)
+        
+        # Test the connection
+        client.get_collections()
+        logging.info(f"Connected to Qdrant at {QDRANT_URL}")
+        return client
+        
+    except Exception as e:
+        logging.error(f"Error connecting to Qdrant: {e}")
+        raise
 
 
+def ensure_qdrant_collection_exists(client: QdrantClient, collection_name: str = None) -> bool:
+    """Ensure the Gemini responses collection exists, create if it doesn't"""
+    if collection_name is None:
+        collection_name = QDRANT_COLLECTION
+    
+    try:
+        # Check if collection exists
+        collections = client.get_collections()
+        collection_names = [col.name for col in collections.collections]
+        
+        if collection_name in collection_names:
+            logging.info(f"Collection '{collection_name}' already exists")
+            return True
+        
+        # Create collection if it doesn't exist
+        logging.info(f"Creating collection '{collection_name}'...")
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(
+                size=1536,  # OpenAI text-embedding-3-small dimension
+                distance=Distance.COSINE
+            )
+        )
+        
+        logging.info(f"Successfully created collection '{collection_name}'")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Error ensuring collection exists: {e}")
+        return False
+
+
+def get_collection_info(client: QdrantClient, collection_name: str = None) -> Dict:
+    """Get information about the Gemini responses collection"""
+    if collection_name is None:
+        collection_name = QDRANT_COLLECTION
+    
+    try:
+        info = client.get_collection(collection_name)
+        return {
+            "name": collection_name,
+            "vectors_count": info.vectors_count,
+            "indexed_vectors_count": info.indexed_vectors_count,
+            "points_count": info.points_count,
+            "segments_count": info.segments_count,
+            "status": info.status,
+            "optimizer_status": info.optimizer_status,
+            "payload_schema": info.payload_schema
+        }
+    except Exception as e:
+        logging.error(f"Error getting collection info: {e}")
+        return {}
+
+
+def delete_gemini_collection(client: QdrantClient, collection_name: str = None) -> bool:
+    """Delete the Gemini responses collection (use with caution!)"""
+    if collection_name is None:
+        collection_name = QDRANT_COLLECTION
+    
+    try:
+        client.delete_collection(collection_name)
+        logging.info(f"Successfully deleted collection '{collection_name}'")
+        return True
+    except Exception as e:
+        logging.error(f"Error deleting collection: {e}")
+        return False
+
+
+@dataclass
+class EmbeddingResult:
+    """Data class to store embedding results"""
+    vector: List[float]
+    model: str
+    text_length: int
+    token_count: int
+    created_at: datetime
+
+
+class GeminiEmbeddingProvider:
+    """Embedding provider for Gemini response text using OpenAI embeddings"""
+
+    def __init__(self, api_key: Optional[str] = None, model: str = "text-embedding-3-small"):
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("OPENAI_API_KEY is not provided")
+
+        self.model = model
+        self.timeout = 30
+
+        try:
+            from openai import OpenAI
+            self._client = OpenAI(api_key=self.api_key)
+        except Exception as e:
+            raise RuntimeError(f"Error initializing OpenAI client: {e}") from e
+
+    def embed_text(self, text: str) -> EmbeddingResult:
+        """Generate embedding for text."""
+        try:
+            clean_text = " ".join(text.split())
+            response = self._client.embeddings.create(
+                model=self.model,
+                input=clean_text,
+                timeout=self.timeout
+            )
+
+            vector = response.data[0].embedding
+            token_count = response.usage.total_tokens
+            
+            return EmbeddingResult(
+                vector=vector,
+                model=self.model,
+                text_length=len(clean_text),
+                token_count=token_count,
+                created_at=datetime.now()
+            )
+        
+        except Exception as e:
+            logging.error(f"Error generating embedding: {e}")
+            raise
+
+    def embed_gemini_response(self, gemini_response: GeminiProcessingResult) -> EmbeddingResult:
+
+# MAIN FUNCTION
 
 def main():
     setup_logger(verbosity=1)
@@ -772,6 +956,7 @@ def main():
     parser.add_argument("--max-pdfs", type=int, default=5, help="Maximum number of PDFs to process")
     parser.add_argument("--include-supplements", action="store_true", help="Include supplements")
     parser.add_argument("--verbosity", type=int, default=1, help="Verbosity level")
+    parser.add_argument("--bucket", type=str, default="biorxiv-unpacked", help="MinIO bucket name")
     parser.add_argument("--skip-database", action="store_true", help="Skip PostgreSQL database processing")
     args = parser.parse_args()
 
@@ -783,6 +968,7 @@ def main():
 
         # Fetch PDFs from MinIO
         pdfs = fetch_pdfs_from_minio(
+            bucket=args.bucket,
             max_pdfs=args.max_pdfs,
             include_supplements=args.include_supplements
         )
@@ -791,8 +977,7 @@ def main():
             logging.error("No PDFs found to process")
             return
 
-        print("PDFs found:")
-        print_pdfs(pdfs)
+        # breakpoint()
 
         # Process PDFs
         logging.info(f"Starting to process {len(pdfs)} PDFs...")
@@ -809,13 +994,15 @@ def main():
         
         prompt = build_gemini_prompt(extracted_texts, "all", gemini_processing_instructions)
         
+        logging.info(f"Gemini prompt: {prompt.prompt_preview}...")
+        logging.info(f"Number of tokens in prompt: {prompt.token_count}. Is too long: {prompt.is_too_long}.")
+        
+        breakpoint()
+        
         response = get_response_from_gemini(prompt=prompt)
 
         breakpoint()
 
-        logging.info(f"Gemini prompt: {prompt.prompt_preview}...")
-        logging.info(f"Number of tokens in prompt: {prompt.token_count}. Is too long: {prompt.is_too_long}.")
-        
         logging.info("Gemini processing completed successfully!")
     
     except Exception as e:
