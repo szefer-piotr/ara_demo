@@ -70,12 +70,31 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", None)
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "gemini_responses")
 
 
-minio_client = minio.Minio(
-        MINIO_ENDPOINT,
-        access_key=MINIO_ACCESS_KEY,
-        secret_key=MINIO_SECRET_KEY,
-        secure=MINIO_SECURE
-    )
+# minio_client = minio.Minio(
+#         MINIO_ENDPOINT,
+#         access_key=MINIO_ACCESS_KEY,
+#         secret_key=MINIO_SECRET_KEY,
+#         secure=MINIO_SECURE
+#     )
+
+def get_minio_client() -> minio.Minio:
+    """Get a MinIO client connection"""
+    try:
+        client = minio.Minio(
+            MINIO_ENDPOINT,
+            access_key=MINIO_ACCESS_KEY,
+            secret_key=MINIO_SECRET_KEY,
+            secure=MINIO_SECURE
+        )
+        
+        # Test the connection by listing buckets
+        client.list_buckets()
+        logging.info(f"Connected to MinIO at {MINIO_ENDPOINT}")
+        return client
+        
+    except Exception as e:
+        logging.error(f"Error connecting to MinIO: {e}")
+        raise
 
 @dataclass
 class PDFInfo:
@@ -134,7 +153,7 @@ def calculate_pdf_hash(pdf_path: str) -> str:
         return ""
 
 
-def list_folders_in_minio_bucket(bucket_name: str = "biorxiv-unpacked") -> List[str]:
+def list_folders_in_minio_bucket(minio_client: minio.Minio, bucket_name: str = "biorxiv-unpacked") -> List[str]:
     """List all folders in the specified MinIO bucket"""
     try:
         if not minio_client.bucket_exists(bucket_name):
@@ -162,7 +181,7 @@ def list_folders_in_minio_bucket(bucket_name: str = "biorxiv-unpacked") -> List[
         return []
 
 
-def download_pdf_from_minio(pdf_info: PDFInfo, temp_dir: str, bucket_name: str = "biorxiv-unpacked") -> Optional[str]:
+def download_pdf_from_minio(minio_client: minio.Minio, pdf_info: PDFInfo, temp_dir: str, bucket_name: str = "biorxiv-unpacked") -> Optional[str]:
     """Download a PDF from MinIO to a temporary directory"""
     try:
         # Create safe filename
@@ -321,13 +340,13 @@ def detect_sections(text: str) -> Dict[str, str]:
     return sections
 
 
-def process_pdf_text_extraction(pdf_info: PDFInfo) -> Optional[ExtractedText]:
+def process_pdf_text_extraction(minio_client: minio.Minio, pdf_info: PDFInfo) -> Optional[ExtractedText]:
     """Main function to process PDF text extraction (Phase 1)"""
     try:
         # Create temporary directory for PDF processing
         with tempfile.TemporaryDirectory() as temp_dir:
             # Download PDF from MinIO
-            local_pdf_path = download_pdf_from_minio(pdf_info, temp_dir)
+            local_pdf_path = download_pdf_from_minio(minio_client, pdf_info, temp_dir)
             if not local_pdf_path:
                 return None
             
@@ -384,7 +403,7 @@ def process_pdf_text_extraction(pdf_info: PDFInfo) -> Optional[ExtractedText]:
         return None
 
 
-def batch_process_pdfs(pdf_list: List[PDFInfo]) -> List[ExtractedText]:
+def batch_process_pdfs(minio_client: minio.Minio, pdf_list: List[PDFInfo]) -> List[ExtractedText]:
     """Process multiple PDFs in batch"""
     extracted_texts = []
     
@@ -393,7 +412,7 @@ def batch_process_pdfs(pdf_list: List[PDFInfo]) -> List[ExtractedText]:
     for i, pdf_info in enumerate(pdf_list, 1):
         logging.info(f"Processing PDF {i}/{len(pdf_list)}: {pdf_info.pdf_name}")
         
-        extracted_text = process_pdf_text_extraction(pdf_info)
+        extracted_text = process_pdf_text_extraction(minio_client, pdf_info)
         if extracted_text:
             extracted_texts.append(extracted_text)
         else:
@@ -464,7 +483,7 @@ class GeminiProcessingResult:
 def count_tokens_gemini(text: str) -> int:
     """Count tokens using Gemini's official tokenizer"""
     try:        
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.0-flash-exp', api_key=os.getenv('GOOGLE_API_KEY'))
         response = model.count_tokens(text)
         return response.total_tokens
     except Exception as e:
@@ -474,43 +493,45 @@ def count_tokens_gemini(text: str) -> int:
 
 
 
-def build_gemini_prompt(extracted_texts: List[ExtractedText], sections: List[str], instructions: str) -> GeminiProcessingResult:
+def build_gemini_prompt(
+    extracted_text: ExtractedText, 
+    sections: List[str], 
+    instructions: str) -> GeminiProcessingResult:
     """Build a Gemini prompt for the specified sections and instructions"""
     # Handle both single ExtractedText and list of ExtractedText objects
-    if isinstance(extracted_texts, list):
-        if not extracted_texts:
+    
+    if isinstance(extracted_text, ExtractedText):
+        if not extracted_text:
             logging.warning("No extracted texts provided")
             return instructions
         
         # Process all extracted texts
         all_context_parts = []
-        for i, extracted_text in enumerate(extracted_texts):
-            available_sections = list(extracted_text.sections.keys())
-            
-            # Check if 'all' is requested
-            if 'all' in sections:
-                valid_sections = available_sections
-                invalid_sections = []
-            else:
-                valid_sections = [section for section in sections if section in available_sections]
-                invalid_sections = [section for section in sections if section not in available_sections]
-
-            if invalid_sections:
-                logging.warning(f"Sections not found in {extracted_text.pdf_name}: {invalid_sections}")
-
-            if not valid_sections:
-                logging.warning(f"No valid sections found in {extracted_text.pdf_name}")
-                paper_context = extracted_text.full_text
-            else:
-                context_parts = []
-                for section in valid_sections:
-                    context_parts.append(f"## {section.upper()}\n{extracted_text.sections[section]}")
-                paper_context = "\n\n".join(context_parts)
-            
-            # Add paper identifier and context
-            all_context_parts.append(f"# PAPER {i+1}: {extracted_text.pdf_name}\n{paper_context}")
+        available_sections = list(extracted_text.sections.keys())
         
-        context = "\n\n" + "="*80 + "\n\n".join(all_context_parts)
+        # Check if 'all' is requested
+        if 'all' in sections:
+            valid_sections = available_sections
+            invalid_sections = []
+        else:
+            valid_sections = [section for section in sections if section in available_sections]
+            invalid_sections = [section for section in sections if section not in available_sections]
+
+        if invalid_sections:
+            logging.warning(f"Sections not found in {extracted_text.pdf_name}: {invalid_sections}")
+
+        if not valid_sections:
+            logging.warning(f"No valid sections found in {extracted_text.pdf_name}")
+            paper_context = extracted_text.full_text
+        else:
+            context_parts = []
+            for section in valid_sections:
+                context_parts.append(f"## {section.upper()}\n{extracted_text.sections[section]}")
+            paper_context = "\n\n".join(context_parts)
+        
+        # Add paper identifier and context
+        all_context_parts.append(f"# PAPER: {extracted_text.pdf_name}\n{paper_context}")
+        context = "\n\n".join(all_context_parts)
     else:
         logging.warning("No extracted texts provided")
         return instructions
@@ -570,7 +591,8 @@ def get_response_from_gemini(prompt: GeminiProcessingResult) -> str:
 # ======= HELPER FUNCTIONS ===========
 
 def fetch_pdfs_from_minio(
-    bucket: str = "biorxiv-papers", 
+    minio_client: minio.Minio,
+    bucket: str = "biorxiv-papers",
     max_pdfs: int = 10, 
     include_supplements: bool = True
 ) -> List[PDFInfo]:
@@ -857,7 +879,7 @@ def ensure_qdrant_collection_exists(client: QdrantClient, collection_name: str =
         return False
 
 
-def get_collection_info(client: QdrantClient, collection_name: str = None) -> Dict:
+def get_qdrant_collection_info(client: QdrantClient, collection_name: str = None) -> Dict:
     """Get information about the Gemini responses collection"""
     if collection_name is None:
         collection_name = QDRANT_COLLECTION
@@ -879,7 +901,7 @@ def get_collection_info(client: QdrantClient, collection_name: str = None) -> Di
         return {}
 
 
-def delete_gemini_collection(client: QdrantClient, collection_name: str = None) -> bool:
+def delete_qdrant_collection(client: QdrantClient, collection_name: str = None) -> bool:
     """Delete the Gemini responses collection (use with caution!)"""
     if collection_name is None:
         collection_name = QDRANT_COLLECTION
@@ -891,6 +913,7 @@ def delete_gemini_collection(client: QdrantClient, collection_name: str = None) 
     except Exception as e:
         logging.error(f"Error deleting collection: {e}")
         return False
+
 
 
 @dataclass
@@ -945,10 +968,264 @@ class GeminiEmbeddingProvider:
             logging.error(f"Error generating embedding: {e}")
             raise
 
-    def embed_gemini_response(self, gemini_response: GeminiProcessingResult) -> EmbeddingResult:
+    def embed_gemini_response(self, gemini_response: str, max_length: int = 8000) -> EmbeddingResult:
+        """Generate embedding for Geminiresponse with text truncated if needed"""
+        try:
+            try:
+                response_data = json.loads(gemini_response)
+                if isinstance(response_data, dict):
+                    text_content = self._extract_text_from_json(response_data)
+                else:
+                    text_content = str(response_data)
+            except (json.JSONDecodeError, TypeError):
+                text_content = gemini_response
+
+            if len(text_content) > max_length:
+                text_content = text_content[:max_length]
+                logging.warning(f"Text content truncated to {max_length} characters")
+
+            return self.embed_text(text_content)
+        
+        except Exception as e:
+            logging.error(f"Error generating embedding: {e}")
+            raise
+
+    def _extract_text_from_json(self, data: Dict) -> str:
+        """Extract text content from JSON structure based on Gemini response template"""
+        try:
+            # Handle the specific Gemini response template structure
+            text_parts = []
+            
+            # Extract metadata information
+            if 'metadata' in data and isinstance(data['metadata'], dict):
+                metadata = data['metadata']
+                if 'title' in metadata:
+                    text_parts.append(f"Title: {metadata['title']}")
+                if 'abstract' in metadata:
+                    text_parts.append(f"Abstract: {metadata['abstract']}")
+                if 'authors' in metadata and isinstance(metadata['authors'], list):
+                    authors = ", ".join(metadata['authors'])
+                    text_parts.append(f"Authors: {authors}")
+                if 'doi' in metadata:
+                    text_parts.append(f"DOI: {metadata['doi']}")
+            
+            # Extract hypotheses content (main content)
+            if 'extracted_content' in data and isinstance(data['extracted_content'], dict):
+                extracted = data['extracted_content']
+                
+                if 'hypotheses' in extracted and isinstance(extracted['hypotheses'], list):
+                    for i, hypothesis in enumerate(extracted['hypotheses'], 1):
+                        if isinstance(hypothesis, dict):
+                            text_parts.append(f"\n--- Hypothesis {i} ---")
+                            
+                            # Core hypothesis text
+                            if 'text' in hypothesis:
+                                text_parts.append(f"Text: {hypothesis['text']}")
+                            
+                            # Motivation
+                            if 'motivation' in hypothesis:
+                                text_parts.append(f"Motivation: {hypothesis['motivation']}")
+                            
+                            # Conceptual approaches
+                            if 'conceptual_approaches' in hypothesis and isinstance(hypothesis['conceptual_approaches'], list):
+                                approaches = "; ".join(hypothesis['conceptual_approaches'])
+                                text_parts.append(f"Conceptual Approaches: {approaches}")
+                            
+                            # Validation approaches
+                            if 'validation_approaches' in hypothesis and isinstance(hypothesis['validation_approaches'], dict):
+                                validation = hypothesis['validation_approaches']
+                                if 'experimental' in validation:
+                                    text_parts.append(f"Experimental Validation: {validation['experimental']}")
+                                if 'statistical' in validation and isinstance(validation['statistical'], list):
+                                    stats = "; ".join(validation['statistical'])
+                                    text_parts.append(f"Statistical Validation: {stats}")
+                            
+                            # Datasets
+                            if 'datasets' in hypothesis and isinstance(hypothesis['datasets'], list):
+                                datasets = "; ".join(hypothesis['datasets'])
+                                text_parts.append(f"Datasets: {datasets}")
+                            
+                            # Results
+                            if 'results' in hypothesis and isinstance(hypothesis['results'], dict):
+                                results = hypothesis['results']
+                                if 'outcome' in results:
+                                    text_parts.append(f"Outcome: {results['outcome']}")
+                                if 'explanation' in results:
+                                    text_parts.append(f"Explanation: {results['explanation']}")
+                            
+                            # Discussion
+                            if 'discussion' in hypothesis:
+                                text_parts.append(f"Discussion: {hypothesis['discussion']}")
+                            
+                            # Future considerations
+                            if 'future_considerations' in hypothesis:
+                                text_parts.append(f"Future Considerations: {hypothesis['future_considerations']}")
+                            
+                            # Images
+                            if 'images' in hypothesis and isinstance(hypothesis['images'], list):
+                                for j, image in enumerate(hypothesis['images'], 1):
+                                    if isinstance(image, dict):
+                                        image_text = f"Image {j}"
+                                        if 'figure_number' in image:
+                                            image_text += f" (Figure {image['figure_number']})"
+                                        if 'caption' in image:
+                                            image_text += f": {image['caption']}"
+                                        text_parts.append(image_text)
+            
+            # Add processing timestamp if available
+            if 'processing_timestamp' in data:
+                text_parts.append(f"Processed: {data['processing_timestamp']}")
+            
+            # Join all text parts
+            if text_parts:
+                return "\n".join(text_parts)
+            
+            # Fallback: try common fields from original implementation
+            common_fields = ['content', 'text', 'response', 'answer', 'summary', 'analysis', 'result', 'output']
+            for field in common_fields:
+                if field in data and isinstance(data[field], str):
+                    return data[field]
+            
+            # Final fallback: convert entire structure to string
+            return json.dumps(data, indent=2)
+            
+        except Exception as e:
+            logging.warning(f"Error extracting text from JSON: {e}")
+            # Fallback to original structure
+            return json.dumps(data, indent=2)
+
+
+def get_embedding_provider() -> GeminiEmbeddingProvider:
+    """Get a configured embedding provider"""
+    return GeminiEmbeddingProvider()
+
+
+@dataclass
+class StoredGeminiResponse:
+    """Data class to store a Gemini response in Qdrant"""
+    point_id: str
+    pdf_hash: str
+    pdf_name: str
+    s3_key: str
+    gemini_response: str
+    embedding_vector: List[float]
+    sections_used: List[str]
+    token_count: int
+    processed_at: datetime
+    metadata: Dict[str, any]
+
+
+def store_gemini_response_in_qdrant(
+    client: QdrantClient,
+    gemini_result: GeminiProcessingResult,
+    embedding_result: EmbeddingResult,
+    collection_name: str = None
+) -> Optional[StoredGeminiResponse]:
+    """Store a Gemini response in Qdrant"""
+    if collection_name is None:
+        collection_name = QDRANT_COLLECTION
+
+    try:
+        point_id = f"gemini_{gemini_result.pdf_hash}_{int(time.time())}"
+        
+        payload = {
+            "pdff_hash": gemini_result.pdf_hash,
+            "pdf_name": gemini_result.pdf_name,
+            "s3_key": gemini_result.s3_key,
+            "gemini_response": gemini_result.response,
+            "sections_used": gemini_result.sections_used,
+            "token_count": gemini_result.token_count,
+            "context_length": gemini_result.context_length,
+            "instructions": gemini_result.instructions,
+            "prompt_template": gemini_result.prompt_template,
+            "processed_at": gemini_result.processed_at.isoformat(),
+            "embedding_model": embedding_result.model,
+            "embedding_text_length": embedding_result.text_length,
+            "embedding_token_count": embedding_result.token_count,
+            "embedding_created_at": embedding_result.created_at.isoformat(),
+            "metadata": gemini_result.metadata
+        }
+
+        point = PointStruct(
+            id=point_id,
+            payload=payload,
+            vector=embedding_result.vector
+        )
+
+        client.upsert(
+            collection_name=collection_name,
+            points=[point]
+        )
+
+        logging.info(f"Successfully stored Gemini response for {gemini_result.pdf_hash} in Qdrant: {point_id}")
+
+        return StoredGeminiResponse(
+            point_id=point_id,
+            pdf_hash=gemini_result.pdf_hash,
+            pdf_name=gemini_result.pdf_name,
+            s3_key=gemini_result.s3_key,
+            gemini_response=gemini_result.response,
+            embedding_vector=embedding_result.vector,
+            sections_used=gemini_result.sections_used,
+            token_count=gemini_result.token_count,
+            processed_at=gemini_result.processed_at,
+            metadata=gemini_result.metadata
+        )
+
+    except Exception as e:
+        logging.error(f"Error storing Gemini response in Qdrant: {e}")
+        return None
+
+
+def batch_store_gemini_responses(
+    client: QdrantClient,
+    gemini_results: List[GeminiProcessingResult],
+    collection_name: str = None
+) -> List[StoredGeminiResponse]:
+    """Batch store Gemini responses in Qdrant"""
+    if collection_name is None:
+        collection_name = QDRANT_COLLECTION
+
+    stored_responses = []
+    embedding_provider = get_embedding_provider()
+
+    logging.info(f"Batch storing {len(gemini_results)} Gemini responses in Qdrant...")
+
+    for i, gemini_result in enumerate(gemini_results, 1):
+        try:
+            logging.info(f"Storing Gemini response {i}/{len(gemini_results)} Gemini responses...")
+            embedding_result = embedding_provider.embed_gemini_response(gemini_result.response)
+            stored_response = store_gemini_response_in_qdrant(
+                client, gemini_result, embedding_result, collection_name
+            )
+
+            if stored_response:
+                stored_responses.append(stored_response)
+            else:
+                logging.warning(f"Failed to store Gemini response for {gemini_result.pdf_hash}")
+
+        except Exception as e:
+            logging.error(f"Error processing response {i}: {e}")
+            continue
+
+    logging.info(f"Successfully stored {len(stored_responses)}/{len(gemini_results)} Gemini responses in Qdrant")
+    return stored_responses
+
+
+# SEARCHING
+def search_gemini_responses(client: QdrantClient, query_text: str, collection_name: str = None,) -> List[StoredGeminiResponse]:
+    """Search for Gemini responses in Qdrant using vector search"""
+    pass
+
+def get_gemini_response_by_id(client: QdrantClient, point_id: str, collection_name: str = None) -> Optional[Dict[str, any]]:
+    pass
+
+def delete_gemini_response_by_id(client: QdrantClient, point_id: str, collection_name: str = None) -> bool:
+    pass
+
+
 
 # MAIN FUNCTION
-
 def main():
     setup_logger(verbosity=1)
 
@@ -960,14 +1237,18 @@ def main():
     parser.add_argument("--skip-database", action="store_true", help="Skip PostgreSQL database processing")
     args = parser.parse_args()
 
+    minio_client = get_minio_client()
+    qdrant_client = get_qdrant_client()
+
     try:
-        # Test database connection
+        # 1. Test database connection
         if not args.skip_database:
             print("Testing database connection...")
             test_database_connection()
 
-        # Fetch PDFs from MinIO
+        # 2. Fetch PDFs from MinIO
         pdfs = fetch_pdfs_from_minio(
+            minio_client,
             bucket=args.bucket,
             max_pdfs=args.max_pdfs,
             include_supplements=args.include_supplements
@@ -977,33 +1258,38 @@ def main():
             logging.error("No PDFs found to process")
             return
 
-        # breakpoint()
-
-        # Process PDFs
+        # 3. Extract text from PDFs
         logging.info(f"Starting to process {len(pdfs)} PDFs...")
-        extracted_texts = batch_process_pdfs(pdfs)
+        extracted_texts = batch_process_pdfs(minio_client, pdfs)
+        logging.info("PDF processing completed successfully!")
 
-        # Save extracted texts to database
-        if not args.skip_database:
+        # 4. Save extracted texts to database
+        logging.info("Starting Gemini processing...")
+        gemini_processing_results = []
+        if not args.skip_database:        
             logging.info(f"Saving {len(extracted_texts)} extracted texts to database...")
             for extracted_text in extracted_texts:
                 save_extracted_text(extracted_text)
+                gemini_processing_result = build_gemini_prompt(
+                    extracted_text, 
+                    "all", 
+                    gemini_processing_instructions)
+                gemini_processing_results.append(gemini_processing_result)
 
-        logging.info("PDF processing completed successfully!")
-        logging.info("Starting Gemini processing...")
-        
-        prompt = build_gemini_prompt(extracted_texts, "all", gemini_processing_instructions)
-        
-        logging.info(f"Gemini prompt: {prompt.prompt_preview}...")
-        logging.info(f"Number of tokens in prompt: {prompt.token_count}. Is too long: {prompt.is_too_long}.")
-        
-        breakpoint()
-        
-        response = get_response_from_gemini(prompt=prompt)
+            for result in gemini_processing_results:
+                # 6. Generate the RAG document and store save it 
+                # in GeminiProcessingResult object for each of the extracted texts
+                result.response = get_response_from_gemini(prompt=result)
 
-        breakpoint()
+            logging.info("Gemini processing completed successfully!")
+       
 
-        logging.info("Gemini processing completed successfully!")
+        # 7. Store the Gemini response an dembeddings in Qdrant
+        if not args.skip_database:
+            logging.info(f"Storing {len(extracted_texts)} Gemini responses in Qdrant...")
+            batch_store_gemini_responses(
+                qdrant_client, gemini_processing_results, collection_name=QDRANT_COLLECTION
+            )
     
     except Exception as e:
         logging.error(f"Error in main function: {e}")
