@@ -534,7 +534,8 @@ def build_gemini_prompt(
         context = "\n\n".join(all_context_parts)
     else:
         logging.warning("No extracted texts provided")
-        return instructions
+        # return instructions
+        return None
     
     prompt = f"CONTEXT:\n{context}\n\nINSTRUCTIONS:\n{instructions}"
     token_count = count_tokens_gemini(prompt)
@@ -825,6 +826,54 @@ def test_database_connection():
             conn.close()
 
 
+def save_gemini_response_to_postgres(gemini_result: GeminiProcessingResult) -> bool:
+    """Save Gemini response to PostgreSQL"""
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Insert into gemini_responses table
+            cur.execute("""
+                INSERT INTO gemini_responses (
+                    pdf_hash, s3_key, pdf_name, gemini_response, 
+                    sections_used, token_count, context_length,
+                    instructions, prompt_template, processed_at, metadata
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (pdf_hash) 
+                DO UPDATE SET 
+                    gemini_response = EXCLUDED.gemini_response,
+                    sections_used = EXCLUDED.sections_used,
+                    token_count = EXCLUDED.token_count,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (
+                gemini_result.pdf_hash,
+                gemini_result.s3_key,
+                gemini_result.pdf_name,
+                json.dumps(gemini_result.response) if isinstance(gemini_result.response, str) else json.dumps(gemini_result.response),
+                gemini_result.sections_used,
+                gemini_result.token_count,
+                gemini_result.context_length,
+                gemini_result.instructions,
+                gemini_result.prompt_template,
+                gemini_result.processed_at,
+                json.dumps(gemini_result.metadata)
+            ))
+            
+            conn.commit()
+            logging.info(f"Saved Gemini response for {gemini_result.pdf_name} to PostgreSQL")
+            return True
+            
+    except Exception as e:
+        logging.error(f"Error saving Gemini response to PostgreSQL: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def batch_store_gemini_responses_in_postgres(gemini_processing_results: List[GeminiProcessingResult]) -> None:
+    """Store list ofGemini responses in PostgreSQL database"""
+    pass
+
 # QDRANT FUNCTIONS
 def get_qdrant_client() -> QdrantClient:
     """Get a Qdrant client connection"""
@@ -968,7 +1017,7 @@ class GeminiEmbeddingProvider:
             logging.error(f"Error generating embedding: {e}")
             raise
 
-    def embed_gemini_response(self, gemini_response: str, max_length: int = 8000) -> EmbeddingResult:
+    def embed_gemini_response(self, gemini_response: str, max_length: int = 20000) -> EmbeddingResult:
         """Generate embedding for Geminiresponse with text truncated if needed"""
         try:
             try:
@@ -1118,7 +1167,7 @@ class StoredGeminiResponse:
 def store_gemini_response_in_qdrant(
     client: QdrantClient,
     gemini_result: GeminiProcessingResult,
-    embedding_result: EmbeddingResult,
+    # embedding_result: EmbeddingResult,
     collection_name: str = None
 ) -> Optional[StoredGeminiResponse]:
     """Store a Gemini response in Qdrant"""
@@ -1212,6 +1261,9 @@ def batch_store_gemini_responses(
     return stored_responses
 
 
+# def
+
+
 # SEARCHING
 def search_gemini_responses(client: QdrantClient, query_text: str, collection_name: str = None,) -> List[StoredGeminiResponse]:
     """Search for Gemini responses in Qdrant using vector search"""
@@ -1282,9 +1334,16 @@ def main():
                 result.response = get_response_from_gemini(prompt=result)
 
             logging.info("Gemini processing completed successfully!")
-       
 
-        # 7. Store the Gemini response an dembeddings in Qdrant
+        breakpoint() # TODO: Remove this
+
+        # 7. Store Gemini responses in PostgreSQL database
+        if not args.skip_database:
+            logging.info(f"Storing {len(gemini_processing_results)} Gemini responses in PostgreSQL database...")
+            batch_store_gemini_responses_in_postgres(gemini_processing_results)
+        
+
+        # 7. Store the Gemini response and embeddings in Qdrant
         if not args.skip_database:
             logging.info(f"Storing {len(extracted_texts)} Gemini responses in Qdrant...")
             batch_store_gemini_responses(

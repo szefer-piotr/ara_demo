@@ -53,6 +53,30 @@ CREATE TABLE IF NOT EXISTS processing_logs (
     FOREIGN KEY (pdf_hash) REFERENCES pdf_processing_state(pdf_hash)
 );
 
+CREATE TABLE gemini_responses (
+    id SERIAL PRIMARY KEY,
+    pdf_hash VARCHAR(64) REFERENCES pdf_processing_state(pdf_hash),
+    s3_key VARCHAR(255),
+    pdf_name VARCHAR(255),
+    gemini_response JSONB NOT NULL,
+    sections_used TEXT[],
+    token_count INTEGER,
+    context_length INTEGER,
+    instructions TEXT,
+    prompt_template TEXT,
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add indexes for better performance
+CREATE INDEX idx_gemini_responses_pdf_hash ON gemini_responses(pdf_hash);
+CREATE INDEX idx_gemini_responses_s3_key ON gemini_responses(s3_key);
+CREATE INDEX idx_gemini_responses_processed_at ON gemini_responses(processed_at);
+CREATE INDEX idx_gemini_responses_json_gin ON gemini_responses USING GIN (gemini_response);
+
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_pdf_processing_status ON pdf_processing_state(status);
 CREATE INDEX IF NOT EXISTS idx_pdf_processing_created_at ON pdf_processing_state(created_at);
