@@ -16,7 +16,7 @@ from typing import Any, List
 from utils import mock_llm, create_web_search_tool, create_code_interpreter_tool, get_llm_response
 
 from schemas import ColumnSummary, DatasetSummary
-from instructions import data_summary_instructions
+from utils.prompt_templates import data_summary_instructions
 
 st.set_page_config(layout="wide")
 
@@ -30,7 +30,7 @@ if "analyses" not in st.session_state:
     st.session_state["analyses"] = []      # list of hypothesis-level dictionaries
 
 if "openai_client" not in st.session_state:
-    st.session_state.openai_client = OpenAI()
+    st.session_state.openai_client = OpenAI(base_url="http://localhost:4000/v1")
 
 if "file_ids" not in st.session_state:
     st.session_state["file_ids"] = []

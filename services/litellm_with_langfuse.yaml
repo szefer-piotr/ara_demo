@@ -1,0 +1,32 @@
+version: '3.8'
+
+include:
+  - litellm/service.yaml
+  - langfuse/service.yaml
+
+services:
+  init-request-integrate-litellm-with-langfuse:
+    container_name: init_request_for_litellm_and_langfuse
+    image: curlimages/curl:latest
+    entrypoint: ["sh", "-c"]
+    command:
+    - |
+      curl litellm:4000/v1/chat/completions \
+        -H "Content-Type: application/json" \
+        -d '{
+          "model": "gpt-4o-mini",
+          "max_tokens": 1,
+          "messages": [
+            { "role": "user", "content": "Init message." }
+          ],
+          "metadata": {
+            "trace_user_id": "init_request"
+          }
+        }'
+    depends_on:
+      litellm:
+        condition: service_healthy
+      langfuse-worker:
+        condition: service_healthy
+      langfuse-web:
+        condition: service_healthy

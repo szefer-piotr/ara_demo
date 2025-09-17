@@ -1,3 +1,26 @@
-env/
+# Python envs & secrets
 .env
-rag_agent/vectorstore/books/*
+.env.*
+venv/
+.venv/
+env/
+
+# App data (don’t commit)
+rag_agent/
+rag_agent/vectorstore/books/
+rag_agent/arxiv_pdfs/
+rag_agent/preprocessed/
+minio/minio_data/
+qdrant/qdrant_data/
+vectorstore/
+data/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Files
+chunks_quality.csv
+out/*
+
+MECA_packages/

@@ -1,0 +1,51 @@
+version: "3.8"
+
+# services:
+#   biorxiv-postgres:
+#     image: postgres:16
+#     container_name: biorxiv-postgres
+#     restart: unless-stopped
+#     env_file:
+#       - ../../.env
+#     environment:
+#     #   POSTGRES_DB: ${BIORXIV_DB_NAME:-biorxiv_processing}
+#       # POSTGRES_USER: ${BIORXIV_DB_USER:-biorxiv_user}
+#       POSTGRES_USER: postgres
+#       # POSTGRES_PASSWORD: ${BIORXIV_DB_PASSWORD:-biorxiv_password}
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     volumes:
+#       - ../../data/postgres-biorxiv:/var/lib/postgresql/data
+#       - ../../config/postgres-biorxiv/init:/docker-entrypoint-initdb.d
+#     healthcheck:
+#       # test: ["CMD-SHELL", "pg_isready -U ${BIORXIV_DB_USER:-biorxiv_user} -d ${BIORXIV_DB_NAME:-biorxiv_processing}"]
+#       # test: ["CMD-SHELL", "pg_isready -U ${BIORXIV_DB_USER:-biorxiv_user} -d postgres"]
+#       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+#       interval: 5s
+#       timeout: 3s
+#       retries: 10
+
+
+services:
+  biorxiv-postgres:
+    container_name: biorxiv-postgres
+    image: postgres:16
+    restart: always
+    env_file:
+      - ../../.env
+    # user: root
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 9999:5432
+    volumes:
+      - ../../data/postgres-biorxiv:/var/lib/postgresql/data
+      - ../../config/postgres-biorxiv/init:/docker-entrypoint-initdb.d

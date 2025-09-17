@@ -13,7 +13,7 @@ from utils import (
     explode_text_and_images,
     render_assistant_message
 )
-from instructions import report_generation_instructions, report_chat_instructions
+from utils.prompt_templates import report_generation_instructions, report_chat_instructions
 
 from st_copy import copy_button
 
