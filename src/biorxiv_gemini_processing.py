@@ -89,11 +89,11 @@ def get_minio_client() -> minio.Minio:
     """Get a MinIO client connection"""
     try:
         client = minio.Minio(
-            MINIO_ENDPOINT,
-            access_key=MINIO_ACCESS_KEY,
-            secret_key=MINIO_SECRET_KEY,
-            secure=MINIO_SECURE
-        )
+        MINIO_ENDPOINT,
+        access_key=MINIO_ACCESS_KEY,
+        secret_key=MINIO_SECRET_KEY,
+        secure=MINIO_SECURE
+    )
         
         # Test the connection by listing buckets
         client.list_buckets()
@@ -974,7 +974,7 @@ def delete_qdrant_collection(client: QdrantClient, collection_name: str = None) 
 
 
 # SEARCHING
-def search_gemini_responses(client: QdrantClient, query_text: str, collection_name: str = None,) -> List[StoredGeminiResponse]:
+def search_gemini_responses(client: QdrantClient, query_text: str, collection_name: str = None) -> List[Dict]:
     """Search for Gemini responses in Qdrant using vector search"""
     pass
 
@@ -1580,7 +1580,7 @@ def main():
         if not args.skip_database:
             print("Testing database connection...")
             test_database_connection()
-        
+
         if not args.skip_mongodb:
             print("Testing MongoDB connection...")
             test_mongodb_connection()
@@ -1605,7 +1605,7 @@ def main():
         # 4. Save extracted texts to database
         logging.info("Starting Gemini processing...")
         gemini_processing_results = []
-        if not args.skip_database:        
+        if not args.skip_database:
             logging.info(f"Saving {len(extracted_texts)} extracted texts to database...")
             for extracted_text in extracted_texts:
                 save_extracted_text(extracted_text)
@@ -1622,19 +1622,15 @@ def main():
 
             logging.info("Gemini processing completed successfully!")
 
-        breakpoint() # TODO: Remove this
-
         # 7. Store PDF processing results in PostgreSQL database
-        if not args.skip_database:
-            logging.info(f"Storing {len(gemini_processing_results)} Gemini responses in PostgreSQL database...")
-            batch_store_gemini_responses_in_postgres(gemini_processing_results)
-        
+        # if not args.skip_database:
+        #     logging.info(f"Storing {len(gemini_processing_results)} Gemini responses in PostgreSQL database...")
+        #     batch_store_gemini_responses_in_postgres(gemini_processing_results)
 
         # 7. Store the Gemini JSON responses in MongoDB
         if not args.skip_mongodb:
             logging.info(f"Storing {len(gemini_processing_results)} Gemini JSONresponses in MongoDB...")
             batch_store_gemini_responses_in_mongodb(gemini_processing_results)
-
 
         # 8. Store the Gemini response and embeddings in Qdrant
         if not args.skip_embeddings:
