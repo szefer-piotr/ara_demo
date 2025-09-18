@@ -964,6 +964,19 @@ def delete_qdrant_collection(client: QdrantClient, collection_name: str = None) 
         return False
 
 
+# SEARCHING
+def search_gemini_responses(client: QdrantClient, query_text: str, collection_name: str = None,) -> List[StoredGeminiResponse]:
+    """Search for Gemini responses in Qdrant using vector search"""
+    pass
+
+
+def get_gemini_response_by_id(client: QdrantClient, point_id: str, collection_name: str = None) -> Optional[Dict[str, any]]:
+    pass
+
+
+def delete_gemini_response_by_id(client: QdrantClient, point_id: str, collection_name: str = None) -> bool:
+    pass
+
 
 @dataclass
 class EmbeddingResult:
@@ -1157,123 +1170,20 @@ class StoredGeminiResponse:
     pdf_name: str
     s3_key: str
     gemini_response: str
-    embedding_vector: List[float]
     sections_used: List[str]
     token_count: int
     processed_at: datetime
     metadata: Dict[str, any]
 
 
-def store_gemini_response_in_qdrant(
-    client: QdrantClient,
-    gemini_result: GeminiProcessingResult,
-    # embedding_result: EmbeddingResult,
-    collection_name: str = None
-) -> Optional[StoredGeminiResponse]:
-    """Store a Gemini response in Qdrant"""
-    if collection_name is None:
-        collection_name = QDRANT_COLLECTION
-
-    try:
-        point_id = f"gemini_{gemini_result.pdf_hash}_{int(time.time())}"
-        
-        payload = {
-            "pdff_hash": gemini_result.pdf_hash,
-            "pdf_name": gemini_result.pdf_name,
-            "s3_key": gemini_result.s3_key,
-            "gemini_response": gemini_result.response,
-            "sections_used": gemini_result.sections_used,
-            "token_count": gemini_result.token_count,
-            "context_length": gemini_result.context_length,
-            "instructions": gemini_result.instructions,
-            "prompt_template": gemini_result.prompt_template,
-            "processed_at": gemini_result.processed_at.isoformat(),
-            "embedding_model": embedding_result.model,
-            "embedding_text_length": embedding_result.text_length,
-            "embedding_token_count": embedding_result.token_count,
-            "embedding_created_at": embedding_result.created_at.isoformat(),
-            "metadata": gemini_result.metadata
-        }
-
-        point = PointStruct(
-            id=point_id,
-            payload=payload,
-            vector=embedding_result.vector
-        )
-
-        client.upsert(
-            collection_name=collection_name,
-            points=[point]
-        )
-
-        logging.info(f"Successfully stored Gemini response for {gemini_result.pdf_hash} in Qdrant: {point_id}")
-
-        return StoredGeminiResponse(
-            point_id=point_id,
-            pdf_hash=gemini_result.pdf_hash,
-            pdf_name=gemini_result.pdf_name,
-            s3_key=gemini_result.s3_key,
-            gemini_response=gemini_result.response,
-            embedding_vector=embedding_result.vector,
-            sections_used=gemini_result.sections_used,
-            token_count=gemini_result.token_count,
-            processed_at=gemini_result.processed_at,
-            metadata=gemini_result.metadata
-        )
-
-    except Exception as e:
-        logging.error(f"Error storing Gemini response in Qdrant: {e}")
-        return None
 
 
-def batch_store_gemini_responses(
-    client: QdrantClient,
-    gemini_results: List[GeminiProcessingResult],
-    collection_name: str = None
-) -> List[StoredGeminiResponse]:
-    """Batch store Gemini responses in Qdrant"""
-    if collection_name is None:
-        collection_name = QDRANT_COLLECTION
-
-    stored_responses = []
-    embedding_provider = get_embedding_provider()
-
-    logging.info(f"Batch storing {len(gemini_results)} Gemini responses in Qdrant...")
-
-    for i, gemini_result in enumerate(gemini_results, 1):
-        try:
-            logging.info(f"Storing Gemini response {i}/{len(gemini_results)} Gemini responses...")
-            embedding_result = embedding_provider.embed_gemini_response(gemini_result.response)
-            stored_response = store_gemini_response_in_qdrant(
-                client, gemini_result, embedding_result, collection_name
-            )
-
-            if stored_response:
-                stored_responses.append(stored_response)
-            else:
-                logging.warning(f"Failed to store Gemini response for {gemini_result.pdf_hash}")
-
-        except Exception as e:
-            logging.error(f"Error processing response {i}: {e}")
-            continue
-
-    logging.info(f"Successfully stored {len(stored_responses)}/{len(gemini_results)} Gemini responses in Qdrant")
-    return stored_responses
 
 
-# def
 
 
-# SEARCHING
-def search_gemini_responses(client: QdrantClient, query_text: str, collection_name: str = None,) -> List[StoredGeminiResponse]:
-    """Search for Gemini responses in Qdrant using vector search"""
-    pass
 
-def get_gemini_response_by_id(client: QdrantClient, point_id: str, collection_name: str = None) -> Optional[Dict[str, any]]:
-    pass
 
-def delete_gemini_response_by_id(client: QdrantClient, point_id: str, collection_name: str = None) -> bool:
-    pass
 
 
 
