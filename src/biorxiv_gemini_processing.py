@@ -11,11 +11,14 @@ import string
 import tempfile
 import hashlib
 import re
-from token import OP
 import psycopg2
 import minio
 import google.generativeai as genai
+import pymongo
 
+from token import OP
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, DuplicateKeyError
 from psycopg2.extras import RealDictCursor
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, asdict
@@ -55,9 +58,6 @@ DB_NAME = "postgres"
 DB_USER = "postgres"
 DB_PASSWORD = "postgres"
 
-
-
-
 # Minio configuration
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "localhost:9002")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
@@ -65,10 +65,18 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
 MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
 MINIO_BUCKET = os.getenv("MINIO_BUCKET", "biorxiv-papers")
 
+# Qdrant configuration
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", None)
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "gemini_responses")
 
+# MongoDB configuration
+MONGODB_HOST = os.getenv("MONGODB_HOST", "localhost")
+MONGODB_PORT = int(os.getenv("MONGODB_PORT", "27017"))
+MONGODB_USERNAME = os.getenv("MONGODB_USERNAME", "admin")
+MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD", "admin123")
+MONGODB_DATABASE = os.getenv("MONGODB_DATABASE", "biorxiv_gemini")
+MONGODB_COLLECTION = os.getenv("MONGODB_COLLECTION", "gemini_responses")
 
 # minio_client = minio.Minio(
 #         MINIO_ENDPOINT,
@@ -118,6 +126,7 @@ class ExtractedText:
     metadata: Dict[str, any]
     extracted_at: datetime
     text_length: int
+
 
 @dataclass
 class ProcessingSatus(Enum):
@@ -490,7 +499,6 @@ def count_tokens_gemini(text: str) -> int:
         logging.warning(f"Could not count tokens with Gemini API: {e}")
         # Fallback to word-based approximation
         return int(len(text.split()) * 1.3)
-
 
 
 def build_gemini_prompt(
@@ -874,6 +882,7 @@ def batch_store_gemini_responses_in_postgres(gemini_processing_results: List[Gem
     """Store list ofGemini responses in PostgreSQL database"""
     pass
 
+
 # QDRANT FUNCTIONS
 def get_qdrant_client() -> QdrantClient:
     """Get a Qdrant client connection"""
@@ -1162,6 +1171,8 @@ def get_embedding_provider() -> GeminiEmbeddingProvider:
     return GeminiEmbeddingProvider()
 
 
+# =========== MONGODB FUNCTIONS ===========
+
 @dataclass
 class StoredGeminiResponse:
     """Data class to store a Gemini response in Qdrant"""
@@ -1175,15 +1186,375 @@ class StoredGeminiResponse:
     processed_at: datetime
     metadata: Dict[str, any]
 
+def get_mongodb_client() -> MongoClient:
+    """Get a MongoDB client connection"""
+    try:
+        # Build connection string
+        connection_string = f"mongodb://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@{MONGODB_HOST}:{MONGODB_PORT}/{MONGODB_DATABASE}?authSource=admin"
+        
+        client = MongoClient(
+            connection_string,
+            serverSelectionTimeoutMS=5000,  # 5 second timeout
+            connectTimeoutMS=10000,         # 10 second connection timeout
+            socketTimeoutMS=20000           # 20 second socket timeout
+        )
+        
+        # Test the connection
+        client.admin.command('ping')
+        logging.info(f"Connected to MongoDB at {MONGODB_HOST}:{MONGODB_PORT}")
+        return client
+        
+    except ConnectionFailure as e:
+        logging.error(f"Failed to connect to MongoDB: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Error connecting to MongoDB: {e}")
+        raise
 
 
+def get_mongodb_database(client: MongoClient):
+    """Get the MongoDB database"""
+    return client[MONGODB_DATABASE]
 
 
+def get_mongodb_collection(client: MongoClient, collection_name: str = None):
+    """Get the MongoDB collection"""
+    if collection_name is None:
+        collection_name = MONGODB_COLLECTION
+    
+    db = get_mongodb_database(client)
+    return db[collection_name]
 
 
+def setup_mongodb_indexes(client: MongoClient, collection_name: str = None):
+    """Setup indexes for the MongoDB collection with versioning support"""
+    try:
+        collection = get_mongodb_collection(client, collection_name)
+        
+        # Create single field indexes
+        indexes = [
+            ("pdf_hash", pymongo.ASCENDING),
+            ("config_key", pymongo.ASCENDING),
+            ("s3_key", pymongo.ASCENDING),
+            ("pdf_name", pymongo.ASCENDING),
+            ("created_at", pymongo.DESCENDING),  # Important for version ordering
+            ("version", pymongo.DESCENDING),
+            ("processed_at", pymongo.DESCENDING),
+            ("sections_used", pymongo.ASCENDING),
+            ("instructions", pymongo.ASCENDING),
+            ("prompt_template", pymongo.ASCENDING),
+            ("token_count", pymongo.ASCENDING)
+        ]
+        
+        for index_spec in indexes:
+            collection.create_index([index_spec])
+        
+        # Create compound indexes for efficient queries
+        compound_indexes = [
+            [("pdf_hash", pymongo.ASCENDING), ("created_at", pymongo.DESCENDING)],  # For getting latest version
+            [("sections_used", pymongo.ASCENDING), ("instructions", pymongo.ASCENDING), ("prompt_template", pymongo.ASCENDING)],  # For config matching
+            [("config_key", pymongo.ASCENDING), ("created_at", pymongo.DESCENDING)]  # For unique configs
+        ]
+        
+        for compound_index in compound_indexes:
+            collection.create_index(compound_index)
+        
+        # Note: We removed the unique constraint on pdf_hash since we now allow multiple versions
+        
+        logging.info(f"Successfully created indexes for collection '{collection_name}'")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Error creating MongoDB indexes: {e}")
+        return False
 
 
+def save_gemini_response_to_mongodb(gemini_result: GeminiProcessingResult, client: MongoClient = None) -> bool:
+    """Save Gemini response to MongoDB only if key fields have changed"""
+    try:
+        # Use provided client or create new one
+        if client is None:
+            client = get_mongodb_client()
+            close_client = True
+        else:
+            close_client = False
+        
+        collection = get_mongodb_collection(client)
+        
+        # Check if we need to save by comparing key fields
+        existing_record = collection.find_one(
+            {"pdf_hash": gemini_result.pdf_hash},
+            sort=[("created_at", -1)]  # Get the most recent record
+        )
+        
+        # Check if any of the key fields have changed
+        should_save = False
+        change_reason = []
+        
+        if existing_record is None:
+            should_save = True
+            change_reason.append("new record")
+        else:
+            # Compare sections_used (order-independent)
+            existing_sections = set(existing_record.get("sections_used", []))
+            new_sections = set(gemini_result.sections_used or [])
+            if existing_sections != new_sections:
+                should_save = True
+                change_reason.append("sections_used changed")
+            
+            # Compare instructions
+            existing_instructions = existing_record.get("instructions", "")
+            if existing_instructions != gemini_result.instructions:
+                should_save = True
+                change_reason.append("instructions changed")
+            
+            # Compare prompt_template
+            existing_template = existing_record.get("prompt_template", "")
+            if existing_template != gemini_result.prompt_template:
+                should_save = True
+                change_reason.append("prompt_template changed")
+        
+        if not should_save:
+            logging.info(f"No key field changes detected for {gemini_result.pdf_name}, skipping save")
+            return True
+        
+        logging.info(f"Saving Gemini response for {gemini_result.pdf_name}: {', '.join(change_reason)}")
+        
+        # Generate a unique key for this configuration
+        config_key = f"{gemini_result.pdf_hash}_{hash(str(sorted(gemini_result.sections_used or [])) + gemini_result.instructions + gemini_result.prompt_template)}"
+        
+        # Prepare document with version tracking
+        document = {
+            "pdf_hash": gemini_result.pdf_hash,
+            "config_key": config_key,  # Unique key for this configuration
+            "s3_key": gemini_result.s3_key,
+            "pdf_name": gemini_result.pdf_name,
+            "gemini_response": json.loads(gemini_result.response) if isinstance(gemini_result.response, str) else gemini_result.response,
+            "sections_used": gemini_result.sections_used,
+            "token_count": gemini_result.token_count,
+            "context_length": gemini_result.context_length,
+            "instructions": gemini_result.instructions,
+            "prompt_template": gemini_result.prompt_template,
+            "processed_at": gemini_result.processed_at,
+            "metadata": gemini_result.metadata,
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            "version": existing_record.get("version", 0) + 1 if existing_record else 1,
+            "change_reason": change_reason
+        }
+        
+        # Insert new document (not upsert, always create new version)
+        result = collection.insert_one(document)
+        
+        if result.inserted_id:
+            logging.info(f"Successfully saved Gemini response (v{document['version']}) for {gemini_result.pdf_name} to MongoDB")
+            return True
+        else:
+            logging.warning(f"Failed to save Gemini response for {gemini_result.pdf_name}")
+            return False
+            
+    except Exception as e:
+        logging.error(f"Error saving Gemini response to MongoDB: {e}")
+        return False
+        
+    finally:
+        if close_client and client:
+            client.close()
 
+
+def batch_store_gemini_responses_in_mongodb(gemini_processing_results: List[GeminiProcessingResult]) -> int:
+    """Store list of Gemini responses in MongoDB database with change detection"""
+    if not gemini_processing_results:
+        logging.warning("No Gemini responses to store")
+        return 0
+    
+    successful_saves = 0
+    client = None
+    
+    try:
+        client = get_mongodb_client()
+        
+        logging.info(f"Starting batch storage of {len(gemini_processing_results)} Gemini responses to MongoDB...")
+        
+        # Process each response individually to check for changes
+        for i, gemini_result in enumerate(gemini_processing_results, 1):
+            try:
+                logging.info(f"Processing response {i}/{len(gemini_processing_results)}: {gemini_result.pdf_name}")
+                
+                if save_gemini_response_to_mongodb(gemini_result, client):
+                    successful_saves += 1
+                    
+            except Exception as e:
+                logging.error(f"Error processing response {i} ({gemini_result.pdf_name}): {e}")
+                continue
+        
+        logging.info(f"Batch storage completed. Successfully processed {successful_saves}/{len(gemini_processing_results)} Gemini responses")
+        
+    except Exception as e:
+        logging.error(f"Error during batch storage: {e}")
+    
+    finally:
+        if client:
+            client.close()
+    
+    return successful_saves
+
+
+def get_gemini_response_history(pdf_hash: str, client: MongoClient = None) -> List[Dict]:
+    """Get all versions of Gemini responses for a given pdf_hash"""
+    try:
+        if client is None:
+            client = get_mongodb_client()
+            close_client = True
+        else:
+            close_client = False
+        
+        collection = get_mongodb_collection(client)
+        
+        # Get all records for this pdf_hash, sorted by creation time (newest first)
+        records = list(collection.find(
+            {"pdf_hash": pdf_hash}
+        ).sort("created_at", -1))
+        
+        logging.info(f"Found {len(records)} versions for pdf_hash: {pdf_hash}")
+        return records
+        
+    except Exception as e:
+        logging.error(f"Error retrieving Gemini response history: {e}")
+        return []
+        
+    finally:
+        if close_client and client:
+            client.close()
+
+
+def get_latest_gemini_response(pdf_hash: str, client: MongoClient = None) -> Optional[Dict]:
+    """Get the latest Gemini response for a given pdf_hash"""
+    try:
+        if client is None:
+            client = get_mongodb_client()
+            close_client = True
+        else:
+            close_client = False
+        
+        collection = get_mongodb_collection(client)
+        
+        # Get the most recent record
+        record = collection.find_one(
+            {"pdf_hash": pdf_hash},
+            sort=[("created_at", -1)]
+        )
+        
+        if record:
+            logging.info(f"Found latest response (v{record.get('version', 1)}) for pdf_hash: {pdf_hash}")
+        else:
+            logging.info(f"No response found for pdf_hash: {pdf_hash}")
+            
+        return record
+        
+    except Exception as e:
+        logging.error(f"Error retrieving latest Gemini response: {e}")
+        return None
+        
+    finally:
+        if close_client and client:
+            client.close()
+
+
+def cleanup_old_versions(pdf_hash: str, keep_versions: int = 5, client: MongoClient = None) -> int:
+    """Keep only the N most recent versions for a pdf_hash"""
+    try:
+        if client is None:
+            client = get_mongodb_client()
+            close_client = True
+        else:
+            close_client = False
+        
+        collection = get_mongodb_collection(client)
+        
+        # Get all records for this pdf_hash, sorted by creation time (newest first)
+        records = list(collection.find(
+            {"pdf_hash": pdf_hash}
+        ).sort("created_at", -1))
+        
+        if len(records) <= keep_versions:
+            logging.info(f"Only {len(records)} versions exist for {pdf_hash}, no cleanup needed")
+            return 0
+        
+        # Get IDs of records to delete (older than keep_versions)
+        records_to_delete = records[keep_versions:]
+        ids_to_delete = [record["_id"] for record in records_to_delete]
+        
+        # Delete old records
+        result = collection.delete_many({"_id": {"$in": ids_to_delete}})
+        
+        logging.info(f"Cleaned up {result.deleted_count} old versions for {pdf_hash}")
+        return result.deleted_count
+        
+    except Exception as e:
+        logging.error(f"Error cleaning up old versions: {e}")
+        return 0
+        
+    finally:
+        if close_client and client:
+            client.close()
+
+
+def get_responses_by_config(sections_used: List[str], instructions: str, prompt_template: str, client: MongoClient = None) -> List[Dict]:
+    """Get all responses that match a specific configuration"""
+    try:
+        if client is None:
+            client = get_mongodb_client()
+            close_client = True
+        else:
+            close_client = False
+        
+        collection = get_mongodb_collection(client)
+        
+        # Find responses with matching configuration
+        query = {
+            "sections_used": {"$all": sections_used, "$size": len(sections_used)},
+            "instructions": instructions,
+            "prompt_template": prompt_template
+        }
+        
+        records = list(collection.find(query).sort("created_at", -1))
+        
+        logging.info(f"Found {len(records)} responses matching the configuration")
+        return records
+        
+    except Exception as e:
+        logging.error(f"Error retrieving responses by configuration: {e}")
+        return []
+        
+    finally:
+        if close_client and client:
+            client.close()
+
+
+def test_mongodb_connection():
+    """Test MongoDB connection and setup"""
+    try:
+        logging.info("Testing MongoDB connection...")
+        client = get_mongodb_client()
+        
+        # Test database access
+        db = get_mongodb_database(client)
+        collections = db.list_collection_names()
+        logging.info(f"Available collections: {collections}")
+        
+        # Setup indexes
+        setup_mongodb_indexes(client)
+        
+        logging.info("MongoDB setup completed successfully")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Error testing MongoDB connection: {e}")
+        return False
+    finally:
+        if 'client' in locals():
+            client.close()
 
 
 
@@ -1197,6 +1568,8 @@ def main():
     parser.add_argument("--verbosity", type=int, default=1, help="Verbosity level")
     parser.add_argument("--bucket", type=str, default="biorxiv-unpacked", help="MinIO bucket name")
     parser.add_argument("--skip-database", action="store_true", help="Skip PostgreSQL database processing")
+    parser.add_argument("--skip-mongodb", action="store_true", help="Skip MongoDB database processing")
+    parser.add_argument("--skip-embeddings", action="store_true", help="Skip embeddings processing")
     args = parser.parse_args()
 
     minio_client = get_minio_client()
@@ -1207,6 +1580,10 @@ def main():
         if not args.skip_database:
             print("Testing database connection...")
             test_database_connection()
+        
+        if not args.skip_mongodb:
+            print("Testing MongoDB connection...")
+            test_mongodb_connection()
 
         # 2. Fetch PDFs from MinIO
         pdfs = fetch_pdfs_from_minio(
@@ -1247,18 +1624,23 @@ def main():
 
         breakpoint() # TODO: Remove this
 
-        # 7. Store Gemini responses in PostgreSQL database
+        # 7. Store PDF processing results in PostgreSQL database
         if not args.skip_database:
             logging.info(f"Storing {len(gemini_processing_results)} Gemini responses in PostgreSQL database...")
             batch_store_gemini_responses_in_postgres(gemini_processing_results)
         
 
-        # 7. Store the Gemini response and embeddings in Qdrant
-        if not args.skip_database:
-            logging.info(f"Storing {len(extracted_texts)} Gemini responses in Qdrant...")
-            batch_store_gemini_responses(
-                qdrant_client, gemini_processing_results, collection_name=QDRANT_COLLECTION
-            )
+        # 7. Store the Gemini JSON responses in MongoDB
+        if not args.skip_mongodb:
+            logging.info(f"Storing {len(gemini_processing_results)} Gemini JSONresponses in MongoDB...")
+            batch_store_gemini_responses_in_mongodb(gemini_processing_results)
+
+
+        # 8. Store the Gemini response and embeddings in Qdrant
+        if not args.skip_embeddings:
+            logging.info(f"Storing {len(gemini_processing_results)} Gemini responses in Qdrant...")
+            # embedding_results = embed_gemini_responses(gemini_processing_results)
+            # batch_store_gemini_responses_in_qdrant(embedding_results)
     
     except Exception as e:
         logging.error(f"Error in main function: {e}")
