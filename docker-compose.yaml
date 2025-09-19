@@ -8,3 +8,4 @@ include:
   - services/minio/service.yaml
   - services/qdrant/service.yaml
   - services/biorxiv-postgres/service.yaml
+  - services/mongodb/service.yaml
