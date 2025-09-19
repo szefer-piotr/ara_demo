@@ -492,7 +492,7 @@ class GeminiProcessingResult:
 def count_tokens_gemini(text: str) -> int:
     """Count tokens using Gemini's official tokenizer"""
     try:        
-        model = genai.GenerativeModel('gemini-2.0-flash-exp', api_key=os.getenv('GOOGLE_API_KEY'))
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
         response = model.count_tokens(text)
         return response.total_tokens
     except Exception as e:
@@ -554,9 +554,9 @@ def build_gemini_prompt(
         token_count=token_count,
         sections_used=valid_sections if 'all' not in sections else ["all"],
         context_length=len(context),
-        pdf_hash="",
-        s3_key="",
-        pdf_name="",
+        pdf_hash=extracted_text.pdf_hash,
+        s3_key=extracted_text.s3_key,
+        pdf_name=extracted_text.pdf_name,
         instructions=instructions,
         prompt_template=gemini_processing_instructions,
         response="",
@@ -1286,7 +1286,9 @@ def save_gemini_response_to_mongodb(gemini_result: GeminiProcessingResult, clien
             {"pdf_hash": gemini_result.pdf_hash},
             sort=[("created_at", -1)]  # Get the most recent record
         )
-        
+
+        print(f"Record found for pdf_hash: {gemini_result.pdf_hash}")
+
         # Check if any of the key fields have changed
         should_save = False
         change_reason = []
@@ -1294,6 +1296,7 @@ def save_gemini_response_to_mongodb(gemini_result: GeminiProcessingResult, clien
         if existing_record is None:
             should_save = True
             change_reason.append("new record")
+        
         else:
             # Compare sections_used (order-independent)
             existing_sections = set(existing_record.get("sections_used", []))
@@ -1313,7 +1316,10 @@ def save_gemini_response_to_mongodb(gemini_result: GeminiProcessingResult, clien
             if existing_template != gemini_result.prompt_template:
                 should_save = True
                 change_reason.append("prompt_template changed")
-        
+
+        print(f"Should save: {should_save}")
+        print(f"Change reason: {change_reason}")
+
         if not should_save:
             logging.info(f"No key field changes detected for {gemini_result.pdf_name}, skipping save")
             return True
