@@ -1,5 +1,5 @@
-# Import all functions from utils.py to make them available at package level
-from .utils import *
+# Import all functions from streamlit_utils.py to make them available at package level
+from .streamlit_utils import *
 
 # Import instruction templates from prompt_templates
 from .prompt_templates import (
@@ -10,7 +10,7 @@ from .prompt_templates import (
 )
 
 # Also import specific functions that are commonly used
-from .utils import (
+from .streamlit_utils import (
     inject_global_css,
     robust_read_csv,
     mock_llm,

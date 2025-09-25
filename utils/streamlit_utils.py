@@ -1,4 +1,4 @@
-# utils.py
+# streamlit_utils.py
 
 from typing import Any, List, Dict, Optional
 import pandas as pd
@@ -685,6 +685,3 @@ def explode_text_and_images(chunks: List[Dict[str, str]]) -> List[Dict[str, str]
             output.append({"type": "text", "content": text[last:]})
 
     return output
-
-
-
