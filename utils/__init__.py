@@ -1,6 +1,14 @@
 # Import all functions from utils.py to make them available at package level
 from .utils import *
 
+# Import instruction templates from prompt_templates
+from .prompt_templates import (
+    analysis_steps_generation_instructions,
+    analysis_step_execution_instructions,
+    run_execution_chat_instructions,
+    data_summary_instructions
+)
+
 # Also import specific functions that are commonly used
 from .utils import (
     inject_global_css,

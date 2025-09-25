@@ -13,7 +13,8 @@ from utils import (
     edit_column_summaries,
     inject_global_css,
     mock_llm,
-    get_llm_response
+    get_llm_response,
+    upload_csv_and_get_file_id
 )
 
 from sidebar import render_sidebar
@@ -36,7 +37,7 @@ if "analyses" not in st.session_state:
     st.session_state["analyses"] = []      # list of hypothesis-level dictionaries
 
 if "openai_client" not in st.session_state:
-    st.session_state.openai_client = OpenAI(base_url="http://localhost:4000/v1")
+    st.session_state.openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 if "file_ids" not in st.session_state:
     st.session_state["file_ids"] = []
@@ -44,7 +45,27 @@ if "file_ids" not in st.session_state:
 if "edit_mode" not in st.session_state:
     st.session_state.edit_mode = False
 
+# Add this initialization for column_summaries
+if "column_summaries" not in st.session_state:
+    st.session_state["column_summaries"] = []
+
+# Add this initialization for images
+if "images" not in st.session_state:
+    st.session_state["images"] = {}
+
 # ── STEP 1 ─ Upload data ───────────────────────────────────────────────────────
+
+# Add clear all data button at the top
+if st.session_state.get("current_data") is not None or st.session_state.get("analyses"):
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("🔄 Clear All Data & Start Over", key="clear_all", type="secondary", help="Remove all uploaded data and hypotheses"):
+            # Clear all session state
+            for key in list(st.session_state.keys()):
+                if key not in ["openai_client"]:  # Keep the client
+                    del st.session_state[key]
+            st.success("All data cleared! You can start fresh.")
+            st.rerun()
 
 st.markdown("""
 <div style="background-color:#fff3cd; padding: 1em; border-radius: 10px; border: 1px solid #ffeeba;">
@@ -54,7 +75,7 @@ st.markdown("""
 <li>Edit column descriptions if needed. **Be sure to provide accurate variable type**. For example, is it an integer, continuos or a categorical variable.</li>
 <li>Add one or more <strong>hypotheses</strong> — type them in or import from a <code>.txt</code> file.</li>
 </ul>
-<p>✅ Once your data is uploaded <strong>and</strong> at least one hypothesis is added, click <em>“Go to analysis plan”</em> to continue.</p>
+<p>✅ Once your data is uploaded <strong>and</strong> at least one hypothesis is added, click <em>"Go to analysis plan"</em> to continue.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -155,7 +176,7 @@ with st.container():
 
                 # ― continue with OpenAI upload here ―
                 data_file.seek(0)
-                file_id = utils.upload_csv_and_get_file_id(
+                file_id = upload_csv_and_get_file_id(
                     st.session_state.openai_client, data_file
                 )
                 st.session_state["file_ids"].append(file_id)
@@ -180,11 +201,10 @@ with st.container():
 
                     print(response.output_parsed)
 
-                if "column_summaries" not in st.session_state:
-                    # response.output_parsed.columns is already a List[ColumnSummary]
-                    st.session_state.column_summaries: List[ColumnSummary] = ( # type: ignore[attr-defined]
-                        response.output_parsed.columns  # type: ignore[attr-defined]
-                    )
+                # Update the column_summaries in session state
+                st.session_state.column_summaries: List[ColumnSummary] = ( # type: ignore[attr-defined]
+                    response.output_parsed.columns  # type: ignore[attr-defined]
+                )
 
                 st.dataframe(df.head(), use_container_width=True)
                 st.rerun()
@@ -194,15 +214,38 @@ with st.container():
             st.dataframe(st.session_state["current_data"].head(), use_container_width=True)
             # st.json(st.session_state.column_summaries)
             
+            # Add remove file button
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.info(f"📊 **Dataset loaded**: {len(st.session_state['current_data']):,} rows, {len(st.session_state['current_data'].columns)} columns")
+            with col2:
+                if st.button("🗑️ Remove file", key="remove_file", help="Remove the uploaded file and reset data"):
+                    # Clear all data-related session state
+                    st.session_state["current_data"] = None
+                    st.session_state["column_summaries"] = []
+                    st.session_state["file_ids"] = []
+                    if "container" in st.session_state:
+                        st.session_state.container = None
+                    st.session_state["analyses"] = []  # Clear hypotheses too
+                    st.session_state["selected_hypothesis_id"] = None
+                    st.session_state.edit_mode = False
+                    st.success("File removed and app state cleared!")
+                    st.rerun()
+            
             # ---------- Column list / Edit button ----------
             st.markdown("##### Dataset summary")
             st.write("Edit individual column descriptions if necessary.")
-            for col in st.session_state.column_summaries:
-                st.markdown(
-                    f"**{col.column_name}**  "
-                    f"({col.type}, {col.unique_value_count} unique) – "
-                    f"{col.description}"
-                )
+            
+            # Check if column_summaries exists and has content
+            if hasattr(st.session_state, 'column_summaries') and st.session_state.column_summaries:
+                for col in st.session_state.column_summaries:
+                    st.markdown(
+                        f"**{col.column_name}**  "
+                        f"({col.type}, {col.unique_value_count} unique) – "
+                        f"{col.description}"
+                    )
+            else:
+                st.info("Column summaries will appear here after data upload and analysis.")
 
             if st.session_state.edit_mode:
                 edit_column_summaries()             # ← always render the form when editing
