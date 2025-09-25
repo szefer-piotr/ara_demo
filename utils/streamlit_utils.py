@@ -232,27 +232,57 @@ def upload_csv_and_get_file_id(client, uploaded_file):
     if uploaded_file.type != "text/csv":
         raise ValueError("Uploaded file is not a CSV file.")
 
-    # Step 1: Read a sample to sniff the delimiter
-    sample = uploaded_file.read(4096).decode("utf-8", errors="replace")
-    uploaded_file.seek(0)  # Reset pointer after reading sample
+    # Use the same robust encoding detection as robust_read_csv
+    raw_bytes: bytes = uploaded_file.read()
+    uploaded_file.seek(0)
 
-    # Step 2: Try to detect the delimiter with csv.Sniffer
-    try:
-        sniffer = csv.Sniffer()
-        dialect = sniffer.sniff(sample, delimiters=";,|\t")  # List any delimiters you want to support
-        delimiter = dialect.delimiter
-    except Exception:
-        delimiter = ","  # Fallback to comma if detection fails
+    # --- Build an ordered list of encodings to try -------------------------
+    detected = chardet.detect(raw_bytes).get("encoding")  # may be None
+    print(f"[DEBUG] chardet guess: {detected}")
 
-    # Step 3: Read CSV using the detected delimiter
-    df = pd.read_csv(uploaded_file, delimiter=delimiter)
-    uploaded_file.seek(0)  # Reset pointer if you need to use the file object again
+    encodings = [
+        detected,          # Top guess from chardet (might be None)
+        "utf-8-sig",       # Handles BOM
+        "utf-8",
+        "cp1250",          # Windows-1250 – common in PL Excel exports
+        "iso-8859-2",      # Latin-2 (Central European)
+        "latin1",          # Last-ditch "read anything" fallback
+    ]
+    encodings = [enc for enc in encodings if enc]  # strip Nones, keep order
 
-    csv_buffer = io.BytesIO()
-    df.to_csv(csv_buffer, index=False)
-    csv_buffer.seek(0)
-    openai_file = client.files.create(file=csv_buffer, purpose="user_data")
-    return openai_file.id
+    # --- Iterate through encodings ----------------------------------------
+    for enc in encodings:
+        try:
+            sample = raw_bytes[:4096].decode(enc, errors="strict")
+            # Try to sniff delimiter on the *decoded* sample
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=";,|\t")
+                delim = dialect.delimiter
+            except Exception:
+                delim = ","
+            
+            # Actually read with pandas using the detected encoding and delimiter
+            uploaded_file.seek(0)
+            df = pd.read_csv(uploaded_file, delimiter=delim, encoding=enc, engine="python")
+            print(f"[DEBUG] ✓ Successfully read with encoding={enc}, delimiter='{delim}'")
+            
+            # Reset file pointer and create the buffer for OpenAI upload
+            uploaded_file.seek(0)
+            csv_buffer = io.BytesIO()
+            df.to_csv(csv_buffer, index=False, encoding='utf-8')  # Always save as UTF-8 for OpenAI
+            csv_buffer.seek(0)
+            openai_file = client.files.create(file=csv_buffer, purpose="user_data")
+            return openai_file.id
+            
+        except Exception as e:
+            print(f"[DEBUG] ✗ Failed with encoding={enc}: {e}")
+            uploaded_file.seek(0)  # rewind and try next encoding
+
+    # --- If nothing worked -------------------------------------------------
+    raise UnicodeDecodeError(
+        "upload_csv_and_get_file_id", b"", 0, 1,
+        "Unable to decode with any known encoding."
+    )
 
 
 def load_image_from_openai_container(api_key: str | None, container_id: str, file_id: str) -> Image.Image:
