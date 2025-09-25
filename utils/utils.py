@@ -64,7 +64,7 @@ def robust_read_csv(uploaded_file) -> Tuple[pd.DataFrame, str, str]:
         "utf-8",
         "cp1250",          # Windows-1250 – common in PL Excel exports
         "iso-8859-2",      # Latin-2 (Central European)
-        "latin1",          # Last-ditch “read anything” fallback
+        "latin1",          # Last-ditch "read anything" fallback
     ]
     encodings = [enc for enc in encodings if enc]  # strip Nones, keep order
 
@@ -192,14 +192,14 @@ def mock_llm(
     if "web search" in tools:
         chunks.append({
             "type": "text",
-            "content": f"[MOCK web-search] Top result for: “{prompt}”."
+            "content": f"[MOCK web-search] Top result for: '{prompt}'.",
         })
         return chunks
 
     if "vector search" in tools:
         chunks.append({
             "type": "text",
-            "content": f"[MOCK vector-search] Retrieved context for: “{prompt}”."
+            "content": f"[MOCK vector-search] Retrieved context for: '{prompt}'."
         })
         return chunks
 
@@ -463,50 +463,6 @@ def serialize_step(step: dict) -> str:
 
 
 
-# def serialize_previous_steps(
-#     analysis_plan: List[Dict],
-#     current_step_id: Optional[str] = None,   # or use an int for index
-#     include_current: bool = False,
-# ) -> str:
-#     """
-#     Build a prompt that contains **all finished steps** (or up to the specified
-#     step) in execution order.
-
-#     Parameters
-#     ----------
-#     analysis_plan : list[dict]
-#         The list stored at `hypo['analysis_plan']`.
-#     current_step_id : str | None
-#         If provided, only steps **before** this one are included
-#         (unless `include_current=True`).
-#     include_current : bool
-#         If True and `current_step_id` is given, the current step is included.
-
-#     Returns
-#     -------
-#     str
-#         A prompt string ready to be sent to the LLM.
-#     """
-#     prompt_sections = []
-
-#     for step in analysis_plan:
-#         # Skip unfinished steps
-#         if not step.get("finished", False):
-#             continue
-
-#         # Stop once we reach the current step (unless we also want it)
-#         if current_step_id and step["step_id"] == current_step_id:
-#             if include_current:
-#                 prompt_sections.append(serialize_step(step))
-#             break
-
-#         prompt_sections.append(serialize_step(step))
-
-#     # Join individual step prompts with a visible separator
-#     return "\n\n---\n\n".join(prompt_sections)
-
-
-
 from typing import List, Dict, Optional
 
 def serialize_previous_steps(
@@ -628,7 +584,7 @@ def edit_column_summaries() -> None:
             cs.description = st.session_state[f"desc_{cs.column_name}"]
             cs.type        = st.session_state[f"type_{cs.column_name}"]
 
-            # clean up the temporary widgets’ values
+            # clean up the temporary widgets' values
             st.session_state.pop(f"desc_{cs.column_name}", None)
             st.session_state.pop(f"type_{cs.column_name}", None)
 
@@ -684,11 +640,10 @@ def render_assistant_message(elements):
                 st.warning(f"Unknown element type: {item['type']}")
 
 
-
 import re
 from typing import List, Dict
 
-# just the “cfile_…” token – no surrounding punctuation
+# just the "cfile_…" token – no surrounding punctuation
 FILE_ID = re.compile(r"cfile_[A-Za-z0-9]+")
 
 def explode_text_and_images(chunks: List[Dict[str, str]]) -> List[Dict[str, str]]:

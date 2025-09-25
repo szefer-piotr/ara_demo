@@ -38,18 +38,14 @@ from utils import (
 from sidebar import render_sidebar
 from openai import OpenAI
 from dotenv import load_dotenv
-from utils.prompt_templates import (
-    analysis_steps_generation_instructions,
-    analysis_step_execution_instructions,
-    run_execution_chat_instructions
-)
+from utils import inject_global_css, get_llm_response, mock_llm, create_web_search_tool, create_code_interpreter_tool
 from schemas import AnalysisStep, AnalysisPlan
 import re
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-utils.inject_global_css()
+inject_global_css()
 
 
 # ───────────────────────── guards ───────────────────────────

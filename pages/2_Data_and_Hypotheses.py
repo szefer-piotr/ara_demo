@@ -3,24 +3,30 @@ import pandas as pd
 import uuid
 from io import StringIO
 import csv
-import utils
-import chardet
-
-from utils import robust_read_csv, create_container, create_web_search_tool, create_code_interpreter_tool, edit_column_summaries
+# Change from: import utils
+# To:
+from utils import (
+    robust_read_csv, 
+    create_container, 
+    create_web_search_tool, 
+    create_code_interpreter_tool, 
+    edit_column_summaries,
+    inject_global_css,
+    mock_llm,
+    get_llm_response
+)
 
 from sidebar import render_sidebar
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
 from typing import Any, List
-from utils import mock_llm, create_web_search_tool, create_code_interpreter_tool, get_llm_response
-
 from schemas import ColumnSummary, DatasetSummary
 from utils.prompt_templates import data_summary_instructions
 
 st.set_page_config(layout="wide")
 
-utils.inject_global_css()
+inject_global_css()
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

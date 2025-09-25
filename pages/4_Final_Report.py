@@ -1,7 +1,7 @@
 # pages/4_Final_Report.py
 import streamlit as st
 import openai
-import utils
+from utils import inject_global_css
 import base64
 from io import BytesIO
 
@@ -17,7 +17,7 @@ from utils.prompt_templates import report_generation_instructions, report_chat_i
 
 from st_copy import copy_button
 
-utils.inject_global_css()
+inject_global_css()
 
 # ───────────────────────── guards ────────────────────────────────
 if "analyses" not in st.session_state or not st.session_state["analyses"]:

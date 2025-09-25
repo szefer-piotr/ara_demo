@@ -2,11 +2,11 @@ import streamlit as st
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import utils
+from utils import inject_global_css
 
 st.set_page_config(layout="wide")
 
-utils.inject_global_css()
+inject_global_css()
 
 st.title("Welcome")
 
