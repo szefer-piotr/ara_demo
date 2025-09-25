@@ -20,5 +20,5 @@ st.markdown("""
 
 st.markdown("""\n\n""")
 
-if st.button("Start", use_container_width=True):
+if st.button("Start", width='stretch'):
     st.switch_page("pages/2_Data_and_Hypotheses.py")

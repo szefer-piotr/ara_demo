@@ -206,12 +206,12 @@ with st.container():
                     response.output_parsed.columns  # type: ignore[attr-defined]
                 )
 
-                st.dataframe(df.head(), use_container_width=True)
+                st.dataframe(df.head(), width='stretch')
                 st.rerun()
 
         else:
             st.markdown("##### Your dataset preview.")
-            st.dataframe(st.session_state["current_data"].head(), use_container_width=True)
+            st.dataframe(st.session_state["current_data"].head(), width='stretch')
             # st.json(st.session_state.column_summaries)
             
             # Add remove file button
