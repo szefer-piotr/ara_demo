@@ -20,5 +20,5 @@ st.markdown("""
 
 st.markdown("""\n\n""")
 
-if st.button("Start", width='stretch'):
+if st.button("Start", help="Click to start your analysis"):
     st.switch_page("pages/2_Data_and_Hypotheses.py")
