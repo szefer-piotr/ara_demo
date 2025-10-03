@@ -1,0 +1,61 @@
+/* Global CSS styles - Tailwind CSS base + custom styles */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styling to match your app's aesthetic */
+
+/* Line clamp utilities for truncated text */
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Code styling in data tables */
+.code-cell {
+  font-family: 'Courier New', monospace;
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Prose styling for markdown content in reports */
+.prose {
+  color: #374151;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fade-in 0.2s ease-in-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ensure fill layout behavior */
+html, body, #root {
+  height: 100%;
+}
