@@ -9,13 +9,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme123}
       POSTGRES_DB: ara_demo
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks:
       - ara_demo_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ara_user -d ara_db"]
+      test: ["CMD-SHELL", "pg_isready -U ara_user -d ara_demo"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,7 +26,7 @@ services:
     container_name: ara_demo_redis
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-myredissecret}
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - ./data/redis:/data
     networks:
@@ -66,7 +66,7 @@ volumes:
     driver: local
   minio_data:
     driver: local
-    
+
 networks:
   ara_demo_network:
     driver: bridge
