@@ -1,0 +1,578 @@
+[
+  {
+    "heading": "A Protocol to Address Ecological Redirection for Digital Practices",
+    "content": "in Organizations"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Valentin Girard"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Univ. Grenoble Alpes, Inria, CNRS, Grenoble INP , LIG ;"
+  },
+  {
+    "heading": "Univ. Grenoble Alpes, CNRS, Grenoble INP, G-SCOP,",
+    "content": "38000 Grenoble, France\nvalentin.girard2@univ-grenoble-alpes.fr"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Antoine Martin"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Independent researcher"
+  },
+  {
+    "heading": "France",
+    "content": "antoine.martin@sentier-ergonomie.fr"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Maud Rio"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Univ. Grenoble Alpes, CNRS, Grenoble INP, G-SCOP,"
+  },
+  {
+    "heading": "France, 38000 Grenoble",
+    "content": "maud.rio@g-scop.eu"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Romain Couillet"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Univ. Grenoble Alpes, Inria, CNRS, Grenoble INP , LIG,"
+  },
+  {
+    "heading": "France, 38000 Grenoble",
+    "content": "romain.couillet@univ-grenoble-alpes.fr"
+  },
+  {
+    "heading": "ABSTRACT",
+    "content": "The digitalization of societies raises questions about its sustainabil-\nity and the socio-technical impacts it generates. Ecological redi-\nrection applied to organizations is a field of research aiming for\nachieving sustainability as a direction, rather than for technical\nmeans. Arbitration and renunciation to some digital usage and tech-\nnologies are investigated. Ecological redirection is, however, not\nyet addressing concrete methodologies for its implementation in\norganizations. This paper therefore proposes a protocol to support\nstakeholders in the ecological redirection of their digital practices.\nThis protocol is based on mapping attachments to digital tools\nthrough a multi-disciplinary survey. It then proposes increasing\nstakeholders\u2019 knowledge and skills to prepare a debate on the ar-\nbitration of renunciations, and finally, to operationalize the clo-\nsure/transformation of targeted digital practices. This protocol will\nbe tested in real conditions in different contexts. An empirical study\nis proposed to measure 1) the fluidity with which participants carry\nout the protocol, 2) the effectiveness of the protocol in terms of\nthe redirection objective, 3) the socio-technical barriers to the redi-\nrection process. The paper concludes on the potential benefits for\norganizations to better understand both the barriers related to its\necological redirection and the transformative aim of such protocols.\nThis will help them trigger large and radical policies towards a\ndesirable and sustainable society."
+  },
+  {
+    "heading": "KEYWORDS",
+    "content": "Ecological Redirection, Digital Practices, Renunciation, Accompa-\nniment Protocol, Organization Transformation, Attachments"
+  },
+  {
+    "heading": "Unknown",
+    "content": "1"
+  },
+  {
+    "heading": "INTRODUCTION",
+    "content": "In response to the transgression of planetary boundaries on a global\nscale [32], various actors within the techno-industrial society are\nadvocating for a digital transition (e.g. [23]). This solution is often\nproposed in pairs with the energy transition [14]. However, accord-\ning to a report by the think-tank The Shift Project, \u2018The digital\ntransition as it is currently being implemented contributes more to\nclimate disruption than it helps to prevent it\u2019, notably because of"
+  },
+  {
+    "heading": "LIMITS \u201925, June 26\u201327, 2025, Online",
+    "content": "2025.\nindirect effects such as the rebound effect, induction, moral com-\npensation and so on [34]. The report further notes that \u2018[these]\nglobal systemic effects [...] remain highly uncertain, despite often\nbeing considered positive a priori\u2019[12].\nIndeed, the share of emissions from the digital sector \u2013 which\nencompasses the entire life cycle of devices, network infrastructures,\nand data centers \u2013 is estimated to account for between 2.1% and\n3.9% of total global greenhouse gas emissions [13], with an annual\ngrowth rate of 8% in 2018 [12]. Besides these emissions, the sector\nrequires a significant amount of metal resources, severely impacting\nthe health of the ecosystems and the communities most exposed to\nits industry [22]. The entire infrastructure manufacturing process is\nhighly energy-intensive and demands large quantities of drinking\nwater [9]. Furthermore, this industry, which is based on short-\nlived devices, is responsible for several tens of millions of tons of\nelectronic waste each year: 62 million tons in 20221, of which only\n22% were documented as formally collected for recycling in an\nenvironmentally sound manner [7]."
+  },
+  {
+    "heading": "Beyond the environmental and social impacts generated by the",
+    "content": "digital sector, studies suggest that this sector is condemned in the\nlong term [37]. This vulnerability can be explained by the destruc-\ntion of ecosystems essential to its existence, the complexity of the\nvalue chains underlying the infrastructure, the societal instability\nit generates, and the limited availability of mineral and energy re-\nsources [16]. Despite these findings, the expansion of digitalization\nis rarely questioned and continues to progress at an exponential\nrate 2.\nGiven the urgency and the insufficient impact of current transi-\ntion policies, the framework of ecological redirection proposes a\nchange in perspective: rather than considering that we are facing\nan ecological crisis that requires technical solutions, it suggests\nthat we are dealing with a new socio-climatic regime (the Anthro-\npocene3), which raises primarily a question of direction4. This new\n1With major regional disparities : 17.6 kg per capita per year in Europe, 14.1 in America,\n6.4 in Asia and 2.5 in Africa.\n2+8% annual increase in greenhouse gas emissions, +9% annual increase in energy\nconsumption, +40% annual increase in data storage, +25% increase in data flow [12]\n3This controversial concept developed in 2000 by J Crutzen [36], highlights the sig-\nnificant impact of the human species on geology and ecosystems on the scale of the"
+  },
+  {
+    "heading": "Earth\u2019s history [35].",
+    "content": "4The concept of direction can be compared to Donella Meadows\u2019 third leverage point:\nthe goals of the system [28].\narXiv:2507.19078v1  [cs.CY]  25 Jul 2025"
+  },
+  {
+    "heading": "Unknown",
+    "content": "LIMITS \u201925, June 26\u201327, 2025, Online"
+  },
+  {
+    "heading": "Girard et al.",
+    "content": "regime necessitates both renunciations and closures of certain ac-\ntivities to reorganize our conditions of subsistence. Of course, not\nall activities should be closed, and stakeholders should be able to\nsuggest certain arbitrations in the process of renunciation, based\non criteria of (un)sustainability and vulnerability.\nThe field of ecological redirection is particularly developed in\nFrance5. Its approach is currently mainly theoretical and requires\nfurther specification, especially within the context of the digital\nsector: \u2018[...] This situation, experienced by generations endogenous\nto the digital age, dramatizes the questions we can ask about the\nconditions for achieving sobriety, or even implementing active\nprocesses of detachment or renunciation. This question seems to\nus to open a considerable and urgently needed area of research\u2019\n[5]. Organizations, however concerned about the environmental\nimpact of their digital tools, usually find it difficult to make a real\necological redirection due to a lack of efficient methodology.\nThis article thus proposes a protocol for the ecological redirec-\ntion of digital tools and practices for organizations. It can be applied\nto any organization, whatever its size and scope, strategy, gover-\nnance structure, incorporation structure or relationship to profit\n(these five dimensions of business have been theorized by Jennifer\nHinton [21]). The protocol can be applied, for example, by publicly-\ntraded shareholder corporations, producer cooperatives, worker\ncooperatives, dual purpose companies or not-for-profit structures.\nSection 2 presents the framework of ecological redirection. Sec-\ntion 3 is a proposition for a protocol for the ecological redirection of\ndigital tools and practices for organizations. Section 4 explores the\napplication of this protocol to case studies, and outlines objectives\nfor evaluating and improving the protocol. Section 5 concludes on\na perspective regarding the challenges related to the ecological\nredirection of the digital sector."
+  },
+  {
+    "heading": "Unknown",
+    "content": "2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "THE ECOLOGICAL REDIRECTION"
+  },
+  {
+    "heading": "FRAMEWORK",
+    "content": "2.1"
+  },
+  {
+    "heading": "Theoretical framework",
+    "content": "Ecological redirection is a political framework that has been devel-\noped in France, notably through the work of researchers Alexandre"
+  },
+  {
+    "heading": "Monin, Emmanuel Bonnet, and Diego Landivar [8]. This concep-",
+    "content": "tual framework emerged as a response to the techno-solutionist\necological transition advocated by many actors in the 21st-century\ntechno-industrial society. The ecological redirection framework\ndistinguishes itself from techno-solutionism on four main contro-\nversial points [3]:\n(1) Unlike the view that the ecological crisis is a problem that\nrequires solutions, ecological redirection defends that we\nhave entered a new Earth state \u2013 the Anthropocene \u2013 which\nis a complex phenomenon of destabilization of the Earth\nsystem which thus redefines the conditions of existence for\nhumans and ecosystems.\n(2) Rather than viewing the ecological crisis as a technical prob-\nlem to be optimized, ecological redirection questions the\ndirection of the societies and alerts us about the limitations\nof a techno-solutionist approach.\n5Open and lead at first by Alexandre Monnin, Emmanuel Bonnet and Diego Landivar\nafter their original publication H\u00e9ritage et Fermeture [8], inspired by theories of Tony"
+  },
+  {
+    "heading": "Fry and Bruno Latour.",
+    "content": "(3) Ecological redirection does not take for granted the techni-\ncal possibility of achieving sufficient decoupling to return\nwithin planetary boundaries while maintaining the current\nsocietal model [1]. It argues that a redirection of our societal\nmodel is necessary to find ways of inhabiting an uncertain"
+  },
+  {
+    "heading": "Earth system and to mitigate the degradation of Earth\u2019s hab-",
+    "content": "itability.\n(4) The negative externalities of human activities are seen by\necological redirection as necessary conditions for maintain-\ning these activities, thus viewing them as causes rather than\nconsequences.\nIn this way, ecological redirection shifts the focus from technical\nsolutions to political direction. It advocates for a disconnection\nof society\u2019s means of subsistence from the technosphere (i.e. the\n\u2018realm of technology\u2019, composed of \u2018the totality of technological\ninfrastructures\u2019[2]), arguing that the latter destroys the conditions\nfor human planetary habitability and condemns us in the long term,\nwithout any possible decoupling.\nEcological redirection is fully anchored in a political ecology\nparadigm, alongside frameworks such as degrowth [20], decolonial\necology [11], ecofeminism [29], and so on. It distinguishes itself\nfrom these other approaches, particularly through its focus on\nstrategy and the operational framework.\n2.2"
+  },
+  {
+    "heading": "Strategic approach",
+    "content": "2.2.1"
+  },
+  {
+    "heading": "Inheriting the Technosphere. As part of this goal to discon-",
+    "content": "nect from the technosphere, ecological redirection emphasizes the\nimportance of understanding individuals\u2019 attachments to it. These\nattachments are \u2018what we hold on to and what holds us\u2019 [30]. To\nbe more precise, an attachment can be defined as a preference for\n(\u2018what we hold onto\u2019) or constraint to (\u2018what holds us\u2019) a mode\nof satisfying a need through a given artifact. It seems impossible\nto disconnect from the technosphere without considering the her-\nitage it leaves behind, as we remain dependent on it in the short\nterm. This heritage is both material (factories, waste, new climatic\nstates, extractivist-based industry, infrastructure of all kinds, etc.)\nand immaterial (organizations, political models, economic models,\nshared culture, etc.). Therefore, it is crucial to understand the legacy\nthat keeps the industrial society (including engineering systems)\ndependent on the technosphere to eventually disconnect from it.\n2.2.2"
+  },
+  {
+    "heading": "Politicizing Renunciation. Furthermore, ecological redirec-",
+    "content": "tion highlights the importance of renunciation in changing the\ndirection of our societal model. These renunciations should not\nbe imposed but chosen democratically. Participatory democracy\nthus becomes a central issue in ecological redirection, enabling\ncollective decision-making on which attachments to prioritize for\ndisconnection.\n2.2.3"
+  },
+  {
+    "heading": "Closing, Dismantling, Reducing. Finally, renunciation entails",
+    "content": "a lot of different skills to support the detachment process in a prac-\ntical way. A lot of fields are involved, such as engineering, logistics,\nsociology, law, economy, art, and so on. Detaching from the tech-\nnosphere therefore requires various skills in closing, dismantling,\ndisinvestment, and more. The art and science of planned closure and\nrenunciation enable society to disconnect from the technosphere\nwhile ensuring it stops causing harm. This approach allows for\nA Protocol to Address Ecological Redirection for Digital Practices in Organizations"
+  },
+  {
+    "heading": "LIMITS \u201925, June 26\u201327, 2025, Online",
+    "content": "staying within planetary boundaries without breaking individuals\u2019\nsubsistence networks (but rather reconfiguring them) and taking\ncare of the negative commons6 of the technosphere that continue to\ngenerate environmental and social harm even after abandonment\n(e.g. hazardous waste).\n2.3"
+  },
+  {
+    "heading": "Operational approach",
+    "content": "Ecological redirection gives an important place to practices of in-\nvestigation and design.\nInvestigation is an essential practice for making the legacy of\nthe technosphere concrete and enabling organizations to better un-\nderstand the attachments that keep them dependent on the techno-\nindustrial society. This can be conducted through social science\npractices (using qualitative, quantitative, or mixed approaches), but\nmust also extend to other disciplinary fields to understand attach-\nments in legal, psychological, material, and other terms. It allows\nfor the creation of a mapping of attachments."
+  },
+  {
+    "heading": "Design also occupies a central role in moving from theory to",
+    "content": "action. Ecological redirection emphasize the need to operationally\nimplement ecological redirection protocols to avoid being confined\nto the realm of ideas. Design thus plays a key role in creating new\nways of \"doing without\" or \"doing with less\" [18], transforming\ntechnical and organizational systems, or preventing the emergence\nof unsustainable practices.\nIn concrete terms, ecological redirection must propose protocols\nfor democratic renunciation and closures, where investigation and\ndesign play central roles.\nThis article proposes such a protocol specified for digital tech-\nnologies. It supports organizations in addressing the issue of digital\nde-escalation [16] through the lens of ecological redirection."
+  },
+  {
+    "heading": "Unknown",
+    "content": "3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PROPOSITION : A PROTOCOL FOR DIGITAL"
+  },
+  {
+    "heading": "TECHNOLOGIES",
+    "content": "This section proposes a protocol for the ecological redirection of\ndigital tools and practices. Its aim is to operationalize the theoretical\nframework of ecological redirection for organizations, specifically\nfocusing on the digital practices in their activities. Table 3 sum-\nmarizes the steps of this protocol. Additional resources needed to\nensure the replicability of this protocol are available online7.\n3.1"
+  },
+  {
+    "heading": "Goal, Scope, and Prerequisites",
+    "content": "This protocol is intended for social organizations engaged in col-\nlective projects. These organizations can vary in nature, includ-\ning companies, public institutions, associations, schools, markets,\nunions, cooperatives, clubs, and more. The protocol\u2019s objective is\nto guide the redirection of the digital tools and practices used by\nthe organization in their shared goals, rather than addressing the\nactions of members separately. For example, if a primary school\ndecides to follow this protocol, it would apply to all the school\u2019s\nactivities \u2013 such as pedagogy, relationships with parents, admin-\nistration, cafeteria registration, etc \u2013 but would not extend to the\n6Negative commons refer to \"negative\" tangible or intangible \"resources\", such as\nwaste, nuclear power plants, polluted soil or certain cultural heritages (the rights of a\ncolonizer, etc.) [8]\n7Currently available in French only. English-translated versions will be available soon:\nhttps://lig-membres.imag.fr/girard15/protocole-de-redirection-ecologique/\nactivities outside the scope of the school (children\u2019s access to digital\ntechnologies at home for example).\nThe organization must be able to propose a representative sam-\nple of its members, ideally selected randomly, to form a decision-\nmaking citizens\u2019 assembly (called \u201cfocus group\u201d [33]). This sample\nshould be of a reasonable size (preferably fewer than 20-30 people)\nto facilitate workshops and ensure that all participants can engage\nin dialogue during debates. For smaller organizations, all members\nmay participate, depending on the context. A formal involvement\nfrom focus group members to participate in all working sessions is\nnecessary for the successful implementation of this protocol.\n3.2"
+  },
+  {
+    "heading": "Phase 1: Mapping of Attachments",
+    "content": "The first phase involves an ethnographic survey8 aimed at under-\nstanding how the organization\u2019s activities depend on their digital\ntools and practices. The aim of ethnographic research is to under-\nstand how a social group functions. It must involve a phase of\nreflexivity regarding its own preconceptions (our \"a priori\" about a\nparticular situation), requiring the researcher to maintain an open\nmind and to frequently challenge their certainties. Although this\nsurvey does not occur at the very beginning of the sociological ap-\nproach (as we have already defined the initial goals of the study), it\nmust still go through a problematization phase that will help adapt\nthe scope of the research to the studied organization. Thus, the\nethnographic approach may differ greatly depending on the study\nfield. For this phase, we recommend consulting methodologies in\nsocial sciences."
+  },
+  {
+    "heading": "The investigation phase must ultimately allow for a mapping",
+    "content": "of attachments. Attachments are understood in accordance with\nthe definition provided in Section 2.2.1, and may therefore range\nfrom regulatory constraints to psychological dimensions, includ-\ning technical constraints, among others9. Therefore, the survey\nmust account for attachments through psychological and social\nmechanisms, as well as in material and organizational terms.\nAlthough the investigative approach is, by definition, adaptive\nto the field studied and requires the researcher to build their opera-\ntional approach, we propose a standard method from which they\ncan draw inspiration. This standard approach suggests conducting\nthree types of actions: 1) direct observation, 2) individual interviews,\nand 3) the implementation of a questionnaire. These actions will be\nconducted in parallel and must be adjusted in their implementation\nas the survey progresses, depending on the field conditions and the\nongoing analysis, which may lead to new questions. The following\nparagraphs outline the proposed standard method, and these should\nnot be considered as imperatives for conducting the investigation.\n3.2.1"
+  },
+  {
+    "heading": "Direct Observation. This practice forms the foundation of the",
+    "content": "survey approach for any experimental field of our protocol. The aim\nof this practice is to directly observe (and potentially experiment)\nthe actors\u2019 practices in order to discover the general organizational\nmechanisms of the studied structure, begin to grasp the information\nsystem that support this organization, and identify initial points\nof reflection for the analysis of attachments. To achieve this, the\n8Some methods to conduct such a survey are presented here [26].\n9We refer the reader to the notion of path dependency on this point [6]."
+  },
+  {
+    "heading": "Unknown",
+    "content": "LIMITS \u201925, June 26\u201327, 2025, Online"
+  },
+  {
+    "heading": "Girard et al.",
+    "content": "researcher maintains a research journal, collecting field notes, anal-\nyses, and thought processes. This field journal will initially allow\nthe researcher to problematize their investigation.\nAs the investigation progresses (after some observation sessions\nand interviews), it will be necessary to obtain more specific data\non certain mechanisms that seem essential to our problematization.\nFor example, in the case of a primary school, different attachment\npoints may be identified, such as the relationship with the Min-\nistry of Education. The researcher would then try to understand\nthe organizational framework of this ministry, the digital tools it\nimplements, its hierarchical structure, etc. The goal is to question\nthe organization in the disciplinary areas that appear to present\nthe strongest barriers in terms of detachment.\n3.2.2"
+  },
+  {
+    "heading": "Individual Interviews. These interviews\u2019 purpose is to under-",
+    "content": "stand the situated representations and perceptions of actors within\nthe organization, as well as to qualitatively identify their attach-\nments to digital tools. It will be necessary to interview actors with\ndifferent roles in the organization to cover a variety of perspectives,\nsuch as those from different hierarchical positions, localities, skills,\netc. The qualitative research approach is not intended to obtain a\nstatistical sample, but rather a theoretical one [24]. Therefore, it is\nessential to question individuals who can provide viewpoints that\nwill inform the researcher\u2019s analysis. The interview grid may (and\nshould) evolve during the survey."
+  },
+  {
+    "heading": "Our experience in exploratory fields has enabled us to iden-",
+    "content": "tify several locks and levers to the ecological redirection of digital\npractices, presented in Table 1. Researchers may use these themes\nwhen preparing their own interview grids. However, we empha-\nsize that this list is not exhaustive, and that the characterization of\nattachments is highly context-specific to the organization studied.\nResearchers should therefore quickly adapt their interview grids\nbased on the first analytical elements from initial observations and\nearly interviews.\n3.2.3"
+  },
+  {
+    "heading": "Questionnaire. Finally, we recommend that the researcher",
+    "content": "implement a questionnaire within the organization. This question-\nnaire serves two purposes: first, it provides a quantitative com-\nponent for understanding the attachments to digital tools within\nthe organization; second, it gathers data from a broader and more\nrepresentative panel than those involved in the interviews and\nobservations. This strengthens the confidence of the focus group\n(established for the following phases) and fosters participation from\nindividuals with limited time to contribute to the survey. We sug-\ngest that the questionnaire last no more than 15 minutes and fo-\ncus on quantifying, for selected digital tools, the function of the\ntool, the users, the perceived dependence of the organization on\nit, the individual dependence on it, and the main reasons for this\n(in)dependence.\n3.2.4"
+  },
+  {
+    "heading": "Investigation Report. At the end of the investigation, the",
+    "content": "researcher provides an analysis report intended for the focus group,\nwhich will establish the action plan. This report enables the working\ngroup to anchor their work in the realities of the organization\u2019s\nlegacy and to take into account these realities in their strategic\nredirection approach."
+  },
+  {
+    "heading": "We recommend structuring the investigation report as follows:",
+    "content": "Table 1: Suggestion of locks and levers for the redirection of\ndigital practices to be addressed in the survey phase"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Locks"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Example of associated verbatim"
+  },
+  {
+    "heading": "Hierarchical obligation",
+    "content": "\"It is imposed by our organization, I have\nno choice\""
+  },
+  {
+    "heading": "Lack of knowledge and/or",
+    "content": "skills\n\"We don\u2019t have enough knowledge/skills to\ndo otherwise\""
+  },
+  {
+    "heading": "Internal/external pressure",
+    "content": "(-)\n\"People expect/demand us to use it\""
+  },
+  {
+    "heading": "Lack of resources",
+    "content": "\"We don\u2019t have the time / means to\nchange\""
+  },
+  {
+    "heading": "Habits",
+    "content": "\"We\u2019re used to it, and it\u2019s easier to stick\nwith this way of doing\""
+  },
+  {
+    "heading": "Lack of alternative",
+    "content": "\"It\u2019s not possible to do without it\""
+  },
+  {
+    "heading": "Change unnecessary",
+    "content": "\"We don\u2019t have much reason to change\" /\n\"We hadn\u2019t even thought about changing\""
+  },
+  {
+    "heading": "Use appetence",
+    "content": "\"I like using it\""
+  },
+  {
+    "heading": "Direct gains",
+    "content": "\"It\u2019s actually super practical / efficient\""
+  },
+  {
+    "heading": "Fatalism",
+    "content": "\"The tool is developing anyway, might as\nwell use it\""
+  },
+  {
+    "heading": "Enthusiasm for technol-",
+    "content": "ogy\n\"It broadens the range of possibilities\""
+  },
+  {
+    "heading": "Unknown",
+    "content": "Levers"
+  },
+  {
+    "heading": "Autonomy",
+    "content": "\"It isn\u2019t imposed on us\""
+  },
+  {
+    "heading": "Sufficient skills and",
+    "content": "knowledge\n\"We know how to make the change\""
+  },
+  {
+    "heading": "Internal/external pressure",
+    "content": "(+)\n\"People expect/demand us to move away\nfrom it\" / \"People who don\u2019t use it don\u2019t\ninspire us\""
+  },
+  {
+    "heading": "Available resources",
+    "content": "\"We have the time and means to change\""
+  },
+  {
+    "heading": "Habits",
+    "content": "\"We\u2019re used to doing without it\""
+  },
+  {
+    "heading": "Unknown",
+    "content": "Existing alternative"
+  },
+  {
+    "heading": "We could do differently\" / \"We could do",
+    "content": "without it\""
+  },
+  {
+    "heading": "Change necessity",
+    "content": "\"I think it\u2019s important to do differently\""
+  },
+  {
+    "heading": "Aversion to technology",
+    "content": "\"I don\u2019t like this tool\""
+  },
+  {
+    "heading": "Direct gains",
+    "content": "\"It would save us time/money\" / \"It would\nbe simpler without it\" / \"We would be more\nindependent\"\n(1) A summarized qualitative restitution of the survey in a free\nformat. It may look like a classic qualitative sociological\nanalysis, but in a condensed form. We suggest limiting it to\nno more than two pages, to make it accessible for the focus\ngroup.\n(2) Attachment graphs associated to functions or activities car-\nried out by the organization, where each point represents a\ndigital tool. The vertical axis is defined by an environmental\nimpact indicator, the horizontal axis by the degree of attach-\nment, and a colour gradient reflects the usage scale of the\nA Protocol to Address Ecological Redirection for Digital Practices in Organizations"
+  },
+  {
+    "heading": "LIMITS \u201925, June 26\u201327, 2025, Online",
+    "content": "tool. The environmental impact indicator is to be chosen by\nthe protocol leader. The attachment degree and usage scale\ncan be determined based on questionnaire responses. An\nexample of such graph is provided in Figure 1. Other simi-\nlar graphs can be found in different ecological redirection\nreports [27].10"
+  },
+  {
+    "heading": "Figure 1: Example of an attachment graph",
+    "content": "(3) For each digital tool, provide a fact sheet containing infor-\nmation such as: its functionality, scale of use, various im-\npact indicators (data flow and storage associated, emissions,\ninfrastructure required, quantity of minerals extracted in\nconflict regions, etc.)11, an attachment indicator calculated\nfrom the questionnaire responses, and the main reasons for\nthese attachments.\n3.3"
+  },
+  {
+    "heading": "Phase 2 : Workshops",
+    "content": "Following this survey, working sessions are organized with the\nfocus group to establish an action plan. These working sessions\n(workshops) will initially allow participants to understand the key\nissues about ICTs and their ecological redirection, in order to im-\nprove their knowledge on these topics."
+  },
+  {
+    "heading": "Our experience with this approach has highlighted the chal-",
+    "content": "lenges of negotiating the initial implementation of the protocol\nwith an organization. This negotiation phase defines whether the\norganization is willing to engage in the conduction of the protocol\nor not and defines its modalities. It is clear that the time allocated\nper workshop and the number of participants are critical points in\nnegotiations with organizations engaged in production imperatives."
+  },
+  {
+    "heading": "Therefore, to reach a compromise between negotiation and the",
+    "content": "10Although life cycle assessment typically relates the environmental impacts of techni-\ncal tools to the services they enable, this is not the case in this graph, which presents\ntools that fulfill different functions. This choice was made in order to present a single\ngraph mapping all of the organization\u2019s tools, so as not to overwhelm participants with\ntoo much information. Participants will therefore need to make the effort to isolate\nthe tools serving the same function in order to carry out meaningful comparisons.\n11This article does not provide a specific source for obtaining such information. If\naccessing this data is difficult, we recommend focusing on impact indicators that can\nbe gathered through investigation and a basic understanding of digital infrastructures,\nfor example data flows (in bytes per year), storage requirements of the tool (in bytes),\nor the type of infrastructure involved.\nquality of the workshops, we suggest organizing 2-3 hour sessions\nfor this phase.\nThe first session is a presentation on the impacts related to ICTs\nand presents the investigation findings. We recommend including\nthe following themes:\n\u2022 How the internet network functions\n\u2022 Direct effects of ICTs\n\u2022 Indirect effects of digitalization\n\u2022 Holistic vision of the link between digitalization and accel-\neration\n\u2022 Vulnerabilities of an over-digitized society\n\u2022 Short-term individual benefits of reducing the digitalization\nof our lives"
+  },
+  {
+    "heading": "This session should aim to generate motivation among partici-",
+    "content": "pants to engage in a transformation process [25]. This motivation\nshould be encouraged through a sensitive (rather than purely sta-\ntistical) presentation of the direct effects of ICTs, as well as by\nemphasizing the short-term positive effects of reducing digital prac-\ntices among participants. We also suggest making this session open\nto the entire organization (and potentially the public) to raise aware-\nness of these issues, create a broad movement of support for the\nprotocol, and possibly recruit new members for the focus group.\nThe second session begins with a presentation of the ecological\nredirection concept and possible alternatives to digital technologies\nas they are currently deployed. It should outline both the technical\n(and non-technical) possibilities and impossibilities for redirection.\nThis session then engages participants in a creative (writing) ac-\ntivity to envision desirable futures with less digital technology in\ntheir organization. This phase is important to stimulate creativity\nand avoid limiting the action plan to purely constraining consider-\nations, which would restrict it to minor changes. This constraint\nmechanism was experimented with by the authors in workshops\nwhere personae with strong interests in maintaining the status quo\nwere incorporated. The session concludes with the presentation of\nthe format expected for the action plan, followed by a collective\ndecision-making exercise to define the motivations and objectives\nthat will guide the development of the proposed action plan."
+  },
+  {
+    "heading": "At the end of the second phase, the protocol leader suggests",
+    "content": "participants to think individually about the measures to be included\nin the action plan before the next session. This long ideation period\nis essential to allow participants to think deeply about relevant\nactions to propose.\n3.4"
+  },
+  {
+    "heading": "Phase 3 : Debate on arbitrations",
+    "content": "The objective of this phase, which is actually the third working ses-\nsion, is to enable negotiation around attachments to digital practices\namong the organization\u2019s stakeholders. The workshops will facili-\ntate an informed debate among participants regarding the necessary\narbitrations and the formulation of an action plan. This action plan\nis not limited to incremental changes in the organization\u2019s digi-\ntal practices: it reflects a strong positioning on the organization\u2019s\nstrategic and political decisions, by formulating certain choices of\nrenunciation and de-digitization of certain services. The notion\nof arbitration reflects this strategic decision-making dimension of\nthe debate. This debate phase is crucial, and it must be guided to"
+  },
+  {
+    "heading": "Unknown",
+    "content": "LIMITS \u201925, June 26\u201327, 2025, Online"
+  },
+  {
+    "heading": "Girard et al.",
+    "content": "ensure that participants make full use of the resources from the\ninvestigation and workshops to support their arguments.\nThe session begins by establishing an environment of trust and\nrespect within the group. The protocol leader reminds participants\nthe session\u2019s objectives.\nThe first part of the action plan involves defining the motivations\nof the focus group for creating this action plan (\"We believe it is\nimportant to implement this action plan because...\"). Participants\nthen name a follow-up reference person to ensure the proper imple-\nmentation of redirection actions and the continuity of the protocol\nin the future, as well as a communication reference for communicat-\ning the plan within the organization. This accountability anchors\nthe ecological redirection approach as a sustainable practice within\nthe organization.\nNext, participants agree on a few key functions (ideally a small\nnumber to comply with the time constraints and to establish an\nachievable plan of action) currently handled by digital tools (as\nidentified by the researcher), which they will debate. These could\ninclude internal communication, finances, human resource manage-\nment, administration, creative activities, external communication,\netc. For each function, participants suggest different digital sobriety\nmeasures. These measures should be understood in a broad sense,\nas they can take multiple forms: a political positioning of the orga-\nnization, the replacement of a digital tool, the de-digitization of a\npractice, the introduction of a new business strategy, the discontin-\nuation of a service, the restructuring of the organization, and so on.\nThe range of possibilities is wide, and the potential impacts on the\norganization may vary in scale. A classification for these different\ncategories of action is proposed in Figure 2. Participant might use\nthis supporting figure to expose their propositions by answer the\nquestion : \"What we want to (as an organisation) ?\"\nFigure 2: Categorization of actions for digital ecological redi-\nrection\nThe digital sobriety actions proposed by the focus group should\nbe based on the material of the previous workshops. For each func-\ntion explored, the group should:\n(1) Review the digital tools currently in use;\n(2) Identify the organization\u2019s attachments to these tools;\n(3) Understand the environmental issues associated with these\ntools;\n(4) List potential alternatives to certain tools, if needed, in accor-\ndance with the vision of a desirable digital future developed\nduring the imagination workshop;\n(5) Engage in debate to reach a consensual proposal.\nHere are some clarifications regarding the structure of this de-\nliberation process:\n\u2022 The facilitator plays a key role in guiding the focus group\ntoward relevant propositions by supporting an informed and\nstructured deliberation process.\n\u2022 Digital tools with the greatest environmental impact should\nbe prioritized when proposing sobriety measures. The level\nof ambition of these measures should be in accordance with\nthe associated environmental impact.\n\u2022 Attachments to digital tools must be taken into account when\nformulating proposals, using both quantitative and qualita-\ntive analysis. The stronger the attachment to a tool, the more\ncarefully the proposed measures should be implemented so\nas not to disrupt the subsistence networks of those who rely\non it, to ensure the availability of satisfactory alternatives12,\nand to respect social justice. If we get back to our fictional\nexample of a primary school, an application designed to sup-\nport students with dyslexia may have a low environmental\nimpact and be strongly valued by the students who use it. In\nsuch a case, renouncing the this tool would not be acceptable,\nas it would negatively affect those students. Instead, efforts\nshould focus on tools with greater environmental impact.\n\u2022 The objective of these discussions is to reach consensus\nwithin the focus group for each proposal. If consensus cannot\nbe achieved, a vote may be used to resolve non-consensual\ndecisions.\nFinally, the protocol leader offers participants, especially the\nfollow-up reference person, resources to maintain a redirectionist\nposture (questioning the need and compatibility of practices with\nplanetary boundaries) within the organization.\n3.5"
+  },
+  {
+    "heading": "Phase 4 : Implementation of closures",
+    "content": "The decision phase involves the implementation of the chosen redi-\nrection measures. These measures will necessarily involve renunci-\nations of certain practices and, at a minimum, changes to others.\nIt is necessary to support these closures and transformations both\ntechnically (especially in terms of digital infrastructure) and hu-\nmanely (to reorganize the organization\u2019s activities, according to the\nnew practices). This article does not propose a generic solution for\nthis implementation phase, given the highly specific nature of each\nsituation encountered. However, it emphasizes the importance of\nengaging technically and organizationally competent individuals\nto carry out the anticipated closures. Optional exchange sessions\nfor organization members may be arranged during this phase."
+  },
+  {
+    "heading": "Unknown",
+    "content": "4"
+  },
+  {
+    "heading": "CASE STUDIES AND EXPECTED RESULTS",
+    "content": "This protocol for the ecological redirection of digital tools and\npractices is currently tested through two case studies to identify\nthe challenges of the practical implementation and to improve\n12Proposing an alternative \u2013whether digital or not\u2013 is essential to the process of\nrenunciation. This point of attention is emphasized by numerous academic authors\nworking on sociological approaches to innovation through withdrawal [18].\nA Protocol to Address Ecological Redirection for Digital Practices in Organizations"
+  },
+  {
+    "heading": "LIMITS \u201925, June 26\u201327, 2025, Online",
+    "content": "both the protocol itself and the supporting documentation for its\napplication.\n4.1"
+  },
+  {
+    "heading": "Case studies",
+    "content": "Two case studies will be conducted: the first in an eco-village and the\nsecond in a town hall. This experimental work has already begun\nand has led to the evolution of the protocol \u2013particularly the survey\nresources\u2013 toward the version presented in this article. The two case\nstudies present different characteristics, and the experimentation\nis at varying stages of advancement. The main characteristics of\nthese two experiments are presented in Table 2."
+  },
+  {
+    "heading": "Table 2: Characteristics and stage of ongoing experiments in",
+    "content": "the ecological redirection protocol"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Case Study"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Eco-village"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Town Hall"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Legal structure"
+  },
+  {
+    "heading": "Cooperative company",
+    "content": "of collective interest"
+  },
+  {
+    "heading": "Public legal entity (ter-",
+    "content": "ritorial collectivity)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Focus group"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Voluntary members"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Voluntary employees"
+  },
+  {
+    "heading": "Intensity of digital",
+    "content": "use\nLow"
+  },
+  {
+    "heading": "Unknown",
+    "content": "High"
+  },
+  {
+    "heading": "Progress of the ex-",
+    "content": "perimentation"
+  },
+  {
+    "heading": "Phase",
+    "content": "1\nongoing:"
+  },
+  {
+    "heading": "Analysis",
+    "content": "of\nsurvey\nmaterial"
+  },
+  {
+    "heading": "Phase 1 ongoing: Data",
+    "content": "collection\n4.2"
+  },
+  {
+    "heading": "Results Analysis",
+    "content": "The analysis of the results from this experimentation will focus\non three main objectives: (1) the fluidity of the protocol\u2019s execu-\ntion, (2) its effectiveness in redirecting digital practices, and (3) the\nidentification of socio-technical barriers that hinder redirection.\n4.2.1"
+  },
+  {
+    "heading": "Fluidity. Experimenting this protocol on case studies will",
+    "content": "enable us to raise difficulties relating to its form. These obstacles\nwill be measured by a post-experimental questionnaire in which\nparticipants will be able to talk about their failures, their percep-\ntions, the difficulties they encountered, etc. Recommendations may\nbe put forward by the participants themselves and will enable the\nmodalities of the different phases to evolve.\n4.2.2\nEffectiveness. The effectiveness of the ecological redirection\nprotocol can be evaluated on the two case studies, thus highlight-\ning the degree of relevance of its implementation on a wider scale.\nIndicators will be proposed to quantify this redirection, based in\nparticular on residual digital materiality in the organization (num-\nber of terminals, digital services, screen time, etc.), as well as on\ndigital attachments, quantified by a post-experimental question-\nnaire. This quantification will be completed by a narrative creation\nexercise based on participants\u2019 testimonials, in order to illustrate\nthe benefits of the protocol.\n4.2.3\nSocio-technical Barriers. The renunciation of digital tools is\nhindered by socio-technical barriers of various kinds and at differ-\nent scales. Ratchet effects are systemic phenomena that prevent\na reversal in the development of technology within society, and\ndigital technologies are significantly affected by these effects [16].\nAt the individual level, various psychological processes make de-\ntachment from digital technologies difficult [17]. However, these\nmechanisms do not adequately explain collective dependencies\non digital technologies, as collective dependency does not simply\nequate to the sum of individual dependencies [4]. Therefore, a qual-\nitative inquiry will be conducted following the implementation of\nthe case studies to properly objectify these socio-technical barriers\nat the collective level. The differing nature of the two experimental\nsettings will allow for the identification of contextual factors within\norganizations that influence these collective lock-ins.\n4.3"
+  },
+  {
+    "heading": "Challenges and Discussions",
+    "content": "Only the initial stages of this protocol have been implemented in\nthe two case studies (see Table 2 for the current state of these\nexperiments). These early experiments have helped to identify\nseveral challenges to be addressed for the concrete implementation\nof the protocol. This section outlines some of these challenges and\nopens a discussion on its relevance.\n4.3.1"
+  },
+  {
+    "heading": "Uncertainty in Mapping Attachments. The investigation phase",
+    "content": "raises questions about the very possibility of mapping attachments,\nas actors are not always aware of their own. The notion of attach-\nment is central to the academic field of ecological redirection, yet\nits exact definition has not been fully formalized in the literature.\nAttachments are studied in diverse forms and through various dis-\nciplinary fields : philosophical, sociological, systemic, and others.\nSociological literature suggests that attachments are truly re-\nvealed only when they are threatened or at least challenged [19].\nFor instance, it is often only during a shortage of a common con-\nsumer good that users become aware of its importance in their\ndaily lives."
+  },
+  {
+    "heading": "Accordingly, when conducting an investigation for the mapping",
+    "content": "of attachments, the investigator can only access the actors\u2019 per-\nceived attachments at the time of the investigation. An external\nevent, such as a disruption to digital tools or the implementation\nof digital sobriety policies within the organization, may reveal at-\ntachments that were previously invisible.\nFor these reasons, the inquiry should not be considered as lim-\nited to this initial mapping stage. Throughout the entire duration\nof the protocol, and even beyond \u2013during internal or external or-\nganizational changes\u2013 it is important to remain attentive to how\nattachments evolve and manifest.\nEcological redirection through investigation, while formalized\nin this article as a structured protocol, should also be understood\nas a continuous and iterative process. In this process, investigation\nserves as an ongoing exploration of the issues surrounding actors\u2019\nattachments and the design of new ways of inhabiting a world\ndisrupted by socio-environmental collapses.\n4.3.2"
+  },
+  {
+    "heading": "Involvement of Organizations. During the search for case",
+    "content": "studies, the organizations that agreed to test the protocol expressed\nstrong constraints regarding the time available and their capacity to\ninvest their members in this experiment. Organizations engaged in\nactivities unrelated to digital sobriety, or whose daily routines are\nsaturated with productive tasks, are often only able to dedicate a few\nhours (and only by a small number of members) to this initiative."
+  },
+  {
+    "heading": "Unknown",
+    "content": "LIMITS \u201925, June 26\u201327, 2025, Online"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Girard et al."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Phase"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Steps"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Resources given7"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Required Skills and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Knowledge"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Expected Deliverable"
+  },
+  {
+    "heading": "Mapping of",
+    "content": "attachments\n(section 3.2)\n1. Observation\n2. Questionnaire\n3. Interviews\n- Questionnaire Template\n- Interview grid template\n- Investigation report template\n- Human and social\nsciences method\nknowledge"
+  },
+  {
+    "heading": "A report including:",
+    "content": "- A summarized qualitative\nrestitution of the survey\n- Attachment graphs\n- Fact sheet for each digital tool"
+  },
+  {
+    "heading": "Workshops",
+    "content": "(section 3.3)\n1. Workshop on digital sector\nimpacts and vulnerabilities +"
+  },
+  {
+    "heading": "Restitution of the mapping of",
+    "content": "attachments phase\n2. Workshop on alternative digital\npractices + imagination on\ndesirable futures + action plan\npresentation + reflection exercise\non motivations and objectives\n- Presentation material on\ndigitalization\u2019s impacts and\nvulnerabilities + alternative\ndigital practices\n- Roadmap to conduct the\ndifferent workshops\n- Imagination exercise\n- Knowledge on digital\nsector impacts and\nvulnerabilities +\nalternative digital\npractices\n- Skills in workshop\nanimation"
+  },
+  {
+    "heading": "Story created by the participants",
+    "content": "during the imagination workshop"
+  },
+  {
+    "heading": "Debate on",
+    "content": "arbitrations\n(section 3.4)\n1. Set up of an environment of trust\nand respect\n2. Definition of the terms of the\naction plan\n3. By function, arbitration and\nproposal of actions to be\nimplemented\n- Template of action plan for\necological redirection of the\norganization\n- Debate process reminder\n- Skills in debate\nanimation"
+  },
+  {
+    "heading": "Completed action plan for",
+    "content": "ecological redirection of the\norganization"
+  },
+  {
+    "heading": "Implementation",
+    "content": "of closures\n(section 3.5)\n- IT skills\n- Skills in other different\ndomains (economy, law,\nstrategy, planning, social\nskills, ...)"
+  },
+  {
+    "heading": "Report documenting achievements,",
+    "content": "failures, and causes of these failures\nTable 3: Recap table of the ecological redirection protocol for digital practices\nYet, the experience of ecological redirection is a long-term pro-\ncess. It requires question deep certainties about how our society\nand the Earth system functioning. It involves a transformation in\nhow the world is understood, and a deconstruction/reconstruction\nof the futures the organization had projected for itself. These stages\ndemand time, sustained support, and must move through the lived\nexperience of the organization\u2019s members. This disruption of cer-\ntainties leads actors into a state of disorientation or \"trouble\" [10],\nwhich becomes the driving force behind a radical reorientation of\nthe organization\u2019s trajectory.\nTherefore, given the relatively limited investment required from\nthe organization in light of the magnitude of the issues at stake, the\ncurrent version of the protocol is unlikely to achieve a full-scale\nredirection of the participating organization."
+  },
+  {
+    "heading": "However, it does succeed in overcoming pragmatic barriers of",
+    "content": "acceptability. Indeed, an organization would be unlikely to com-\nmit to a demanding, time-intensive process without first having\nencountered the urgency of digital sobriety in concrete terms. The\nprotocol thus acts as an entry point (a foot in the door) allowing the\norganization to begin to experience the real issues of the Anthro-\npocene and to sense the urgency for redirection. For this reason,\nimplementing a follow-up strategy to sustain the redirection pro-\ncess after the protocol\u2019s completion is essential. In this way, the\ninvestigation process \u2013which is central to ecological redirection\u2013\nmust go beyond a top-down approach from an investigator to a\ngroup of respondents: it is the investigated actors themselves who\nmust carry out the investigation, in order to collectively understand\nand define the trouble they are experiencing. The protocol should\nbe seen as the initiation of a long-term, non-linear, and iterative\nprocess of ecological redirection, one that must permeate the or-\nganization, affect its members, and create trouble in projections\ntoward futures that are incompatible with planetary boundaries."
+  },
+  {
+    "heading": "Unknown",
+    "content": "5"
+  },
+  {
+    "heading": "CONCLUSION",
+    "content": "Ecological redirection is a concept that seeks to propose new ways\nof approaching sustainability, focusing on the question of direction\nrather than technical means, with a strong intention to remain\nrooted in the heritage of the techno-industrial society and to intro-\nduce renunciations and closures within it. This theoretical frame-\nwork remains highly conceptual and requires operationalization\nfor organizations. This paper proposes a protocol for the ecological\nredirection of digital tools and practices within organizations, based\non four phases: mapping of attachments, workshops, debate on ar-\nbitrations, and implementation of closures. This protocol aims to\nsupport organizations in taking radical and concrete action toward\ndigital de-escalation. It offers a grip for individuals who feel pow-\nerless regarding the digitization of society and the rising impacts\nrelated to it.\nA Protocol to Address Ecological Redirection for Digital Practices in Organizations"
+  },
+  {
+    "heading": "LIMITS \u201925, June 26\u201327, 2025, Online",
+    "content": "While this explicit protocol facilitates the implementation of\necological redirection in organizational activities, it is important to\nunderstand that this practice is strongly dependent on the political\ncontext in which organizations operate. The issue of renunciation\nand closure of certain industrial activities are currently difficult to\neven consider for most actors, particularly industrial ones, because\nof the neoliberal capitalist political framework in which they are. It\nis crucial to emphasize that the protocol for the ecological redirec-\ntion of digital practices proposed in this article will be difficult to\ngeneralize within a techno-industrial society not engage in strong\nenvironmental policies and still settled in a regime of economic\ngrowth [31].\nTherefore, this protocol should not be seen as a solution to a\nsocio-environmental crisis, but rather as an operational support for\nambitious policies aimed at reorganizing the conditions of subsis-\ntence in society during the Anthropocene. Ecological redirection\nprotocols should not be limited to isolated projects aiming only\nto altering specific practices and infrastructures. These protocols\nshould have transformative aims in a radical sense [15] for orga-\nnizations conducting them. They must initiate a real momentum\nof awareness, politicization, and action in response to the Anthro-\npocene. Ecological redirection seeks to trigger this transformation\nthrough survey and design, within an approach of heritage, arbi-\ntration, and closure, but also aims to initiate a broader dynamic\nof politicization of the techno-industrial model, to make it land\ntowards a desirable and sustainable society. Organizations shall be\naware of this transformative aim while conducting such protocols,\nin order to formulate radical change policies for their ecological\nredirection."
+  },
+  {
+    "heading": "REFERENCES",
+    "content": "[1] 2019. Decoupling debunked \u2013 Evidence and arguments against green growth as\na sole strategy for sustainability. https://eeb.org/library/decoupling-debunked/\n[2] 2019. Technosphere. https://anthropocene.univie.ac.at/resources/technosphere/\n[3] 2021."
+  },
+  {
+    "heading": "Une introduction \u00e0 la redirection \u00e9cologique - Bastien Marc-",
+    "content": "hand.\nhttps://fr.slideshare.net/slideshow/une-introduction-a-la-redirection-\necologique-bastien-marchand-250442213/250442213\n[4] 2023. When Product Markets Become Collective Traps: The Case of Social Me-\ndia. https://bfi.uchicago.edu/insight/research-summary/when-product-markets-\nbecome-collective-traps-the-case-of-social-media/\n[5] Allard Laurence, Monnin Alexandre, and Nova Nicolas. 2022. \u00c9cologies du smart-\nphone. Le bord de l\u2019eau, Lormond.\n[6] W. Brian Arthur. 1994. Increasing returns and path dependence in the economy."
+  },
+  {
+    "heading": "University of Michigan Press, Ann Arbor.",
+    "content": "[7] Cornelis P Bald\u00e9, Ruediger Kuehr, Tales Yamamoto, Rosie McDonald, Elena\nD\u2019Angelo, Shahana Althaf, Garam Bel, Otmar Deubzer, Elena Fernandez-Cubillo,\nVanessa Forti, Vanessa Gray, Sunil Herat, Shunichi Honda, Giulia Iattoni, Vitto-\nria Luda di Cortemiglia, Yuliya Lobuntsova, Innocent Nnorom, No\u00e9mie Pralat,\nand Michelle Wagner. 2024. THE GLOBAL E WASTE MONITOR 2024. (2024).\n[8] Emmanuel Bonnet, Diego Landivar, and Alexandre Monnin. 2021. H\u00e9ritage et\nfermeture: une \u00e9cologie du d\u00e9mant\u00e8lement. \u00e9ditions divergences, Paris.\n[9] Fr\u00e9d\u00e9ric Bordage. 2019. Sobri\u00e9t\u00e9 num\u00e9rique: les cl\u00e9s pour agir. Buchet-Chastel,"
+  },
+  {
+    "heading": "Paris.",
+    "content": "[10] J\u00e9r\u00f4me Cuny, Jeanne Baverey, Margot Boitel, Rapha\u00eblle Garnier, and Monnin\nAlexandre. 2025. La redirection \u00e9cologique des entreprises : se transformer pour \u00eatre\ncompatible avec la nouvelle r\u00e9alit\u00e9 \u00e9cologique. Dunod, Malakoff.\n[11] Malcom Ferdinand. 2019. Une \u00e9cologie d\u00e9coloniale: penser l\u2019\u00e9cologie depuis le monde\ncarib\u00e9en. Ph. D. Dissertation. \u00c9ditions du Seuil, Paris. Book Title: Une \u00e9cologie\nd\u00e9coloniale : penser l\u2019\u00e9cologie depuis le monde carib\u00e9en / Malcom Ferdinand"
+  },
+  {
+    "heading": "ISBN: 9782021388497 Series: Anthropoc\u00e8ne.",
+    "content": "[12] Hugues Ferreboeuf. 2018. Lean ICT : Pour une sobri\u00e9t\u00e9 num\u00e9rique. Technical"
+  },
+  {
+    "heading": "Report. The Shift Project.",
+    "content": "[13] Charlotte Freitag, Mike Berners-Lee, Kelly Widdicks, Bran Knowles, Gordon S.\nBlair, and Adrian Friday. 2021. The real climate and transformative impact of\nICT: A critique of estimates, trends, and regulations. Patterns 2, 9 (Sept. 2021),\n100340. https://doi.org/10.1016/j.patter.2021.100340\n[14] Marie Garin. 2023. Que la transition \u00e9cologique soit, et la transition num\u00e9rique\nf\u00fbt. https://shs.hal.science/halshs-04411108/document\n[15] Connie J. G. Gersick. 1991. Revolutionary Change Theories: A Multilevel Explo-\nration of the Punctuated Equilibrium Paradigm. The Academy of Management\nReview 16, 1 (1991), 10\u201336. https://doi.org/10.2307/258605 Publisher: Academy\nof Management.\n[16] Valentin Girard, Maud RIO, and Romain Couillet. 2024. Computing, Complexity\nand Degrowth : Systemic Considerations for Digital De-escalation.\nhttps://\ncomputingwithinlimits.org/2024/papers/limits2024-girard-deescalation.pdf\n[17] Lucio Gon\u00e7alves, Antonio Nardi, and Anna Lucia King. 2023. Digital Dependence\nin The Past Decade: A Systematic Review. 6 (April 2023). https://doi.org/10.\n31579/2688-7517/059\n[18] Fr\u00e9d\u00e9ric Goulet and Dominique Vinck. 2022. Faire sans, faire avec moins: les\nnouveaux horizons de l\u2019innovation. Mines ParisTech-PSL, Paris.\n[19] Antoine Hennion. 2010. Vous avez dit attachements ? Presses des Mines.\n[20] Jason Hickel. 2020. Less is more: how degrowth will save the world. William"
+  },
+  {
+    "heading": "Heinemann, London.",
+    "content": "[21] Jennifer B. Hinton. 2021. Five key dimensions of post-growth business: Putting\nthe pieces together. Futures 131, 102761 (2021).\n[22] Celia Izoard. 2024. La ru\u00e9e mini\u00e8re au XXIe si\u00e8cle: enqu\u00eate sur les m\u00e9taux \u00e0 l\u2019\u00e8re\nde la transition. Points, Paris.\n[23] Joint Research Centre (European Commission), Stefan Muench, Eckhard Stoermer,\nKathrine Jensen, Tommi Asikainen, Maurizio Salvi, and Fabiana Scapolo. 2022.\nTowards a green & digital future: key requirements for successful twin transitions\nin the European Union."
+  },
+  {
+    "heading": "Publications Office of the European Union.",
+    "content": "https:\n//data.europa.eu/doi/10.2760/977331\n[24] Christophe Lejeune. 2019. Manuel d\u2019analyse qualitative. Analyser sans compter ni\nclasser. De Boeck Sup\u00e9rieur. https://doi.org/10.3917/dbu.lejeu.2019.01\n[25] Kurt Lewin. 1951. Field Theory in Social Science: Selected Theoretical Papers (harper\n& brothers ed.). New York.\n[26] Howard Lune and Bruce L. Berg. 2017. Qualitative research methods for the social\nsciences (ninth edition, global edition ed.). Pearson, Harlow, England.\n[27] Bastien Marchand and Philippe Bouteyre. 2023. Fermer l\u2019h\u00e9ritage de l\u2019Urbanoc\u00e8ne.\nTentative de redirection \u00e9cologique en milieu urbain. Urbanit\u00e9s #17 / L\u2019erreur est\nurbaine (Jan. 2023). https://www.revue-urbanites.fr/17-marchand-bouteyre/\n[28] Donella H. Meadows. 1999. Leverage Points: Places to Intervene in a System."
+  },
+  {
+    "heading": "Technical Report. The Sustainability Institute.",
+    "content": "[29] Maria Mies, Vandana Shiva, and Ariel Salleh. 2022. Ecofeminism. Number 05 in\nCritique influence change. Bloomsbury Academic, London New York Dublin.\n[30] Alexandre Monnin. 2023. Politiser le renoncement. \u00c9ditions divergences, Paris.\n[31] Timoth\u00e9e Parrique. 2019. The political economy of degrowth. phdthesis. Universit\u00e9"
+  },
+  {
+    "heading": "Clermont Auvergne [2017-2020] ; Stockholms universitet.",
+    "content": "https://theses.hal.\nscience/tel-02499463\n[32] Katherine Richardson, Will Steffen, Wolfgang Lucht, J\u00f8rgen Bendtsen, Sarah E.\nCornell, Jonathan F. Donges, Markus Dr\u00fcke, Ingo Fetzer, Govindasamy Bala,\nWerner Von Bloh, Georg Feulner, Stephanie Fiedler, Dieter Gerten, Tom Gleeson,\nMatthias Hofmann, Willem Huiskamp, Matti Kummu, Chinchu Mohan, David\nNogu\u00e9s-Bravo, Stefan Petri, Miina Porkka, Stefan Rahmstorf, Sibyll Schaphoff,\nKirsten Thonicke, Arne Tobian, Vili Virkki, Lan Wang-Erlandsson, Lisa Weber,\nand Johan Rockstr\u00f6m. 2023. Earth beyond six of nine planetary boundaries."
+  },
+  {
+    "heading": "Science Advances 9, 37 (Sept. 2023), eadh2458.",
+    "content": "https://doi.org/10.1126/sciadv.\nadh2458\n[33] Maud Rio and Benjamin Tyl. 2021. Exploring design to environment methods\nthough grassroots initiatives. Procedia CIRP 100 (Jan. 2021), 25\u201330.\nhttps:\n//doi.org/10.1016/j.procir.2021.05.004\n[34] Gauthier Roussilhe. 2022. Les effets environnementaux indirects de la num\u00e9risa-\ntion | Gauthier Roussilhe. https://gauthierroussilhe.com/articles/comprendre-\net-estimer-les-effets-indirects-de-la-numerisation\n[35] Will Steffen, Wendy Broadgate, Lisa Deutsch, Owen Gaffney, and Cornelia\nLudwig. 2015. The trajectory of the Anthropocene: The Great Acceleration."
+  },
+  {
+    "heading": "The Anthropocene Review 2, 1 (April 2015), 81\u201398.",
+    "content": "https://doi.org/10.1177/\n2053019614564785 Publisher: SAGE Publications.\n[36] Will Steffen, \u00c5sa Persson, Lisa Deutsch, Jan Zalasiewicz, Mark Williams,\nKatherine Richardson, Carole Crumley, Paul Crutzen, Carl Folke, Line Gordon,\nMario Molina, Veerabhadran Ramanathan, Johan Rockstr\u00f6m, Marten Scheffer,\nHans Joachim Schellnhuber, and Uno Svedin. 2011. The Anthropocene: From\nGlobal Change to Planetary Stewardship. AMBIO 40, 7 (Nov. 2011), 739\u2013761.\nhttps://doi.org/10.1007/s13280-011-0185-x\n[37] Bill Tomlinson and Benoit A. Aubert. 2017. Information Systems in a Future of\nDecreased and Redistributed Global Growth. In Proceedings of the 2017 Workshop\non Computing Within Limits (LIMITS \u201917). Association for Computing Machinery,\nNew York, NY, USA, 21\u201328. https://doi.org/10.1145/3080556.3080569"
+  }
+]

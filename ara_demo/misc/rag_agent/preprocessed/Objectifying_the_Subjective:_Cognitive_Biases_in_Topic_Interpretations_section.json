@@ -1,0 +1,5174 @@
+[
+  {
+    "heading": "Unknown",
+    "content": "Objectifying the Subjective: Cognitive Biases in Topic Interpretations"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Swapnil Hingmire1\u2217"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ze Shi Li2\u2217"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Shiyu (Vivienne) Zeng2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ahmed Musa Awon2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Luiz Franciscatto Guerra2"
+  },
+  {
+    "heading": "Neil Ernst2",
+    "content": "1Mehta Family School of Data Science and Artificial Intelligence,\nDepartment of Data Science, Indian Institute of Technology (IIT) Palakkad, Kerala, India\nswapnilh@iitpkd.ac.in\n2Department of Computer Science, University of Victoria, Victoria, Canada\n{lize, shiyuzeng, ahmedmusa, luizguerra, nernst}@uvic.ca"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Abstract"
+  },
+  {
+    "heading": "Interpretation of topics is crucial for their",
+    "content": "downstream applications."
+  },
+  {
+    "heading": "State-of-the-art",
+    "content": "evaluation measures of topic quality such as\ncoherence and word intrusion do not mea-\nsure how much a topic facilitates the ex-\nploration of a corpus."
+  },
+  {
+    "heading": "To design evalua-",
+    "content": "tion measures grounded on a task, and a\npopulation of users, we do user studies to\nunderstand how users interpret topics. We\npropose constructs of topic quality and ask\nusers to assess them in the context of a\ntopic and provide rationale behind evalu-\nations."
+  },
+  {
+    "heading": "We use reflexive thematic analy-",
+    "content": "sis to identify themes of topic interpreta-\ntions from rationales. Users interpret topics\nbased on availability and representativeness\nheuristics rather than probability. We pro-\npose a theory of topic interpretation based\non the anchoring-and-adjustment heuristic:\nusers anchor on salient words and make se-\nmantic adjustments to arrive at an interpre-\ntation. Topic interpretation can be viewed as\nmaking a judgment under uncertainty by an\necologically rational user, and hence cogni-\ntive biases aware user models and evaluation\nframeworks are needed."
+  },
+  {
+    "heading": "Unknown",
+    "content": "1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Introduction"
+  },
+  {
+    "heading": "Qualitative Content Analysis (QCA) is a domi-",
+    "content": "nant use case for topic models (Hoyle et al., 2021)."
+  },
+  {
+    "heading": "Topics, based on their most probable words (TW ),",
+    "content": "are used to discover new concepts, measure the\nprevalence of those concepts, assess causal effects,\nand make predictions (Grimmer et al., 2021). Ex-\namples of such use cases in social sciences are\nthe study of culture (DiMaggio et al., 2013), pol-\nitics (Roberts et al., 2014) and Islamophobia on\nsocial media (T\u00f6rnberg and T\u00f6rnberg, 2016)."
+  },
+  {
+    "heading": "To speed up building and comparing new topic",
+    "content": "models objectively, several authors have proposed\n\u2217Work done at the University of Victoria, Canada.\nstatistical coherence metrics (Cstat) (e.g., R\u00f6der\net al. (2015)) that measure the connectedness of\na meaning in TW . Studies such as Hoyle et al.\n(2021) and Pereira et al. (2023) however ques-\ntion the validity of such metrics."
+  },
+  {
+    "heading": "Chang et al.",
+    "content": "(2009) proposed a word intrusion (WI) task based\non identifying an \u201cintruder\u201d word inserted into a\ntopic. A topic is coherent if it is easy to identify\nthe intruder. WI, Cstat and their extensions such\nas Ying et al. (2022) and Lim and Lauw (2024) im-\nplicitly assume that there is a unique, neutral, and\nobjective perspective on coherence, and that this\nperspective is a single-dimensional assessment of\nthe topic\u2019s interpretability. We question the valid-\nity of this assumption in the context of QCA."
+  },
+  {
+    "heading": "Positionality (views",
+    "content": "and\nlived\nexperiences\nshaped by identity and background (Santy et al.,\n2023)) and reflexivity (self-monitoring the im-\npact of one\u2019s biases, beliefs, and personal ex-\nperiences on their research) of researchers play\nan important role in the credibility of the find-\nings of QCA (Berger, 2015). Furthermore, Hsieh\nand Shannon (2005) define QCA as a method for\nthe subjective interpretation of the content of text\ndata. Neither subjectivity nor positionality nor re-\nflexivity are considered in the generative process\nof topic modeling. They should be given more im-\nportance when using topics for QCA."
+  },
+  {
+    "heading": "Consider topics A7 and A35 in Table 1, origi-",
+    "content": "nally from Hall et al. (2008, Table 2) inferred on\nresearch articles in ACL Anthology. The authors\nlabeled topic A7 as Classical MT and topic A35\nas Statistical MT, with no explanation of how they\nlabeled the topics. But based on these topic labels,\nthey claimed a paradigm shift in machine trans-\nlation. Without considering the positionality and\nreflexivity of the interpreters, these labels and the\nend conclusions can be contested. Similarly, for\ntopic A5, even though its TW does not contain the\nwords \u201cCategorial\u201d and \u201cGrammar\u201d, is labeled by\nthe authors as \u201cCategorial Grammar\u201d.\narXiv:2507.19117v1  [cs.CL]  25 Jul 2025\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Highest probability words"
+  },
+  {
+    "heading": "Immigration preferences (Egami et al., 2022, Table 2)",
+    "content": "I6"
+  },
+  {
+    "heading": "Crime, small amount of jail",
+    "content": "time, then deportation\nenter countri illeg person jail deport time proper imprison determin\nI7"
+  },
+  {
+    "heading": "No prison, deportation",
+    "content": "deport prison will person countri man illeg serv time sentence"
+  },
+  {
+    "heading": "ACL Anthology (Hall et al., 2008, Table 2)",
+    "content": "A5"
+  },
+  {
+    "heading": "Categorial Grammar",
+    "content": "proof formula graph logic calculus axioms axiom theorem proofs lambek\nA7"
+  },
+  {
+    "heading": "Classical MT",
+    "content": "japanese method case sentence analysis english dictionary figure japan word\nA35"
+  },
+  {
+    "heading": "Statistical MT",
+    "content": "english word alignment language source target sentence machine bilingual mt\narXiv submission in the Computing and Language section (cs.CL) (Mimno, 2023)\nC2\n-\nlogic quantum formal theory mathematical automata calculus proof finite regular"
+  },
+  {
+    "heading": "Poems from the \u201cRevising Ekphrasis\u201d corpus (Rhody, 2012)",
+    "content": "P32\n-\nnight light moon stars day dark sun sleep sky wind"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 1: Example topics from various studies"
+  },
+  {
+    "heading": "Positionality and reflexivity are important from",
+    "content": "the fairness, accountability, and transparency per-\nspective, especially in dealing with texts in social\nsciences."
+  },
+  {
+    "heading": "Positionality can have a profound in-",
+    "content": "fluence on interpreting contested concepts (e.g.,\nfreedom, democracy, war, genocide, abortion, hate\ncrime (Collier et al., 2006)) or floating concepts\n(mental health, race, gender, religion, and poli-\ntics (Hall, 2021))."
+  },
+  {
+    "heading": "Wang et al. (2023) support",
+    "content": "this argument: sociodemographics and positional-\nity play a vital role in deciding \u201csafety\u201d of content\ngenerated by Conversational AI systems in terms\nof toxicity, harm, legal and health concerns, etc."
+  },
+  {
+    "heading": "In this paper, we follow the view of Robertson",
+    "content": "(2008), who argues, in the context of information\nretrieval, that \u201cIf we can interpret a measure (...)\nin terms of an explicit user model (...), this can\nonly improve our understanding of what exactly\nthe measure is measuring\u201d. The (implicit) user\nmodel in metrics such WI and Cstat is if a rational\nagent finds coherence in a topic\u2019s most probable\nwords, then the agent will find the topic useful in\nall the circumstances. This user model and met-\nrics reward topic models that optimize topic coher-\nence but they cannot measure how much a topic is\ninterpretable, i.e., facilitates the core tasks of ex-\nploration of a corpus or making inferences. Im-\nportantly, real users are only ecologically rational\nand not axiomatically (Gigerenzer, 2021). Their\nknowledge, computational capacity, and environ-\nment constrain their decision-making, and hence\nare susceptible to cognitive biases."
+  },
+  {
+    "heading": "WI and Cstat make strong and oversimplified",
+    "content": "assumptions of interpretability, do not account for\nthe behavior of users, their reflexivity, positions,\nand experiences, and hence are not ecologically\nvalid1. There is a need to explicitly create a user\nmodel while evaluating topics."
+  },
+  {
+    "heading": "Dupret and Piwowarski (2013) argue that an",
+    "content": "evaluation metric should have two components: (i)"
+  },
+  {
+    "heading": "A formal user model explaining the behavior of",
+    "content": "the population of users and (ii) A metric of perfor-\nmance based on the user model. The metric should\nhave a strong positive correlation with a user\u2019s sat-\nisfaction in achieving their goal."
+  },
+  {
+    "heading": "As the first step in building a user model, in this",
+    "content": "paper, we report on user studies to understand how\nusers interpret a topic in the first place. Following\nare the key contributions:\n1. Concepts of coherence and interpretability of\ntopics are considered as slippery (Hoyle et al.,\n2021). We show differences in these concepts\nand define them along multiple dimensions.\n2. We propose a set of constructs of topic quality\nin the context of QCA. We ask users to evaluate\ntopics with respect to the constructs.\n3. We do a QCA of topic labels and rationale us-\ning Reflexive Thematic Analysis (RTA) (Braun\nand Clarke, 2012) to identify and analyze\nthemes that shape topic interpretations."
+  },
+  {
+    "heading": "Unknown",
+    "content": "2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Background and Related Work"
+  },
+  {
+    "heading": "Coherence is a metric of the interpretability of top-",
+    "content": "ics (Rahimi et al., 2023), however often the two\nconcepts are used interchangeably. We argue that\ncoherence is a quality of words and focuses on\ntheir lexical or semantic relations. We adapt the\ndefinition of discourse coherence by Giv\u00f3n (1993)\nfor topic coherence:"
+  },
+  {
+    "heading": "1A model or metric is ecologically valid if it accounts",
+    "content": "for the complexity of the underlying phenomenon and its\nassociated human behavior in the real-world."
+  },
+  {
+    "heading": "Definition 1. Coherence of a topic is the conti-",
+    "content": "nuity or recurrence of some element(s) across its\nmost probable words. The elements are: (a) refer-\nents, (b) temporality, (c) aspectuality, (d) modal-\nity/mood, (e) location, (f) action/script"
+  },
+  {
+    "heading": "Interpretability on the other hand focuses on the",
+    "content": "semantic inference of words given the environ-\nment of the user. Based on (Simon, 1955, 1956),\nwe consider the environment as the user\u2019s physi-\ncal and social circumstances and experiences that\nshape the positionality of the user. We adapt the\ndefinition of discourse interpretability by Enkvist\n(1990) for topic interpretability:"
+  },
+  {
+    "heading": "Definition 2. A topic is interpretable to those who",
+    "content": "can build around it a scenario or narrative ex-\nplaining the situation and context in which these\nwords are likely to be related to each other. The\ninterpretation process is encapsulated in a label."
+  },
+  {
+    "heading": "Egami et al. (2022) apply topic models to open-",
+    "content": "ended responses from a survey on immigration\npreferences. Table 1 shows two example topics I6\nand I7 from Egami et al. (2022, Table 2). Through\nrigorous validation and discussions, they label the\ntopics. The recurring theme in both the topics is\nimmigration and deportation. However, the au-\nthors\u2019 labels denote different actions: \u201cdeportation\nwith jail vs deportation without jail\u201d even though\nthe topics share five words."
+  },
+  {
+    "heading": "Interpreting these",
+    "content": "topics merely on the most probable words while\nignoring the authors\u2019 reflexivity and positionality\ncan affect the experiments\u2019 results. If an intruder\nis inserted in both topics, then success in its iden-\ntification will not help in their validation and la-\nbeling. Hence, we argue that WI focuses on the\ncoherence of a topic and not on its interpretability."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Several authors (e.g.,(Newman et al., 2010;"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hoyle et al., 2021)) ask humans or LLMs such as"
+  },
+  {
+    "heading": "GPT (Rahimi et al., 2024) to rate coherence of a",
+    "content": "topic on a Likert scale (e.g., 1 to 3, where 1=use-\nless or less coherent and 3=highly coherent). Such\na scale, however, can be unintuitive for evaluators,\nleading to inconsistency between and within sub-\njects. Moreover, using aggregation measures of\nnumerical data to ordinal ratings is a fallacy (Belz\nand Kow, 2010)."
+  },
+  {
+    "heading": "Such a rating is a revealed preference (an",
+    "content": "agent\u2019s observed action) and not a normative pref-\nerence (the agent\u2019s actual interests) of a user. It\ndoes not capture how the topic was interpreted\nand why the specific rating is provided. The re-\nvealed preferences are incomplete and misleading\nmeasures of the normative preferences (Beshears\net al., 2008; Morewedge et al., 2023)."
+  },
+  {
+    "heading": "Rating",
+    "content": "based models and metrics ignore the inversion\nproblem (Kleinberg et al., 2024): inverting men-\ntal states involved in topic interpretation from ob-\nserved rating."
+  },
+  {
+    "heading": "An important realization of a topic\u2019s inter-",
+    "content": "pretability is its label (Doogan and Buntine, 2021)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Several authors such as Lau et al. (2011); Popa and"
+  },
+  {
+    "heading": "Rebedea (2021) propose approaches for automatic",
+    "content": "labeling of topics. These approaches aim to iden-\ntify \u201cone\u201d label that best captures semantic rela-\ntions between TW ."
+  },
+  {
+    "heading": "Morstatter and Liu (2018); Doogan and Buntine",
+    "content": "(2021) assume an interpretable topic has a high\nagreement on labels. However, this assumption is\nnot ecologically valid. For example, in Table 1, the\ninterpretation of topic C2 is subject to the user\u2019s\nexposure to \u201cFormal Semantics\u201d and \u201cQuantum"
+  },
+  {
+    "heading": "Physics\u201d. Hence, users may arrive at different la-",
+    "content": "bels, but that does not make the topic less or more\ninterpretable. While applying LDA for Software"
+  },
+  {
+    "heading": "Engineering artifacts, Hindle et al. (2015) make a",
+    "content": "similar observation: software developers and man-\nagers interpret topics differently; users find per-\nsonally relevant topics easy to interpret."
+  },
+  {
+    "heading": "Moreover, a single labeling approach cannot be",
+    "content": "applied across domains. For example, topic C2 in"
+  },
+  {
+    "heading": "Table 1 is about \u201cFormal Semantics\u201d, but we can-",
+    "content": "not use similar reasoning and say that topic P32,\ninferred on ekphrastic poems, is about \u201cCelestial"
+  },
+  {
+    "heading": "Phenomena\u201d, as words in poems are often used in",
+    "content": "a figurative sense (Rhody, 2012)."
+  },
+  {
+    "heading": "Marani et al. (2022) do human assessments of",
+    "content": "automatically generated labels of topics based on\nself-report questions and identify two latent di-\nmensions of labels: Suitable and Objectionable."
+  },
+  {
+    "heading": "They focus on the end label provided by an algo-",
+    "content": "rithm, while we focus on how a human labels a\ntopic. Our proposed constructs and dimensions are\nbroader and applicable across domains. Li et al.\n(2024) do simulations and user-based studies to\ncompare topic models in an interactive task-based\nsetting for QCA. They do not discuss reflexivity,\nsubjectivity and disagreement in topic interpreta-\ntion and their effect on the end analysis."
+  },
+  {
+    "heading": "Stammbach et al. (2023) and Rahimi et al.",
+    "content": "(2023) use LLMs, to assess topic coherence and\ndo intrusion tasks. LLM\u2019s response can be very\nsensitive to prompt (Bubeck et al., 2023). Consid-\nering QCA as a use-case of topic models, there is\na need to model the researchers, their knowledge,\nand the task (Krippendorff, 2019) while employ-\ning LLMs. Moreover, given the adoption of LLMs\nfor labeling topics as in (Rijcken et al., 2023), we\nneed more insight into potential pitfalls and biases.\n2.1"
+  },
+  {
+    "heading": "Interpretability of Topics",
+    "content": "TW"
+  },
+  {
+    "heading": "Istat",
+    "content": "|\n|"
+  },
+  {
+    "heading": "Rational user",
+    "content": "assumption\nU1\nsymbolise\nI1\nrefers to\nU2\nI2"
+  },
+  {
+    "heading": "Ecologically rational users (Ui)",
+    "content": "with different priming and environment\n...\n...\nUn\nIn"
+  },
+  {
+    "heading": "Figure 1: The Triangle of Reference. TW : most",
+    "content": "probable words of a topic based on the generative\nand inferential assumptions of the topic model\nand the dataset. Ui: Ecologically rational user i."
+  },
+  {
+    "heading": "Istat: coherence and label of a topic based on sta-",
+    "content": "tistical properties of TW . Ii: Ui\u2019s interpretation of\ntopic."
+  },
+  {
+    "heading": "We created a conceptual schema to model the",
+    "content": "process of topic interpretation and labeling as the\nthree corners of the triangle of reference in Fig-\nure 1, based on Ogden and Richards (1927); Aroyo\nand Welty (2015). In this schema, TW evokes a\nthought or reference as an idea in the mind of the\nuser (Ui), based on their environment, priming,\nand goal of the analysis. Ui arrives at an inter-\npretation (Ii), typically as a label. The subjective\ninterpretation is not directly connected with TW ,\nrather it is connected through the ecologically ra-\ntional user. The triangle explains that for any given"
+  },
+  {
+    "heading": "Unknown",
+    "content": "TW , many interpretations are possible."
+  },
+  {
+    "heading": "State-of-the-art evaluation metrics are user ag-",
+    "content": "nostic; they focus only on the implicit link be-\ntween TW and topic interpretation Istat (i.e., only\non the base of the triangle) by making rational user\nassumptions."
+  },
+  {
+    "heading": "Unknown",
+    "content": "3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "How Users Interpret and Label Topics"
+  },
+  {
+    "heading": "We conduct an empirical study to examine user",
+    "content": "interpretation in terms of our triangle schema in"
+  },
+  {
+    "heading": "Figure 1, i.e., the impact of Ui and Ii. We pro-",
+    "content": "pose constructs for various aspects of topic inter-\npretation: (i) Knowledge, (ii) Coherence, (iii) In-\nterpretability, and (iv) Reflexivity.\n3.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Constructs of Topic Quality"
+  },
+  {
+    "heading": "We first show the 25 most probable words of a",
+    "content": "topic arranged vertically in the decreasing order\nof their probability."
+  },
+  {
+    "heading": "We do not show the prob-",
+    "content": "abilities associated with words, as users with no\nbackground of statistics behind topic models may\nfind them unintuitive. We ask users their agree-\nment with the statements in Table 2 (\u201cStrongly"
+  },
+  {
+    "heading": "Disagree\u201d (score 0) to \u201cStrongly Agree\u201d (score",
+    "content": "100))2. We ask for a brief label for the topic. We\nalso ask users to provide the detailed free-text ra-\ntionale behind all their inputs to understand how\nthe topics were interpreted.\n\u2022 Statement C-1 captures the user\u2019s familiarity\nwith the terminology of the underlying corpus.\n\u2022 Statements C-3, and C-4 capture multiple per-\nspectives on coherence as per Definition 1.\n\u2022 Statements C-5 and C-2 assess how much the\nuser is able to think about possible communica-\ntive intent(s) that would have led to the forma-\ntion of the topic.\n\u2022 Statement C-6 is about finding an exemplar doc-\nument: a narrative context in which the words\nhave a clearer meaning (Blair and Kimbrough,\n2002). Finding such an article can help expli-\ncate the context that guides their inferences for"
+  },
+  {
+    "heading": "QCA (Krippendorff, 2019). Statement C-7 is in-",
+    "content": "spired from Doogan and Buntine (2021) about\nthe difficulty in labeling a topic.\n\u2022 Statements C-8, C-9 and C-10 will help users to\nreflect on their interpretations in terms of time,\ndisagreement, and word order respectively.\n3.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Datasets"
+  },
+  {
+    "heading": "Our first dataset is ACL OCL by Rohatgi et al.",
+    "content": "(2023) (ACL) a scholarly corpus of papers hosted\nby the ACL Anthology published from 1952 to"
+  },
+  {
+    "heading": "September 2022. As a second dataset, we con-",
+    "content": "sider U.S. Senate Speeches (SENATE), the texts\nof U.S. Senate speeches provided by Gentzkow\net al. (2019)."
+  },
+  {
+    "heading": "We focus on the speeches in the",
+    "content": "114th session of Congress (2015-2017)."
+  },
+  {
+    "heading": "The third dataset consists of Software Design",
+    "content": "(DESIGN) related posts on StackOverflow (SO)."
+  },
+  {
+    "heading": "Each SO post is allowed to have up to 5 tags",
+    "content": "that assigns the topic of the post. Mahadi et al."
+  },
+  {
+    "heading": "Unknown",
+    "content": "2Motivated by Gatt and Belz (2010); Ethayarajh and"
+  },
+  {
+    "heading": "Jurafsky (2022) we use a continuous scale.",
+    "content": "ID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Statement"
+  },
+  {
+    "heading": "Construct (Dimension)",
+    "content": "C-1\nThere is no jargon in this topic; even a novice can understand it (\u2191)"
+  },
+  {
+    "heading": "Knowledge (Familiarity with domain)",
+    "content": "C-2\nI need to see the relevant documents to know what the topic is about (\u2193)"
+  },
+  {
+    "heading": "Knowledge (Need for context)",
+    "content": "C-3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "The words of this topic have a connected meaning (\u2191)"
+  },
+  {
+    "heading": "Coherence (Continuity of a theme)",
+    "content": "C-4\nThis topic can be divided into subtopics for better understanding (\u2193)"
+  },
+  {
+    "heading": "Coherence (Multiple sub-themes)",
+    "content": "C-5\nI can infer the situation and context in which these words are mentioned (\u2191)"
+  },
+  {
+    "heading": "Interpretability (Communicative intent)",
+    "content": "C-6\nI can quickly find a Wikipedia article to help someone understand this topic (\u2191)"
+  },
+  {
+    "heading": "Interpretability (Explicating the context)",
+    "content": "C-7"
+  },
+  {
+    "heading": "Unknown",
+    "content": "This topic is easy to label (\u2191)"
+  },
+  {
+    "heading": "Interpretability (Efforts)",
+    "content": "C-8\nIf I see this topic after some time, I don\u2019t think my label would change (\u2191)"
+  },
+  {
+    "heading": "Reflexivity (Time)",
+    "content": "C-9"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Others will have similar interpretations (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Reflexivity (Possible (dis)agreement)"
+  },
+  {
+    "heading": "C-10",
+    "content": "I will arrive at the same interpretation, even if the order of words is shuffled (\u2191)"
+  },
+  {
+    "heading": "Reflexivity (Order effects)",
+    "content": "Table 2: Statements for user studies. \u2191(\u2193) indicates higher (lower) agreement with the statement implies\nbetter support for construct.\n(2020) use 10 software-design related SO tags\n(viz. \u201cdesign-patterns\u201d, \u201csoftware-design\u201d, \u201cclass-\ndesign\u201d,\n\u201cdesign-principles\u201d,\n\u201csystem-design\u201d,\n\u201ccode-design\u201d, \u201capi-design\u201d, \u201clanguage-design\u201d,\n\u201cdependency-injection\u201d and \u201carchitecture\u201d) to\nidentify design-related posts on SO. We use SO"
+  },
+  {
+    "heading": "API to extend the tags by querying tag descrip-",
+    "content": "tions (identified by PostTypes: TagWikiExcerpt\nand TagWiki) for the keyword \u201cdesign\u201d and hav-\ning more than 100 posts. We manually removed\ntags that were not related to software design re-\nsulting in a set of 61 tags. We excluded UI design\nrelated tags such as css. We identified over 227\nthousand design-related question-answer(s) pairs\npublished till the end of December 2020 using the"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SOTorrent dataset (Baltes et al., 2019)."
+  },
+  {
+    "heading": "Appendix A provides details of the preprocess-",
+    "content": "ing of texts. We believe that based on the envi-\nronments of the users there will be QCA bias in\ninterpretation of the texts and topics.\n3.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User Recruitment"
+  },
+  {
+    "heading": "Hoyle et al. (2021) stress on evaluating topic mod-",
+    "content": "els on a domain-specific corpus by people familiar\nwith the domain. The central theme of this work\nis to do a detailed, case-oriented, and exploratory\nanalysis of how users interpret topics, hence we\nfocus on a limited number of users."
+  },
+  {
+    "heading": "For the ACL dataset, we recruited users with",
+    "content": "exposure to NLP in terms of: (i) completing or\nteaching an NLP course, (ii) publishing an NLP\nresearch article, or (iii) working with natural lan-\nguage text. An overview of the task and an ex-\nample was shared while recruiting users. We re-\ncruited 12 users (7 from Asia and 5 from North"
+  },
+  {
+    "heading": "America) using convenience and snowball sam-",
+    "content": "pling strategies."
+  },
+  {
+    "heading": "For the SENATE dataset, it was difficult to",
+    "content": "recruit domain experts."
+  },
+  {
+    "heading": "We could recruit only",
+    "content": "four users from the USA through convenience and\nsnowball sampling. We used Prolific3 to recruit 10\nmore users. Appendix B.1 provides criteria for the\nrecruitment. These users may not be experts in the\nfield but are likely to have diverse opinions."
+  },
+  {
+    "heading": "For the DESIGN dataset, we used Prolific to",
+    "content": "recruit 10 participants with exposure to Software"
+  },
+  {
+    "heading": "Design. Appendix B.2 provides selection criteria",
+    "content": "for the recruitment.\n3.4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Inference and Interface"
+  },
+  {
+    "heading": "Hoyle et al. (2022) show that LDA with Gibbs",
+    "content": "sampling (as implemented in MALLET (McCal-\nlum, 2002)) is more stable and reliable than newer\nneural models. Hence, we use MALLET to infer\n50 topics on each dataset with default values of\nhyperparameters. Table 3 lists the dataset-specific\nfive topics for the user studies4."
+  },
+  {
+    "heading": "We customized the Potato text annotation tool",
+    "content": "by Pei et al. (2022) as an interface for the annota-\ntion task. Each user annotated five topics shown\nin random order. We expected 30 minutes for the\nstudy and paid each user the compensation of USD\n19 for their participation5. The average time for\nreading one topic, answering the agreement ques-\ntions, and adding rationale, was 5.5 minutes.."
+  },
+  {
+    "heading": "All the user studies were carried out between",
+    "content": "20 March 2024 and 15 April 2024. Our replica-\ntion package is available for all the datasets, an-\nnotations, and Potato customization: https://\ndoi.org/10.5281/zenodo.14711182 Last-\naccessed: 14-Jul-2025.\n3https://www.prolific.com/ Last-accessed:\n14-Jul-2025"
+  },
+  {
+    "heading": "4We refer to each topic by an id based on the dataset, a",
+    "content": "number, and an informative word for ease of understanding."
+  },
+  {
+    "heading": "5The study was conducted with the approval of the IRB",
+    "content": "of our institute. Informed consent was obtained from all\nusers."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic ID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Highest probability words of topic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "ACL dataset topics (#Users: 12)"
+  },
+  {
+    "heading": "A1:Logic",
+    "content": "logical entailment semantics inference logic interpretation scope hypothesis predicate true predicates variable nega-\ntion rule reasoning proof expression formula formal forms nli expressions variables operator premise"
+  },
+  {
+    "heading": "A2:BERT",
+    "content": "bert fine transformer tuning token shot pretrained loss roberta encoder devlin layer layers prediction pretraining\ndownstream tuned masked embeddings transfer samples appendix batch span transformers"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "dependency parsing parser parse treebank tree head parsers trees dependencies structures constituent treebanks parses\nsyntax gold arc pos penn transition attachment projective constituency constituents ccg"
+  },
+  {
+    "heading": "A4:Neural",
+    "content": "neural layer network lstm embedding embeddings hidden encoder networks layers architecture deep cnn rnn mecha-\nnism prediction vectors decoder recurrent loss memory convolutional encoding softmax matrix"
+  },
+  {
+    "heading": "A5:Tweets",
+    "content": "tweets social twitter user users media tweet posts comments messages post message online comment detection peo-\nple hashtags thread email reddit forum emoji community privacy author"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SENATE dataset topics (#Users: 14)"
+  },
+  {
+    "heading": "S1:Students",
+    "content": "students college education loan program student federal financial loans university colleges higher bill percent debt\nforprofit perkins universities school year proposed institutions banks street aid"
+  },
+  {
+    "heading": "S2:Zika",
+    "content": "health zika women planned parenthood virus funding care womens emergency public abortion bill control states\nservices birth ebola disease centers babies pregnant state united cases"
+  },
+  {
+    "heading": "S3:Freedom",
+    "content": "freedom religious american history rights government united states americans human nation world america religion\ncuba liberty war state free faith nations democracy society political cuban"
+  },
+  {
+    "heading": "S4:Women",
+    "content": "women rights act equal housing voting civil pay discrimination men law fair work americans maryland laws vote\nequality federal womens black state justice amendment country"
+  },
+  {
+    "heading": "S5:Russia",
+    "content": "united states world countries foreign international nations security russia russian country china ukraine allies europe\nnational ambassador economic global policy region leadership government relations european"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DESIGN dataset topics (#Users: 10)"
+  },
+  {
+    "heading": "D1:MVC",
+    "content": "model view controller mvc models views viewmodel data controllers partial mvvm logic create application rails\npresenter display pass app mvp pattern question django user viewmodels"
+  },
+  {
+    "heading": "D2:Memory",
+    "content": "memory time performance cache size large number bit question stack load slow faster system times caching speed lot\nbig usage case efficient fast data results"
+  },
+  {
+    "heading": "D3:Database",
+    "content": "database table query sql tables data row record mysql column insert records rows queries update select columns\nstored key procedure create multiple server connection delete"
+  },
+  {
+    "heading": "D4:Threading",
+    "content": "lock thread locking transaction block read threads locks time locked write multiple process safe access wait shared\nprevent operation mutex release transactions update blocks case"
+  },
+  {
+    "heading": "D5:Inheritance",
+    "content": "classes base parent child inheritance derived abstract subclass methods inherit extend method override subclasses\nvirtual inherited extends superclass problem super add create inherits common extending"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 3: Topics for user studies"
+  },
+  {
+    "heading": "Unknown",
+    "content": "4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Quantitative Analysis"
+  },
+  {
+    "heading": "Figure 2 shows the plots of the average agreement",
+    "content": "scores of users with multiple constructs. For ease\nof presentation, we plot the average of scores of\nthe interpretability constructs (C-5, C-6, and C-7)\nand those of the reflexivity constructs (C-8, C-9,\nand C-10).\n4.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic Quality and Constructs"
+  },
+  {
+    "heading": "The following are the key observations from the",
+    "content": "agreement scores:"
+  },
+  {
+    "heading": "O.1 Users have contrasting views on coherence;",
+    "content": "they agree with C-3(\u2191) when they find a\ncontinuity of meaning but at the same time\nthey find multiple sub-themes and ask to di-\nvide the topic (high agreement with C-4(\u2193)),\nespecially in topics A1:Logic, A3:Parsing,"
+  },
+  {
+    "heading": "A5:Tweets; S2:Zika, S4:Women, D1:MVC,",
+    "content": "and D5:Inheritance."
+  },
+  {
+    "heading": "O.2 Users argue that one needs to be more knowl-",
+    "content": "edgeable to understand topics\u2014 A1:Logic,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT, A3:Parsing, S2:Zika, D1:MVC,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D4:Threading, and D5:Inheritance."
+  },
+  {
+    "heading": "O.3 More context is required to interpret top-",
+    "content": "ics\nsuch\nas"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A1:Logic,"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S3:Freedom."
+  },
+  {
+    "heading": "For A5:Tweets, users do not",
+    "content": "find any jargon, demand more context, and\nask to divide the topic, but find continuity of\na theme in TW ."
+  },
+  {
+    "heading": "O.4 Users",
+    "content": "show\nbetter\nreflexivity\nin\ntheir\ninterpretation\nfor\ntopics"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A4:Neural,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S1:Students,"
+  },
+  {
+    "heading": "D4:Threading,",
+    "content": "and D5:Inheritance compared to that of"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A1:Logic and A3:Parsing."
+  },
+  {
+    "heading": "Unknown",
+    "content": "O.5 The interpretability of topics A2:BERT,"
+  },
+  {
+    "heading": "A4:Neural, S1:Students, and D3:Database is",
+    "content": "relatively better than other topics in the re-\nspective datasets."
+  },
+  {
+    "heading": "These observations show that the constructs",
+    "content": "contribute differently in interpreting different top-\nics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A1:Logic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A3:Parsing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A4:Neural"
+  },
+  {
+    "heading": "A5:Tweets",
+    "content": "0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S1:Students"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S2:Zika"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S3:Freedom"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S4:Women"
+  },
+  {
+    "heading": "S5:Russia",
+    "content": "0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D1:MVC"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D2:Memory"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D3:Database"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D4:Threading"
+  },
+  {
+    "heading": "D5:Inheritance",
+    "content": "0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-1(\u2191): Knowledge (Familiarity with domain)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-3(\u2191): Coherence (Continuity of a theme)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-4(\u2193): Coherence (Multiple sub-themes)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-5(\u2191), C-6(\u2191), C-7(\u2191): Interpretability"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-2(\u2193): Knowledge (Need for context)"
+  },
+  {
+    "heading": "C-8(\u2191), C-9(\u2191), C-10(\u2191): Re\ufb02exivity",
+    "content": "Figure 2: Plots for agreements of the users with the constructs. Appendix E provides topic-wise and\nconstruct-wise plots showing variations across users."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic ID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User Reliability"
+  },
+  {
+    "heading": "Coefficient of Variation (CoV)",
+    "content": "ICC"
+  },
+  {
+    "heading": "Interpretation",
+    "content": "C-1\nC-2\nC-3\nC-4\nC-5\nC-6\nC-7\nC-8\nC-9"
+  },
+  {
+    "heading": "C-10",
+    "content": "(\u2191)\n(\u2193)\n(\u2191)\n(\u2193)\n(\u2191)\n(\u2191)\n(\u2191)\n(\u2191)\n(\u2191)\n(\u2191)"
+  },
+  {
+    "heading": "A1:Logic",
+    "content": "0.56"
+  },
+  {
+    "heading": "Moderate",
+    "content": "1.06\n0.43\n0.26\n0.5\n0.56\n0.67\n0.45\n0.54\n0.35\n0.45"
+  },
+  {
+    "heading": "A2:BERT",
+    "content": "0.91"
+  },
+  {
+    "heading": "Excellent",
+    "content": "1.18\n0.16\n0.13\n1.17\n0.3\n0.17\n0.19\n0.19\n0.36\n0.54"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "0.72"
+  },
+  {
+    "heading": "Moderate",
+    "content": "1.12\n0.31\n0.27\n0.78\n0.33\n0.5\n0.34\n0.56\n0.38\n0.45"
+  },
+  {
+    "heading": "A4:Neural",
+    "content": "0.88"
+  },
+  {
+    "heading": "Good",
+    "content": "0.97\n0.22\n0.19\n1.16\n0.22\n0.22\n0.15\n0.21\n0.23\n0.67"
+  },
+  {
+    "heading": "A5:Tweets",
+    "content": "0.54"
+  },
+  {
+    "heading": "Moderate",
+    "content": "0.32\n0.26\n0.25\n0.71\n0.29\n0.22\n0.41\n0.34\n0.66\n0.53"
+  },
+  {
+    "heading": "S1:Students",
+    "content": "0.96"
+  },
+  {
+    "heading": "Excellent",
+    "content": "0.24\n0.1\n0.11\n0.98\n0.28\n0.16\n0.13\n0.1\n0.11\n0.55"
+  },
+  {
+    "heading": "S2:Zika",
+    "content": "0.76"
+  },
+  {
+    "heading": "Good",
+    "content": "0.61\n0.3\n0.38\n0.7\n0.34\n0.53\n0.35\n0.29\n0.35\n0.16"
+  },
+  {
+    "heading": "S3:Freedom",
+    "content": "0.45"
+  },
+  {
+    "heading": "Poor",
+    "content": "0.52\n0.5\n0.4\n0.35\n0.52\n0.61\n0.5\n0.4\n0.51\n0.28"
+  },
+  {
+    "heading": "S4:Women",
+    "content": "0.83"
+  },
+  {
+    "heading": "Good",
+    "content": "0.3\n0.22\n0.26\n0.85\n0.28\n0.41\n0.36\n0.25\n0.38\n0.37"
+  },
+  {
+    "heading": "S5:Russia",
+    "content": "0.63"
+  },
+  {
+    "heading": "Moderate",
+    "content": "0.42\n0.27\n0.22\n0.65\n0.32\n0.36\n0.25\n0.28\n0.29\n0.39"
+  },
+  {
+    "heading": "D1:MVC",
+    "content": "0.72"
+  },
+  {
+    "heading": "Moderate",
+    "content": "1.11\n0.46\n0.3\n0.95\n0.4\n0.49\n0.38\n0.21\n0.31\n0.31"
+  },
+  {
+    "heading": "D2:Memory",
+    "content": "0.78"
+  },
+  {
+    "heading": "Good",
+    "content": "0.65\n0.29\n0.25\n0.83\n0.2\n0.44\n0.35\n0.18\n0.43\n0.5"
+  },
+  {
+    "heading": "D3:Database",
+    "content": "0.69"
+  },
+  {
+    "heading": "Moderate",
+    "content": "0.69\n0.36\n0.18\n0.82\n0.28\n0.26\n0.39\n0.33\n0.43\n0.61"
+  },
+  {
+    "heading": "D4:Threading",
+    "content": "0.73"
+  },
+  {
+    "heading": "Moderate",
+    "content": "1.1\n0.4\n0.26\n0.88\n0.43\n0.67\n0.28\n0.18\n0.39\n0.48"
+  },
+  {
+    "heading": "D5:Inheritance",
+    "content": "0.76"
+  },
+  {
+    "heading": "Good",
+    "content": "0.91\n0.37\n0.24\n0.86\n0.43\n0.58\n0.18\n0.33\n0.31\n0.2\nTable 4: Intraclass correlation coefficient (ICC) based index of inter-annotator agreement and its in-\nterpretation on the scale of poor to excellent (Koo and Li, 2016; ten Hove et al., 2024) and coefficient\nvariation (CoV) for each topic-construct pair.\n4.2"
+  },
+  {
+    "heading": "User Differences",
+    "content": "We\nuse"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Intraclass"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Correlation"
+  },
+  {
+    "heading": "Coefficient",
+    "content": "(ICC) (Koo and Li, 2016; ten Hove et al., 2024) to\nstudy variations between the users\u2019 assessments\nof the constructs. ICC is a widely used coefficient\nto measure interrater reliability. We use the ICC\nfunction from the Psych R library (William"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Revelle, 2025) to employ \u201cTwo-Way Random-"
+  },
+  {
+    "heading": "Effects Model\u201d with \u201cAgreement\u201d to measure the",
+    "content": "reliability of the \u201cAverage\u201d of scores of k-users\n(Table 3 provides the number of users for each\ndataset.). Table 4 provides the ICC statistic and\nits interpretation based on the guidelines by Koo\nand Li (2016)."
+  },
+  {
+    "heading": "We can observe that in the 8/15 topics, the re-",
+    "content": "liability is Poor or Moderate, especially for the\ntopics A1:Logic, A5:Tweets, S3:Freedom, and"
+  },
+  {
+    "heading": "S5:Russia. To dive deeper in the user differences,",
+    "content": "we analyzed the coefficient of variation (CoV)\namong user scores for each topic."
+  },
+  {
+    "heading": "Table 4 provides the CoVs for each construct-",
+    "content": "topic pair, such that the higher the CoV, the more\nuser differences. For the ease of understanding, we\nhave highlighted the CoVs as: (0, 0.4), [0.4, 0.8),\nand \u22650.8 as Low, Medium , and High respec-\ntively. We can observe that, the CoVs are high-\nest for the constructs C-1:Knowledge (Familiar-\nity with domain), C-6:Interpretability (Explicating\nthe context), and C-10:Reflexivity (Order effects)."
+  },
+  {
+    "heading": "For almost all topics, the CoV for C-4: Coherence",
+    "content": "(Multiple sub-themes) is very high, indicating that\nusers have different views on the coherence of\nthe topics."
+  },
+  {
+    "heading": "Table 5 shows correlations between the con-",
+    "content": "structs computed based on the mean construct\nagreement for each topic. There is a statistically"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-1 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-2 (\u2193)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-3 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-4 (\u2193)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-5 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-6 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-7 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-8 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-9 (\u2191)"
+  },
+  {
+    "heading": "C-2 (\u2193)",
+    "content": "-0.15"
+  },
+  {
+    "heading": "C-3 (\u2191)",
+    "content": "-0.02\n-0.66"
+  },
+  {
+    "heading": "C-4 (\u2193)",
+    "content": "-0.27\n0.51\n-0.55"
+  },
+  {
+    "heading": "C-5 (\u2191)",
+    "content": "0.15\n-0.73\n0.78\n-0.37"
+  },
+  {
+    "heading": "C-6 (\u2191)",
+    "content": "-0.19\n-0.75\n0.88\n-0.49\n0.78"
+  },
+  {
+    "heading": "C-7 (\u2191)",
+    "content": "0.22\n-0.68\n0.87\n-0.62\n0.78\n0.84"
+  },
+  {
+    "heading": "C-8 (\u2191)",
+    "content": "-0.13\n-0.67\n0.82\n-0.35\n0.76\n0.85\n0.77"
+  },
+  {
+    "heading": "C-9 (\u2191)",
+    "content": "0.07\n-0.9\n0.64\n-0.55\n0.57\n0.72\n0.61\n0.68"
+  },
+  {
+    "heading": "C-10 (\u2191)",
+    "content": "-0.21\n-0.71\n0.59\n-0.25\n0.62\n0.65\n0.56\n0.83\n0.67\nTable 5: Pairwise correlation between constructs based on the mean topic construct agreement across\ntopics. Statistically significant correlations (with p-value < .001) are highlighted.\nsignificant correlation (p-value < 0.001) among\nthe constructs: C-3:Coherence (Continuity of a\ntheme), C-8:Reflexivity (Time) and all the inter-\npretability constructs (C-5, C-6, C-7)."
+  },
+  {
+    "heading": "C-8:Reflexivity (Time) is also strongly cor-",
+    "content": "related with C-10:Reflexivity (Order effects)."
+  },
+  {
+    "heading": "There",
+    "content": "is\na\nstrong\nnegative\ncorrelation\nbe-\ntween C-2:Knowledge (Need for context) and C-\n9:Reflexivity (Possible (dis)agreement)."
+  },
+  {
+    "heading": "These",
+    "content": "constructs and correlations among them can be uti-\nlized in designing new evaluation framework."
+  },
+  {
+    "heading": "Constructs C-2:Knowledge (Need for context)",
+    "content": "and C-1:Knowledge (Familiarity with domain)\nboth capture Knowledge requirements to interpret\na topic, but there is no correlation among them."
+  },
+  {
+    "heading": "Similarly, coherence constructs C-3:Coherence",
+    "content": "(Continuity of a theme) and C-3:Coherence (Mul-\ntiple sub-themes) have little correlation. Hence,\nitems of the same construct may not be correlated\nto each other and are likely to capture its different\naspects.\n4.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "LLM based Coherence"
+  },
+  {
+    "heading": "Stammbach et al. (2023) claim that LLMs can as-",
+    "content": "sess the quality of topics. We verify their claim\nusing their LLM-based coherence rating protocol."
+  },
+  {
+    "heading": "The protocol will also serve as a baseline that",
+    "content": "might represent a single, rational user. We apply\nprompts with (CK\nw/) and without (CK\nw/o) a task and\ndataset description and ask the LLM\u2014GPT-3.5-"
+  },
+  {
+    "heading": "Turbo to rate the word relatedness of a topic on",
+    "content": "the Likert scale (K = 3) from 1 \u22123 (\u201c1\u201d = not\nvery related, \u201c2\u201d = moderately related, \u201c3\u201d = very\nrelated)."
+  },
+  {
+    "heading": "To study the effect of the scale we repeated the",
+    "content": "experiments for a Likert scale (K = 5) of 1 \u22125\n(\u201c1\u201d = not very related, \u201c2\u201d = somewhat related,\n\u201c3\u201d = moderately related, \u201c4\u201d = related, \u201c5\u201d = very\nrelated) with the same settings that of Likert scale\n(K = 3). We prompt the LLM five times, with\nand without dataset details, for both scales, and\nreport the mean score and rating (mode item of the\nscale). Table 6 provides the coherence scores, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Appendix D provides details of the prompts."
+  },
+  {
+    "heading": "The coherence scores show that subtleties in",
+    "content": "topic interpretations discussed in Sections 4.1 and\n4.2 are not captured by the LLM-based coherence\nratings using both RK\nw/ and RK\nw/o (for both the val-\nues of K), and hence their construct validity is\nlimited.\nFor\nexample,\nthe\nLLM\nassesses\ntopic"
+  },
+  {
+    "heading": "A3:Parsing 2.8 (very related) and 3 (very re-",
+    "content": "lated), with C3\nw/o and C3\nw/ respectively. However,\naccording to O.1, O.3, and O.4, the topic has\nrelatively poor average agreement scores by users."
+  },
+  {
+    "heading": "Unknown",
+    "content": "The LLM-based assessment for A1:Logic and"
+  },
+  {
+    "heading": "A4:Neural is the same for C3",
+    "content": "w/o and C3\nw/ (moder-\nately related and very related respectively), how-\never, as we can see in Figure 2 (and in Figure 4\nfrom Appendix E) users find A4:Neural more in-\nterpretable than A1:Logic on all constructs. More-\nover, ICC rating for A1:Logic is Moderate, while\nfor A4:Neural it is Good (Table 4).\nThe\ntopics"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S1:Students,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S3:Freedom,"
+  },
+  {
+    "heading": "S4:Women",
+    "content": "and"
+  },
+  {
+    "heading": "S5:Russia",
+    "content": "have\nexactly\nthe\nsame\ncoherence\nrating\n(R3\nw/)\u2014very\nrelated,\nhowever, our observations in Section 4.1 (O.1\nto O.5) show that users interpret these topics\ndifferently. Differences in ICC ratings for these\ntopics, as shown in Table 4, further strengthen this\nargument. A similar argument can be made in the\ncontext of the ACL and DESIGN topics. More-\nover, the ratings of A3:Parsing and S5:Russia are\nthe same for K = 3\u2014very related; however, we\ncannot conclude that the two topics from different\ndomains have the same interpretability."
+  },
+  {
+    "heading": "Table 7 shows the correlation between the co-",
+    "content": "herence scores and the average agreement with a\nC3\nw/o\nR3\nw/o\nC3\nw/\nR3\nw/\nC5\nw/o\nR5\nw/o\nC5\nw/\nR5\nw/"
+  },
+  {
+    "heading": "A1:Logic",
+    "content": "2.4\nmoderately related\n2.6\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "A2:BERT",
+    "content": "2\nmoderately related\n2.2\nmoderately related\n3.8\nrelated\n4.2\nrelated"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "2.8\nvery related\n3\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "A4:Neural",
+    "content": "2.4\nmoderately related\n2.6\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "A5:Tweets",
+    "content": "2.8\nvery related\n2.8\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "S1:Students",
+    "content": "2.2\nmoderately related\n3\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "S2:Zika",
+    "content": "2\nmoderately related\n2\nmoderately related\n4\nrelated\n3.6\nrelated"
+  },
+  {
+    "heading": "S3:Freedom",
+    "content": "3\nvery related\n3\nvery related\n4.2\nrelated\n4.4\nrelated"
+  },
+  {
+    "heading": "S4:Women",
+    "content": "2.2\nmoderately related\n2.8\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "S5:Russia",
+    "content": "3\nvery related\n3\nvery related\n4.2\nrelated\n4.8\nvery related"
+  },
+  {
+    "heading": "D1:MVC",
+    "content": "2.6\nvery related\n3\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "D2:Memory",
+    "content": "2.2\nmoderately related\n2.2\nmoderately related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "D3:Database",
+    "content": "2\nmoderately related\n2\nmoderately related\n4\nrelated\n3.8\nrelated"
+  },
+  {
+    "heading": "D4:Threading",
+    "content": "2.4\nmoderately related\n2.6\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "D5:Inheritance",
+    "content": "2.2\nmoderately related\n2.8\nvery related\n4\nrelated\n4\nrelated"
+  },
+  {
+    "heading": "Table 6: Coherence scores: CK",
+    "content": "w/ (CK\nw/o) denote the LLM (GPT)-based mean coherence scores of a topic\nwith (without) task and dataset description. Similarly, RK\nw/ (RK\nw/o) denote rating (mode Likert item). K\ndenotes the number of items in Likert scales; K \u2208{3, 5}."
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-1 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-2 (\u2193)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-3 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-4 (\u2193)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-5 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-6 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-7 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-8 (\u2191)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C-9 (\u2191)"
+  },
+  {
+    "heading": "C-10 (\u2191)",
+    "content": "C3\nw/o\n0.21\n0.55\n-0.43\n-0.06\n-0.52\n-0.45\n-0.24\n-0.35\n-0.51\n-0.49\nC3\nw/\n0.26\n0.2\n-0.13\n-0.1\n-0.27\n-0.3\n-0.09\n-0.01\n-0.19\n-0.14\nC5\nw/o\n0.41\n0.44\n-0.61\n0.07\n-0.62\n-0.62\n-0.42\n-0.46\n-0.44\n-0.32\nC5\nw/\n0.21\n0.16\n-0.14\n-0.26\n-0.25\n-0.2\n-0.01\n-0.04\n-0.22\n-0.11\nTable 7: Correlation between the constructs and coherence scores based on the mean construct agree-\nment for each topic.\nconstruct on 15 topics. We can observe that the\ncorrelations are not statistically significant. In Ta-\nble 6, we can observe that there is little variation\nbetween the scores, despite the fact that the topics\nhave different interpretations."
+  },
+  {
+    "heading": "The scores and ratings does not help in assess-",
+    "content": "ing: (i) the utility of the topics for corpus explo-\nration, (ii) (dis)similarity among the topics, (iii)\nvariations in their interpretations, especially labels\n(Tables 14, 15, and 16 in Appendix G give topic\nlabels provided by all the users.)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "5"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Reflexive Thematic Analysis (RTA)"
+  },
+  {
+    "heading": "We do a RTA of user-assigned topic labels and ra-",
+    "content": "tionale to understand how topics are interpreted."
+  },
+  {
+    "heading": "The analysis involves six iterative phases of: (i)",
+    "content": "familiarisation; (ii) coding; (iii) generating ini-\ntial themes; (iv) reviewing and developing themes;\n(v) refining, defining, and naming themes; and (vi)\nwriting up (Braun and Clarke, 2021). The first au-\nthor performed an RTA on 180 rationales and la-\nbels (5 interpretations of total 36 users)6."
+  },
+  {
+    "heading": "Unknown",
+    "content": "6Section 9 provides the positionality of the authors."
+  },
+  {
+    "heading": "This section discusses the major themes discov-",
+    "content": "ered using RTA. These themes capture different\ntypes of lexical and semantic inferences about pos-\nsible communication intents in texts.\n5.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Salience"
+  },
+  {
+    "heading": "Topic interpretations revolve around the salience",
+    "content": "of topic words as perceived by a user. We adapt\nthe definition of word salience by Boswijk (2022)\nas the degree of prominence of a word, with re-\nspect to other words in TW . The salience of a\nword depends on factors such as: (i) Ecological"
+  },
+  {
+    "heading": "Frequency (memory, recency, expertise), (ii) Fa-",
+    "content": "miliarity in Context, and (iii) Word Position.\n5.1.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ecological Frequency"
+  },
+  {
+    "heading": "A user determines the salience of a word based",
+    "content": "on the ease of retrieving experiences of the word\nin their memory. The ease of retrieval depends\non ecological frequency (Tversky and Kahneman,\n1973; Anderson and Schooler, 1991)."
+  },
+  {
+    "heading": "Ecolog-",
+    "content": "ical frequency is subjective; it depends on the\nuser\u2019s exposure to the word in their environment."
+  },
+  {
+    "heading": "Table 8-A, shows the interpretations of topics",
+    "content": "ID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Familiarity effects for AI-10"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT"
+  },
+  {
+    "heading": "Large language",
+    "content": "models\nthe topic is easy to understand what it is \"about\", as it seems to capture relevant key-\nwords to LLMs [...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "linguistic\nthis topic for sure is less familar to me. looking at top terms sicj as parser, tree,\nhead, dependecy, I said ok it is about linguistic. but going further down the list the\nterms became less familiar to me. [...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Context effect: Topic D4:Threading"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-6"
+  },
+  {
+    "heading": "Operating Systems",
+    "content": "Threads, mutex, locking, process are big hints. A subject I had in Uni was called \"Op-\nerating Systems\" that also covered this topic[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-2"
+  },
+  {
+    "heading": "Concurrency con-",
+    "content": "trol, database man-\nagment and trans-\naction processing.\nThere is plenty of jargon, a novice without at least some background knowledge\nwouldn\u2019t understand the topic[...]I provided that label because the words such as\n\"lock\", \"thread\", \"time\", \"multiple\", and \"transaction\" reminded me of it the most[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C. Memory based fallback effect: Topic A3:Parsing"
+  },
+  {
+    "heading": "AI-3",
+    "content": "data\nkey word: dependency, tree, treebank Maybe data structure? I\u2019m not sure"
+  },
+  {
+    "heading": "AI-9",
+    "content": "parser\nNot familiar with this topic, but chose parser because I\u2019ve used \u201cparser\u201d."
+  },
+  {
+    "heading": "Unknown",
+    "content": "D. Ordering effect: Topic A1:Logic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Entailment and"
+  },
+  {
+    "heading": "Logical Reasoning",
+    "content": "The topic is not easy to label because there seems to be a mixture of multiple topics\nlike entailment (NLI) logical reasoning logic formulae and predicates[...] The order\nof words is not playing much role in reducing the labelling confusion of this topic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-8"
+  },
+  {
+    "heading": "Logical",
+    "content": "entailment\nThe first two words (logical entailment) suggested the topic for me and the other\nwords seemed to align. I might have gone for NLI if the term appeared at the top.\nTable 8: Examples of topic interpretations showing the effect of differential salience of words. Table 17\nprovides full texts of the interpretations."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT and A3:Parsing by the user AI-107."
+  },
+  {
+    "heading": "They know the words in topic A2:BERT and find",
+    "content": "the topic easier to interpret than topic A3:Parsing."
+  },
+  {
+    "heading": "The context shapes the meaning of words;",
+    "content": "hence, selecting a particular context will af-\nfect a topic\u2019s interpretation."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 8-B, shows"
+  },
+  {
+    "heading": "DI-6 and DI-2 interpret Topic D4:Threading in",
+    "content": "different contexts:\n\u201cOperating Systems\u201d and\n\u201cDatabases\u201d respectively. In literary texts, words\nand metaphors they represent have different mean-\nings in different societies and cultures, and hence\nthey may lead to different interpretations of top-\nics (Lakoff and Johnson, 2008).\n5.1.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Familiarity in Context"
+  },
+  {
+    "heading": "The salience of a word also depends on how much",
+    "content": "a user sees a word in the context of TW and the\ndomain of texts."
+  },
+  {
+    "heading": "This aspect differs from eco-",
+    "content": "logical frequency, as a meaning may be famil-\niar in one context but not in the domain of inter-\nest. For example, consider interpretations of topic"
+  },
+  {
+    "heading": "7We refer to a user by a unique id prefixed by dataset",
+    "content": "name, e.g. AI for ACL Interpreter."
+  },
+  {
+    "heading": "A3:Parsing in Table 8-C. Users AI-3 and AI-9 are",
+    "content": "not familiar with the topic. Their interpretations\nfall back on the concepts they are familiar with.\n5.1.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Word position"
+  },
+  {
+    "heading": "Some users give importance to word order such",
+    "content": "that the top words influence interpretation as com-\npared to the later words. Such an \u201corder effect\u201d\nis a commonly observed bias in interactions with\nsearch engines (Azzopardi, 2021). Table 8-D gives\nexamples of order effects seen in interpretations\nof topic A1:Logic by AI-8."
+  },
+  {
+    "heading": "They would have",
+    "content": "changed their label if the word order had been dif-\nferent. AI-6 however does not give importance to\nthe word order.\n5.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Presentism or Projection Effects"
+  },
+  {
+    "heading": "For the SENATE dataset topics, some users ig-",
+    "content": "nored the fact that the dataset contains speeches\nfrom 2015-2017 (which we informed them of)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Instead, they are biased by more recent events8."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Such a bias, known as \u201cpresentism\u201d (interpretation"
+  },
+  {
+    "heading": "8We refer the reader to Appendix C for more details",
+    "content": "ID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-4 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ukraine and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Russian"
+  },
+  {
+    "heading": "Conflict",
+    "content": "All the words have to do with countries that have some influence over the current\nconflict between Russia and Ukraine, as well as points of contention throughout the\nwar[...] This label does require some background knowledge on current events (so\nnot everyone would come to the same conclusion) [...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-8 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "Assistance",
+    "content": "I labeled this section as assistance because ever since the Russians war against Ukraine\nhas started the United states role has been providing assistance to Ukraine[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S1:Students"
+  },
+  {
+    "heading": "Student loan",
+    "content": "discussions\nWords like students, financial, loans, and banks make me think the speech was about the\nrecent rates of student loans and how they need to be fixed."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S2:Zika"
+  },
+  {
+    "heading": "Healthcare",
+    "content": "[...]women, abortion, planned, parenthood, control, babies, pregnant. All these words\nremind me on the increasing national regulation on women\u2019s healthcare rights.\nTable 9: Example topic interpretations with presentism effect. Table 18 provides full texts of the inter-\npretations.\nof the past in terms of the present), is observed in\nhistorical analysis (Hunt, 2002). Table 9 gives an\nexample of the presentism effect in the interpre-\ntation of topic S5:Russia by user SI-4. A possi-\nble bias is \u201cprojection\u201d (overestimating the future\nbased on the current state of mind)."
+  },
+  {
+    "heading": "According to the availability heuristic (Tversky",
+    "content": "and Kahneman, 1973), users can find topics about\ncontemporary and widely discussed events or is-\nsues (e.g., interpretations of topics S1:Students\nand S2:Zika in Table 9 by users SI-5 and SI-9 re-\nspectively) or scientific paradigms (Kuhn, 1962)\neasier to interpret. This may be the reason over-\nall interpretability of topics A2:BERT, A4:Neural,"
+  },
+  {
+    "heading": "S1:Students, S4:Women, and S5:Russia is higher",
+    "content": "than other topics such as A1:Logic and S2:Zika.\n5.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Generalization and Stereotyping"
+  },
+  {
+    "heading": "As limited context is available while interpreting a",
+    "content": "topic, users are likely to arrive at overgeneralized\nor stereotypical interpretations of certain words."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 10-A gives examples of such interpretations."
+  },
+  {
+    "heading": "We refer the reader to (Dionne and Seay, 2016) for",
+    "content": "discussion on stereotypes about \u201cAfrica\u201d, \u201cZika\u201d\nand \u201cEbola\u201d, and to (Bernell, 2012) for discussion\non some of the perceptions of Cuba by the US res-\nidents. We argue that such stereotypical interpre-\ntations are likely to happen in the case of contested\nconcepts (Weber, 2009)."
+  },
+  {
+    "heading": "Topic labels vary across the spectrum of maxi-",
+    "content": "mum to minimum levels of abstractions (LoA) of\na given TW , leading to disagreements. Table 10-B\ngives example interpretations of topic A2:BERT at\ndifferent LoA."
+  },
+  {
+    "heading": "Sutherland et al. (2015) argue that people are",
+    "content": "biased to make spontaneous, implicit, and induc-\ntive generalizations to certain categories from in-\nformation given sparse evidence about categories."
+  },
+  {
+    "heading": "Such generalizations can be seen in sciences (Pe-",
+    "content": "ters et al., 2022) and in political communica-\ntions (Novoa et al., 2023)."
+  },
+  {
+    "heading": "Users AI-2, AI-4,",
+    "content": "and AI-9\u2019s interpretation of topic A1:Logic in Ta-\nble 10-C show generalizations of the topic based\non the role played by different words in the induc-\ntive inference(s) while interpreting the topic.\n5.4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Gestalt principles"
+  },
+  {
+    "heading": "Table 11-A, shows a few topics in which inter-",
+    "content": "preters use words or concepts that are not men-\ntioned in the respective TW s."
+  },
+  {
+    "heading": "SI-11 mentions",
+    "content": "\u201cUkraine\u2019s NATO struggle\u201d even though the word"
+  },
+  {
+    "heading": "NATO is not mentioned in Topic S5:Russia, sim-",
+    "content": "ilarly DI-4 mentions \u201cconcurrency\u201d while inter-\npreting Topic D4:Threading."
+  },
+  {
+    "heading": "Such behavior of interpreters to go beyond TW",
+    "content": "can be understood through the lens of \u201cReader-\nresponse theory\u201d by (Iser, 1978). He argues that\nwhile reading a text, the reader strives for consis-\ntency and coherence by filling the \u201cgaps\u201d in the\ntext based on their imagination and environment."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Filling the gaps gives the gestalt of the text."
+  },
+  {
+    "heading": "Figure/ground is another important gestalt prin-",
+    "content": "ciple (Koffka, 1999). In the perceptual decision, a\nperson focuses on certain objects (figure) and con-\nsiders other objects (ground) relatively less impor-\ntant. In case of ambiguity, the same objects can\nbe seen as either figure or ground."
+  },
+  {
+    "heading": "Table 11-B",
+    "content": "provides examples of this principle in topic inter-\npretations. While interpreting Topic S4:Women,\ninterpreter SI-4 considers the word \u201cblack\u201d as a\nfigure, SI-5 also considers it as a figure but sub-\nsumes \u201cblack identity\u201d with \u201cwomen identity\u201d, SI-\n9 considers \u201cblack\u201d as a ground. We argue that the\nrole of a word in interpreting a topic depends on\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Stereotypes"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S2:Zika"
+  },
+  {
+    "heading": "African Aid",
+    "content": "Things like, abortion, zika, ebola, are all indicative of ongoing African societal and\nmedical issues. This speech could be about aid to countries in Africa."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S3:Freedom"
+  },
+  {
+    "heading": "International",
+    "content": "influence\nUnclear if these words are to represent the separation of church and state (freedom, reli-\ngious, religion, faith) or represent USA\u2019s involvement with spreading democracy into\nother countries (Cuba, freedom, history, united, states, human, liberty, war, [...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Levels of Abstraction: Topic A2:BERT"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-8"
+  },
+  {
+    "heading": "BERT",
+    "content": "This topic seems to be about transformers. But the lack of GPT and other models, and\nthe rank of the word \u2019bert\u2019 led me to conclude this topic is actually about BERT."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-10"
+  },
+  {
+    "heading": "Large language",
+    "content": "models\nthe topic is easy to understand what it is \"about\", as it seems to capture relevant\nkeywords to LLMs. Seems the terms convey a cohesive topic [...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "C. Generalization for Topic A1:Logic"
+  },
+  {
+    "heading": "AI-2",
+    "content": "science\nI think a person requires some experience in the sciences to understand these terms[...] I\nbelieve that this topic can be split into a topic that encompasses the mathematical[...] and\nanother topic that focuses on logical reasoning[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-9"
+  },
+  {
+    "heading": "Logic",
+    "content": "I can roughly guess the content because I\u2019ve learned these concepts in a course, such as\nfirst-order logic, but I can\u2019t recall the name, as I used \"logic\" as the topic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-4"
+  },
+  {
+    "heading": "Natural lan-",
+    "content": "guage inference\nI am really hesitating between logics and nli as \"entailment\", \"semantic\", and \"inference\"\nare more related to NLI while the first word is \"logical\"\nTable 10: Examples of topic interpretations showing the effect of Stereotyping and Generalization. Ta-\nble 19 provides full texts of the interpretations.\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Gestalt principle: Closure"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-11 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "US and Ukraine",
+    "content": "conflict with russia\nand China\n[...] My guess is this topic is about the Ukrain joining Nato struggle and conflicts\nwith Russia[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-4 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D4:Threading"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Concurrency and"
+  },
+  {
+    "heading": "Processes Manage-",
+    "content": "ment\nFor me the words:[...] are related on how different processes or units of execution\naccess the same resources avaliable. \"transaction\", \"update\", \"block\", and \"locked\"\n-> are words for me that focus more on the integrity of the data[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Gestalt principle: Figure and Ground for Topic S4:Women"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "American Human"
+  },
+  {
+    "heading": "Rights",
+    "content": "There are words having to do with different categories of people (women, men,\nblack), words having to do with rights (equality, amendment, fair, justice,[...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5"
+  },
+  {
+    "heading": "Women\u2019s rights",
+    "content": "Things like equality, Black, women, rights, discrimination all point to a speech\nabout Women\u2019s rights [...]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9"
+  },
+  {
+    "heading": "Equal Rights",
+    "content": "After looking at the first few words \"women\",\"rights\",\"act\",\"equal\" all of these\nrelated towards the movement for equality between women and men [...]\nTable 11: Topic interpretations showing effects of Gestalt principles. Table 20 provides full texts of the\ninterpretations.\nwhether it is considered as a figure or ground."
+  },
+  {
+    "heading": "Unknown",
+    "content": "6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A Theory of Topic Interpretation"
+  },
+  {
+    "heading": "Our theory connecting the themes from Section 5",
+    "content": "is based on the anchoring effect (A&A), the\nproduct of an anchoring-and-adjustment (A&A)\nheuristic (Tversky and Kahneman, 1974). While\nmaking judgments under uncertainty, a person an-\nchors on information that comes to mind and ad-\njusts until a plausible estimate is reached (Ep-\nley and Gilovich, 2006)."
+  },
+  {
+    "heading": "To understand A&A,",
+    "content": "consider the question inspired by (Epley, 2004):\n\u201cWhen did George Washington step down as Pres-\nident of the United States?\u201d Suppose a person does\nnot know the exact answer. In that case, they may"
+  },
+  {
+    "heading": "Highest",
+    "content": "probability words\nof topic: TW"
+  },
+  {
+    "heading": "Salience: (Availability heuristic)",
+    "content": "1. Context/memory\n2. Familiarity\n3. Word position (Order effects)\n4. Recency"
+  },
+  {
+    "heading": "Sample a set of salient words\u2014",
+    "content": "a \u2286TW\na \u223cPS(a|TW , E)"
+  },
+  {
+    "heading": "Anchoring-and-Adjustment",
+    "content": "(Generate anchors using representativeness heuristic)"
+  },
+  {
+    "heading": "Possible biases or effects:",
+    "content": "1. Presentism and Projection,\n2. Levels of Abstraction,\n3. Oversimplification,\n4. Stereotypes, 5. Generalization\n6. Gestalt principles: (i) Closure, (ii) Figure-ground"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Anchoring"
+  },
+  {
+    "heading": "Initialize topic interpretation:",
+    "content": "m \u223cPU(m|a, E)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Adjustment"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Repeat until convergence"
+  },
+  {
+    "heading": "For each word w \u2208TW",
+    "content": "1. m\u2217\u223cPU(m\u2217|m, adjust = w, a, E)\n2. \u00b5 \u223cU(0, 1)\n3. Update m:\na. \u03b1(m\u2217, m) = PU(m\u2217|a, E)"
+  },
+  {
+    "heading": "PU(m|a, E)",
+    "content": "b. If \u00b5 < \u03b1(m\u2217, m) :\nm = m\u2217"
+  },
+  {
+    "heading": "Interpretation",
+    "content": "m"
+  },
+  {
+    "heading": "Topic",
+    "content": "label"
+  },
+  {
+    "heading": "Topic",
+    "content": "label\nS\nA&A"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SSim"
+  },
+  {
+    "heading": "A&ASim",
+    "content": "L"
+  },
+  {
+    "heading": "LSim",
+    "content": "Figure 3: A theory of topic interpretation using the Anchoring-and-Adjustment heuristic along with its\ncomputational framework (shaded boxes).\nS3:Freedom: freedom religious american history rights government united states americans human nation world america\nreligion cuba liberty war state free faith nations democracy society political cuban\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User\u2019s Label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-12"
+  },
+  {
+    "heading": "Religious Free-",
+    "content": "dom in Amer-\nican Govern-\nment\nSince \"religious\" and \"freedom\" are the top two words, I would guess that this topic is\nmore specifically referring to religious freedom in American government, but I\u2019m not sure \u2013\nI would need to see documents to confirm this. Also, it isn\u2019t clear to me whether \"cuba\"\nand \"cuban\" belong in this topic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-13"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Spanish-"
+  },
+  {
+    "heading": "American",
+    "content": "War\nWords like Cuban, America, war, and freedom indicated to me that the topic is about the\nSpanish-American War, which primarily revolved around Cuban independence. The words\nrelated to religion/faith threw me off the most, which led me to lowering my confidence-\nrelated scores.[...]\nTable 12: Examples of topic interpretations based on the anchoring-and-adjustment heuristic. Table 21\nprovides full texts of the interpretations.\nanchor on the fact that the US declared its inde-\npendence in 1776, and then adjust it based on (i)"
+  },
+  {
+    "heading": "Washington was the first president; (ii) he must",
+    "content": "have been elected shortly after 1776; and (iii) he\nmust have stepped down either four or eight years\nafter the election9."
+  },
+  {
+    "heading": "While interpreting a topic, a user (i) gener-",
+    "content": "ates a set of anchor concepts/categories; (ii) inter-\nprets non-anchor words contextually but compati-\nbly with the anchors; (iii) assimilates these inter-\npretations to arrive at an overall interpretation and\nits encapsulation\u2014a label."
+  },
+  {
+    "heading": "The two heuristics that play a vital role in an-",
+    "content": "chor generation are: availability and representa-\ntiveness (Tversky and Kahneman, 1974). While\nemploying availability heuristics, a user identi-\n9https://constitution.congress.gov/\nbrowse/essay/artII-S1-C1-9/"
+  },
+  {
+    "heading": "ALDE_00013597/ Last accessed: 21-July-2025",
+    "content": "fies certain words as important based on ease of\nretrieval from memory considering their vivid-\nness, associated emotions, exposure, familiarity,\nrecency, etc."
+  },
+  {
+    "heading": "The user then uses the repre-",
+    "content": "sentativeness heuristic to identify candidate cate-\ngories/concepts as anchors based on their similar-\nity with the important words identified in the pre-\nvious step. The user then makes inductive infer-\nences to adjust the anchors w.r.t. the remaining\nwords and the context."
+  },
+  {
+    "heading": "As the anchors are self-generated they neces-",
+    "content": "sarily vary across the users depending on their\npriming, positionality, and environment. Hence,\nanchor-adjustments lead to multiple interpreta-\ntions In in the Triangle of Reference (Fig.\n1)."
+  },
+  {
+    "heading": "Such anchoring is similar to self-anchoring in con-",
+    "content": "versations (Keysar and Barr, 2002), where speak-\ners in case of uncertainty tend to anchor on their\negocentric perspective and attempt to adjust to the\nperspective of others. Often these adjustments are\ninsufficient leading to miscommunication."
+  },
+  {
+    "heading": "Figure 3 summarizes our theory of topic inter-",
+    "content": "pretations: frequency, familiarity, and word posi-\ntion influence anchor generation (relation between"
+  },
+  {
+    "heading": "TW and Ui in Figure 1), and effects such as presen-",
+    "content": "tism, levels of abstraction, Gestalt principles, and\nstereotypes influence the subsequent adjustment\nprocess (relation between Ui and Ii in Figure 1)."
+  },
+  {
+    "heading": "The differences in anchors lead to differences in",
+    "content": "interpretations, biased towards the anchors."
+  },
+  {
+    "heading": "Unknown",
+    "content": "We illustrate this theory with examples in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 12."
+  },
+  {
+    "heading": "For topic S3:Freedom, user SI-12",
+    "content": "considers words religious and freedom\nas anchors as they are the top two words. They\ngenerate"
+  },
+  {
+    "heading": "American government and",
+    "content": "politics as another anchor based on the\nwords,\ngovernment, united, states,\namerican, etc."
+  },
+  {
+    "heading": "Based on these anchors they",
+    "content": "arrive at the label: Religious Freedom in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "American Government."
+  },
+  {
+    "heading": "Importantly,",
+    "content": "in\nthe adjustment process, they explicitly consider\nwords cuba and cuban as irrelevant."
+  },
+  {
+    "heading": "For the same topic, user SI-13 considers cuba",
+    "content": "and cuban as the anchors, even though they are\nat lower ranks."
+  },
+  {
+    "heading": "They generate Spanish and",
+    "content": "independence as other anchors, even though\nthey are not present in TW ."
+  },
+  {
+    "heading": "Based on other",
+    "content": "anchors, american, war and freedom they\narrive at the label Spanish-American War."
+  },
+  {
+    "heading": "In contrast with SI-12, words religion and",
+    "content": "faith do not play any role in their adjustment\nprocess."
+  },
+  {
+    "heading": "In the adjustment process, SI-12 ad-",
+    "content": "justs the word freedom towards \u201cfreedom of reli-\ngion\u201d, while SI-13 adjusts the same word towards\n\u201cwar of Cuba with Spain\u201d. Due to the differences\nin their anchors and further adjustments SI-12 and"
+  },
+  {
+    "heading": "SI-13 arrive at different interpretations.",
+    "content": "6.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic Interpretation as Approximate"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Bayesian Inference"
+  },
+  {
+    "heading": "Several authors, such as (Chater and Manning,",
+    "content": "2006; Vul et al., 2014; Griffiths et al., 2024) argue\nthat human cognition is parallel to Bayesian infer-\nence. As humans are boundedly (or ecologically)\nrational, the inference is approximate (Lieder and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Griffiths, 2020)."
+  },
+  {
+    "heading": "Lieder (2018) assumes a ra-",
+    "content": "tional mind that makes effective use of their\nresources and applies Bayesian decision theory\nto simulate \u201cavailability\u201d and \u201canchoring-and-\nadjustment\u201d heuristics."
+  },
+  {
+    "heading": "We propose a computational framework for",
+    "content": "our theory of topic interpretation based on the\nresource-rational framework of human cogni-\ntion (Lieder, 2018)."
+  },
+  {
+    "heading": "According to our frame-",
+    "content": "work, a user identifies a set of words a as the\nset of salient words in TW by sampling from\ntheir user-specific distribution\u2014PS conditioned\non their ecology E consisting of their decision\ncontext, memories, and experiences. The user then\ngenerates an \u201canchor interpretation\u201d (m) as the\ninitial interpretation by sampling from PU con-\nditioned on the a and E, where PU is a prob-\nability distribution over all possible interpreta-\ntions of the topic."
+  },
+  {
+    "heading": "The user then adjusts the",
+    "content": "anchor based on other words."
+  },
+  {
+    "heading": "We model ad-",
+    "content": "justment as a Markov chain that starts with the\n\u201canchor interpretation\u201d."
+  },
+  {
+    "heading": "At each step, an ad-",
+    "content": "justment (m\u2217) to the current interpretation (m)\nconditioned on word w from TW is proposed:\nm\u2217\u223cPU(m\u2217|m, adjust = w, a, E), and it is ac-\ncepted according to the Metropolis\u2013Hastings al-\ngorithm (Robert and Casella, 2009). The adjust-\nments are made until the current interpretation\nconverges. Shaded blocks in Figure 3 summarizes\nthe computational framework."
+  },
+  {
+    "heading": "From a practical standpoint,",
+    "content": "a knowledge\nsource such as Wikipedia or a domain-specific\nknowledge graph (KG) can be used to simulate our\ntheory. The basic idea is to assume that a topic can\nbe interpreted as a Wikipedia article (or a node in\nthe KG), and its title as the label of the topic. Let"
+  },
+  {
+    "heading": "PU(Wk|TW ) be the probability that user U will",
+    "content": "select the Wikipedia article Wk as an interpreta-\ntion of topic TW . A user based on a set of salient\nwords (a), identifies a Wikipedia article as an an-\nchor interpretation and then adjusts the same us-\ning the process described in the A&ASim block\nin Figure 3 considering different types of relations\n(or edges) between Wikipedia articles (or nodes in\nthe KG)."
+  },
+  {
+    "heading": "Multiple sets of salient words (A = {ai}) can",
+    "content": "be sampled from PS specific to the knowledge\nsource and then each ai \u2208A can be used to gen-\nerate multiple topic interpretations\u2014M, such that\neach m \u2208M corresponds to a Wikipedia article\n(or a node) as per our framework described above."
+  },
+  {
+    "heading": "The interpretations in the form of Wikipedia ar-",
+    "content": "ticles (or nodes in a KG) in M can be used to\nestimate the quality of topics and therefore com-\npare different topic models: (i) (dis)similarity of\nthe Wikipedia articles in M; (ii) how generic or\nspecific are they; (iii) what would be the effect in-\ncorporating word order in identification of salient\nwords and the A&A process on M; (iv) to study\nthe presentism or projection effects discussed in"
+  },
+  {
+    "heading": "Section 5.2, older or newer Wikipedia dumps can",
+    "content": "be used to generate M."
+  },
+  {
+    "heading": "Depending on the goals of content analysis,",
+    "content": "consistency, diversity (a spectrum of possible in-\nterpretations), or divergence (clusters of similar\ninterpretations) (Zade et al., 2018) among M can\nserve as an indicator of the utility of a topic. Con-\nsistency may be required in the content analysis\nof laws and regulations or healthcare-related doc-\numents, while diversity of different perspectives\nmay play a role in the analysis of literature (e.g.,\npoetry) or humanities."
+  },
+  {
+    "heading": "The proposed framework and its utility in eval-",
+    "content": "uation need to be tested rigorously, specifically to\narrive at the subjective probability distributions\u2014"
+  },
+  {
+    "heading": "PS and PU, specific to a user. We want to explore",
+    "content": "the same in the future."
+  },
+  {
+    "heading": "Unknown",
+    "content": "7"
+  },
+  {
+    "heading": "Discussion",
+    "content": "7.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Construct Validity of Coherence Ratings"
+  },
+  {
+    "heading": "In Section 4.2, we observed significant variations",
+    "content": "at both the user level and the construct level. The\nconstructs C-1, C-4, C-6, and C-10 can be seen as\nsources of variations. Moreover, some constructs\nare significantly correlated. These insights can be\nused to develop an evaluation framework for topic\nmodels. These variations are not captured by the"
+  },
+  {
+    "heading": "LLM-based coherence ratings (RK",
+    "content": "w/o and RK\nw/) as\nthere is little variation among these scores for both"
+  },
+  {
+    "heading": "Unknown",
+    "content": "K = 3 and K = 5."
+  },
+  {
+    "heading": "We argue that the scores assigned by the LLM",
+    "content": "are its revealed preferences rather than its norma-\ntive preferences. Such preferences are sensitive\nto framing (especially the choices or options pro-\nvided to the participant) (Tversky and Kahneman,\n1981; Goldin and Reck, 2020; Bloem and Rah-\nman, 2024). A LLM (or even humans) may ob-\nserve variations within and across topics in real-\nity but these variations do not emerge out (e.g.,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A1:Logic vs."
+  },
+  {
+    "heading": "A4:Neural) because of the con-",
+    "content": "straints imposed by the options and choices pro-\nvided to them (in this case K). This is a major\nlimitation of the rating-based assessment of topic\ninterpretations.\nOur\nquantitative\nand\nqualitative\nanalyses\ndemonstrate that topic interpretation is multidi-\nmensional, and a single score or rating has limited\nvalidity in assessing topic quality."
+  },
+  {
+    "heading": "Many fields",
+    "content": "of health care (especially Psychology (American"
+  },
+  {
+    "heading": "Psychiatric Association, 2025)),",
+    "content": "the humani-\nties, and social sciences (Clancy and Silver,\n2022) measure latent (and often abstract) social-\npsychological constructs using multiple items or\nindicators (Netemeyer et al., 2003)."
+  },
+  {
+    "heading": "Carefully",
+    "content": "designed constructs, items, and their framing may\nlead to objective testing of a theory. Netemeyer\net al. (2003, Figure 1.1) propose a four-step\nprocess to develop a scale for the evaluation of\na socio-psychological phenomenon: (i) defining\nconstructs, (ii) generating measurement items,\n(iii) designing and conducting studies, (iv) fi-\nnalizing the scale."
+  },
+  {
+    "heading": "A similar process with the",
+    "content": "constructs and items proposed in this paper can be\nutilized to develop a scale of topic interpretation.\n7.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationality: Axiomatic vs Ecological"
+  },
+  {
+    "heading": "The underlying axioms in automatic coherence",
+    "content": "measures can be described as: (i) a topic\u2019s inter-\npretation depends only on its TW , (ii) the inter-\npretability of a topic is proportional to its coher-\nence, (iii) the coherence is proportional to a linear\ncombination of semantic relatedness between ev-\nery pair of words in TW , (iv) all the users use the\nsame semantic relatedness measure all the time."
+  },
+  {
+    "heading": "Axiomatic rationality assumes a rational agent",
+    "content": "should conform to abstract axioms for profit and\ntheir violations will result in loss. It ignores how\nan agent will act in practice, especially when there\nis uncertainty. Often, humans rely on heuristics\nthat may violate axioms of logic and probabil-\nity (Tversky and Kahneman, 1974)."
+  },
+  {
+    "heading": "Section 5 discusses several examples showing",
+    "content": "how the axioms are violated in topic interpreta-\ntions. Axiomatic rationality further assumes the\ninvariance of the measurement (Kingstone et al.,\n2008) which is valid in laboratory experiments in\nphysical sciences but not in tasks with uncertainty."
+  },
+  {
+    "heading": "Sen (1990) argues that a key goal of using mod-",
+    "content": "els of rational behavior is to explain and predict\nactual behavior by (i) characterizing rational be-\nhavior, (ii) basing actual behavior on rational be-\nhavior. These axioms do not characterize rational\nand actual behavior. Moreover, Cstat and WI are\nsystem-centric (Zangerle and Bauer, 2022) and not\nuser-centric. Hence, topic interpretability metrics\nare needed based on ecological rationality, assum-\ning rational behavior as a function of the mind and\nits environment (Gigerenzer, 2021). One approach\nto characterize actual behavior is to have user-\nmodels\u2014a computational representation of how a\nuser will interpret a topic (Aloteibi, 2020).\n7.3"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User Models"
+  },
+  {
+    "heading": "Topic models make assumptions about generation",
+    "content": "of documents and not on interpretation of topics."
+  },
+  {
+    "heading": "Krippendorff (2019, Chapter 2) propose a con-",
+    "content": "ceptual framework for QCA that \u201cincludes the re-\nsearcher, the knowledge he or she needs to bring\nto it, and the criteria by which a content analysis\ncan be justified\u201d (Ui in Figure 1). This framework\nis not modeled in the underlying assumptions of a\ntopic model and more importantly, its evaluation\nmetrics. We hypothesize user models can reduce\nthe generation-interpretation gap by considering\nusers as an internal entity in topic interpretation,\nrather than an external one (Aloteibi, 2020). Such\nmodels will (i) predict and explain how a user will\ninterpret a topic and (ii) facilitate simulations of\nthe behavior of users across domains, goals, and\nexpertise, which in turn help in designing evalua-\ntion metrics, user interfaces, and reproducible ex-\nperiments (Balog and Zhai, 2023).\n7.4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Implications"
+  },
+  {
+    "heading": "Our key observations from our quantitative (\u00a74)",
+    "content": "and qualitative analysis (\u00a76) are: (i) A topic\u2019s in-\nterpretations in reality fall on a continuum of ab-\nstractions, (ii) A statistically coherent topic can\nnevertheless have quite different interpretations,\n(iii) An interpretable topic can be incoherent, (iv)\n(In)coherence of a topic can be multifaceted. In\nsum, the interpretation of topics can be viewed as\ndecision-making under uncertainty; hence, inter-\npretations are susceptible to cognitive biases of in-\nterpreters (Gigerenzer, 2021)."
+  },
+  {
+    "heading": "Coherence and interpretability are two different",
+    "content": "aspects of a topic and \u201cone\u201d quantitative score or\nrating, either by statistical metrics or human, is in-\nsufficient to decide its utility for QCA. Variability\nin user assessment for both within and across top-\nics reflects a lack of predictability of topic qual-\nity. Cstat or LLM-based assessment of topics does\nnot capture such variability. Moreover, the end\nresults of topic modeling based studies should be\nassessed and contested on reflexivity and position-\nality of model assumptions and humans or LLM-\nbased interpreters.\n7.5"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic Cards"
+  },
+  {
+    "heading": "Conclusions drawn from qualitative research are",
+    "content": "well-known to be subject to the researcher\u2019s po-\nsition, subjectivity, and reflexivity (Krippendorff,\n2019)."
+  },
+  {
+    "heading": "To capture subjectivity, and to com-",
+    "content": "pare the capabilities of topic models, we pro-\npose Topic Cards, a new framework similar to"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Data Cards (Pushkarna et al., 2022) and Model"
+  },
+  {
+    "heading": "Cards (Mitchell et al., 2019). A Topic Card should",
+    "content": "have easy-to-understand explanations and ratio-\nnales of who and how topics were interpreted and\nwhat are the implications of the interpretations."
+  },
+  {
+    "heading": "Topic cards will enhance reporting of reflexivity",
+    "content": "and the subsequent credibility of QCA."
+  },
+  {
+    "heading": "A topic card should at least contain: (i) The",
+    "content": "task, purpose, goals, or research questions in-\ntended to address or achieve using topics, (ii) User\npositionality, (iii) Rationale behind topic interpre-\ntation and label for all the users, (iv) Utility of\nthe topic, (v) Details of prompts if LLMs are\nused while interpreting topics, and (vi) How sen-\nsitive are the results with the interpretations. Ap-\npendix F provides an example of a Topic Card."
+  },
+  {
+    "heading": "Unknown",
+    "content": "8"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conclusions"
+  },
+  {
+    "heading": "To understand how users interpret topics, we pro-",
+    "content": "posed several constructs of topic quality. We asked\nusers (i) to evaluate them on topics from three\ndatasets, (ii) provide rationales for their evalua-\ntions."
+  },
+  {
+    "heading": "Quantitative analysis of their evaluations",
+    "content": "shows that users disagree while interpreting top-\nics."
+  },
+  {
+    "heading": "Our reflexive thematic analysis of the ra-",
+    "content": "tionales of users shows users employ heuristics\nsuch as Availability and Representativeness and\nviolate axioms of rationality\u2014rules of logic and\nprobability."
+  },
+  {
+    "heading": "The thematic analysis also reveals",
+    "content": "that coherence and interpretability are different\nand multidimensional constructs that are not cap-\ntured by state-of-the-art evaluation metrics. The\nassumptions of interpretability in these metrics are\nsystem-centric, and not user-centric. Our analy-\nses show that a rating-based evaluation of topic\nquality has limited construct validity. Our find-\nings also question the rationality and invariance\nassumptions behind the state-of-the-art coherence\nmetrics."
+  },
+  {
+    "heading": "We propose a theory of topic interpretation",
+    "content": "based on the anchoring-and-adjustment heuristic\nthat encompasses several heuristics from psychol-\nogy and cognitive science. We propose a computa-\ntional framework to simulate our theory, assuming\ntopic interpretation as an approximate Bayesian\ninference."
+  },
+  {
+    "heading": "The proposed constructs and frame-",
+    "content": "work can be utilized to define a new evaluation\nframework for topic models."
+  },
+  {
+    "heading": "We argue that there is a need for evaluation met-",
+    "content": "rics based on ecological rationality. We propose"
+  },
+  {
+    "heading": "Topic Cards to facilitate reflexivity and validation",
+    "content": "of the inferences derived from topic interpreta-\ntions."
+  },
+  {
+    "heading": "Unknown",
+    "content": "9"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Positionality Statement for the Study"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Authors"
+  },
+  {
+    "heading": "Swapnil (he/him) is a citizen of India who received",
+    "content": "his PhD in Computer Science and Engineering\nfrom IIT Madras. He is an Assistant Professor at"
+  },
+  {
+    "heading": "IIT Palakkad. His primary research interests are",
+    "content": "in natural language processing (NLP) and evalua-\ntion metrics in AI. In his previous works, he ex-\nplored approaches for reducing knowledge acqui-\nsition overhead in NLP tasks. He was employed at\nthe University of Victoria, while doing this work."
+  },
+  {
+    "heading": "Ze Shi Li is an assistant professor at the Uni-",
+    "content": "versity of Oklahoma. He received his PhD at the"
+  },
+  {
+    "heading": "University of Victoria. He is an incoming Assis-",
+    "content": "tant Professor at the University of Oklahoma. His\nresearch focuses on AI for software engineering\nand human-centered AI."
+  },
+  {
+    "heading": "Vivienne Zeng (she/her) is a Chinese citizen and",
+    "content": "a master\u2019s student in Computer Science at the Uni-\nversity of Victoria. Her research interests include"
+  },
+  {
+    "heading": "AI-assisted software engineering and large lan-",
+    "content": "guage models, with a focus on their application in\nscientific software development. She contributed\nto this work as part of her graduate research under\nthe supervision of Dr. Neil Ernst at University of"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Victoria."
+  },
+  {
+    "heading": "Ahmed (he/him) is a Bangladeshi citizen who",
+    "content": "received his Master\u2019s degree in Computer Science\nfrom the University of Victoria. His academic and\nprofessional interests lie at the intersection of soft-\nware engineering and natural language processing\n(NLP). He was a Master\u2019s student at University of"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Victoria while conducting this work."
+  },
+  {
+    "heading": "Luiz Pedro Franciscatto Guerra (he/him) is a",
+    "content": "citizen of Brazil who received his Bachelor\u2019s de-\ngree in Software Engineering from Pontif\u00edcia Uni-\nversidade do Rio Grande do Sul. His academic in-\nterests lie at the intersection of Software Engineer-\ning, Software Architecture, and Large Language"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Models. He\u2019s a computer science PhD student at"
+  },
+  {
+    "heading": "Unknown",
+    "content": "University of Victoria while conducting this work."
+  },
+  {
+    "heading": "Neil Ernst (he/him) is a Canadian citizen who",
+    "content": "received his PhD from the University of Toronto."
+  },
+  {
+    "heading": "He is Associate Professor of Computer Science at",
+    "content": "the University of Victoria where he works on the\nintersection of AI and software engineering."
+  },
+  {
+    "heading": "Acknowledgments",
+    "content": "We\nthank"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jordan"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Boyd-Graber,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sutanu"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chakraborti, Caitlin Doogan, Alexander Hoyle,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Zongxia Li, Jia Peng Lim, Alessandra Maciel"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Paz Milani, David Mimno, Deepak P, Arty Starr,"
+  },
+  {
+    "heading": "Sneha Swami, Keyon Vafa for their inputs on user",
+    "content": "studies and qualitative analysis."
+  },
+  {
+    "heading": "We also thank",
+    "content": "the action editor and the anonymous reviewers for\ntheir valuable feedback on prior versions of this\nwork."
+  },
+  {
+    "heading": "Unknown",
+    "content": "References"
+  },
+  {
+    "heading": "Saad Aloteibi. 2020. A user-centred approach to",
+    "content": "information retrieval. Ph.D. thesis, University\nof Cambridge Repository."
+  },
+  {
+    "heading": "Unknown",
+    "content": "American"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Psychiatric"
+  },
+  {
+    "heading": "Association.",
+    "content": "2025."
+  },
+  {
+    "heading": "Unknown",
+    "content": "DSM-5"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Online"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Assessment"
+  },
+  {
+    "heading": "Measures.",
+    "content": "https://www.psychiatry.org/\npsychiatrists/practice/dsm/\neducational-resources/dsm-5-\nassessment-measures.\n[Accessed\n18-06-2025]."
+  },
+  {
+    "heading": "John R. Anderson and Lael J. Schooler. 1991. Re-",
+    "content": "flections of the Environment in Memory. Psy-\nchological Science, 2(6):396\u2013408."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Lora Aroyo and Chris Welty. 2015. Truth Is a Lie:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Crowd Truth and the Seven Myths of Human"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Annotation. AI Mag., 36(1):15\u201324."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Leif Azzopardi. 2021. Cognitive biases in search:"
+  },
+  {
+    "heading": "A review and reflection of cognitive biases in",
+    "content": "information retrieval. In CHIIR \u201921: ACM SI-"
+  },
+  {
+    "heading": "GIR Conference on Human Information Inter-",
+    "content": "action and Retrieval, Canberra, ACT, Australia,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "March 14-19, 2021, pages 27\u201337. ACM."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Krisztian Balog and ChengXiang Zhai. 2023."
+  },
+  {
+    "heading": "User Simulation for Evaluating Information Ac-",
+    "content": "cess Systems. CoRR, abs/2306.08550v1."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sebastian Baltes, Christoph Treude, and Stephan"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Diehl. 2019."
+  },
+  {
+    "heading": "Sotorrent: studying the origin,",
+    "content": "evolution, and usage of stack overflow code\nsnippets. In Proceedings of the 16th Interna-\ntional Conference on Mining Software Reposi-\ntories, MSR 2019, 26-27 May 2019, Montreal,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Canada, pages 191\u2013194. IEEE / ACM."
+  },
+  {
+    "heading": "Anja Belz and Eric Kow. 2010. Comparing rating",
+    "content": "scales and preference judgements in language\nevaluation."
+  },
+  {
+    "heading": "In INLG 2010 - Proceedings of",
+    "content": "the Sixth International Natural Language Gen-\neration Conference, July 7-9, 2010, Trim, Co."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Meath, Ireland. The Association for Computer"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics."
+  },
+  {
+    "heading": "Roni Berger. 2015. Now I see it, now I don\u2019t: re-",
+    "content": "searcher\u2019s position and reflexivity in qualitative\nresearch. Qualitative Research, 15(2):219\u2013234."
+  },
+  {
+    "heading": "Unknown",
+    "content": "David Bernell. 2012."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Constructing US Foreign"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Policy The Curious Case of Cuba. Routledge."
+  },
+  {
+    "heading": "Unknown",
+    "content": "John Beshears, James J. Choi, David Laibson, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Brigitte C. Madrian. 2008."
+  },
+  {
+    "heading": "How are prefer-",
+    "content": "ences revealed? Journal of Public Economics,\n92(8):1787\u20131794."
+  },
+  {
+    "heading": "Special Issue: Happiness",
+    "content": "and Public Economics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "David C Blair and Steven O Kimbrough. 2002."
+  },
+  {
+    "heading": "Exemplary documents: a foundation for infor-",
+    "content": "mation retrieval design. Information Process-\ning & Management, 38(3):363\u2013379."
+  },
+  {
+    "heading": "Jeffrey R. Bloem and Khandker Wahedur Rahman.",
+    "content": "2024. What I say depends on how you ask: Ex-\nperimental evidence of the effect of framing on\nthe measurement of attitudes. Economics Let-\nters, 238:111686."
+  },
+  {
+    "heading": "Vincent H. Boswijk. 2022. The salient elephant",
+    "content": "in the room: exploring the concept of linguis-\ntic salience. Ph.D. thesis, University of Gronin-\ngen."
+  },
+  {
+    "heading": "Virginia Braun and Victoria Clarke. 2012. The-",
+    "content": "matic analysis."
+  },
+  {
+    "heading": "APA handbooks in psychol-",
+    "content": "ogy\u00ae. American Psychological Association,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Washington, DC, US."
+  },
+  {
+    "heading": "Virginia Braun and Victoria Clarke. 2021.",
+    "content": "Can"
+  },
+  {
+    "heading": "I use TA? Should I use TA? Should I not",
+    "content": "use TA? Comparing reflexive thematic analysis\nand other pattern-based qualitative analytic ap-\nproaches. Counselling and Psychotherapy Re-\nsearch, 21(1):37\u201347."
+  },
+  {
+    "heading": "S\u00e9bastien Bubeck, Varun Chandrasekaran, Ro-",
+    "content": "nen Eldan, Johannes Gehrke, Eric Horvitz, Ece"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kamar, Peter Lee, Yin Tat Lee, Yuanzhi Li,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Scott Lundberg, Harsha Nori, Hamid Palangi,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Marco Tulio Ribeiro, and Yi Zhang. 2023."
+  },
+  {
+    "heading": "Sparks of Artificial General Intelligence: Early",
+    "content": "experiments with GPT-4."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jonathan D. Chang, Jordan L. Boyd-Graber, Sean"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Gerrish, Chong Wang, and David M. Blei. 2009."
+  },
+  {
+    "heading": "Reading tea leaves: How humans interpret topic",
+    "content": "models."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In Advances in Neural Information"
+  },
+  {
+    "heading": "Processing Systems 22: 23rd Annual Confer-",
+    "content": "ence on Neural Information Processing Sys-\ntems 2009. Proceedings of a meeting held 7-10"
+  },
+  {
+    "heading": "Unknown",
+    "content": "December 2009, Vancouver, British Columbia,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Canada, pages 288\u2013296. Curran Associates,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Inc."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Nick Chater and Christopher D. Manning. 2006."
+  },
+  {
+    "heading": "Probabilistic models of language processing",
+    "content": "and acquisition. Trends in Cognitive Sciences,\n10(7):335\u2013344."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Special issue:"
+  },
+  {
+    "heading": "Probabilistic",
+    "content": "models of cognition."
+  },
+  {
+    "heading": "Laura Clancy and Laura Silver. 2022.",
+    "content": "How\nwe designed a scale to measure Americans\u2019\nknowledge of international affairs.\nhttps:\n//www.pewresearch.org/decoded/\n2022/05/25/how-we-designed-a-\nscale-to-measure-americans-\nknowledge-of-international-\naffairs/. [Accessed 18-06-2025]."
+  },
+  {
+    "heading": "Unknown",
+    "content": "David Collier, Fernando Daniel Hidalgo, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Andra Olivia Maciuceanu. 2006."
+  },
+  {
+    "heading": "Essentially",
+    "content": "contested concepts: Debates and applications."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Journal of Political Ideologies, 11(3):211\u2013246."
+  },
+  {
+    "heading": "Paul DiMaggio, Manish Nag, and David Blei.",
+    "content": "2013. Exploiting affinities between topic mod-\neling and the sociological perspective on cul-\nture: Application to newspaper coverage of u.s.\ngovernment arts funding. Poetics, 41(6):570\u2013\n606. Topic Models and the Cultural Sciences."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kim Yi Dionne and Laura Seay. 2016."
+  },
+  {
+    "heading": "Ameri-",
+    "content": "can Perceptions of Africa during an Ebola Out-\nbreak. In Nicholas G. Evans, Tara C. Smith, and"
+  },
+  {
+    "heading": "Maimuna S. Majumder, editors, Ebola\u2019s Mes-",
+    "content": "sage. MIT Press."
+  },
+  {
+    "heading": "Caitlin Doogan and Wray Buntine. 2021. Topic",
+    "content": "model or topic twaddle? re-evaluating semantic\ninterpretability measures. In Proceedings of the\n2021 Conference of the North American Chap-\nter of the Association for Computational Lin-\nguistics: Human Language Technologies, pages\n3824\u20133848, Online. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Georges Dupret and Benjamin Piwowarski. 2013."
+  },
+  {
+    "heading": "Model Based Comparison of Discounted Cu-",
+    "content": "mulative Gain and Average Precision."
+  },
+  {
+    "heading": "Jour-",
+    "content": "nal of Discrete Algorithms, 18:49\u201362. Selected\npapers from the 18th International Symposium\non String Processing and Information Retrieval\n(SPIRE 2011)."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Naoki Egami, Christian J. Fong, Justin Grimmer,"
+  },
+  {
+    "heading": "Margaret E. Roberts, and Brandon M. Stewart.",
+    "content": "2022."
+  },
+  {
+    "heading": "How to make causal inferences using",
+    "content": "texts. Science Advances, 8(42):eabg2652."
+  },
+  {
+    "heading": "Nils Erik Enkvist. 1990. Discourse Comprehen-",
+    "content": "sion, Text Strategies and Style."
+  },
+  {
+    "heading": "Unknown",
+    "content": "A.U.M.L.A.:"
+  },
+  {
+    "heading": "Journal of the Australasian Universities Mod-",
+    "content": "ern Language Association, 0(73):166. Last up-\ndated - 2013-02-25."
+  },
+  {
+    "heading": "Nicholas Epley. 2004. A Tale of Tuned Decks? An-",
+    "content": "choring as Accessibility and Anchoring as Ad-\njustment, chapter 12. John Wiley & Sons, Ltd."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Nicholas Epley and Thomas Gilovich. 2006. The"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Anchoring-and-Adjustment Heuristic: Why the"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Adjustments Are Insufficient."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Psychological"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Science, 17(4):311\u2013318. PMID: 16623688."
+  },
+  {
+    "heading": "Kawin Ethayarajh and Dan Jurafsky. 2022. The",
+    "content": "authenticity gap in human evaluation. In Pro-\nceedings of the 2022 Conference on Empiri-\ncal Methods in Natural Language Processing,"
+  },
+  {
+    "heading": "EMNLP 2022, Abu Dhabi, United Arab Emi-",
+    "content": "rates, December 7-11, 2022, pages 6056\u20136070."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Albert Gatt and Anja Belz. 2010."
+  },
+  {
+    "heading": "Introducing",
+    "content": "shared tasks to NLG: the TUNA shared task\nevaluation challenges. In Empirical Methods in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Natural Language Generation: Data-oriented"
+  },
+  {
+    "heading": "Methods and Empirical Evaluation, volume",
+    "content": "5790 of Lecture Notes in Computer Science,\npages 264\u2013293. Springer."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Matthew Gentzkow, Jesse M. Shapiro, and Matt"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Taddy. 2019. Measuring Group Differences in"
+  },
+  {
+    "heading": "High-Dimensional Choices: Method and Appli-",
+    "content": "cation to Congressional Speech. Econometrica,\n87(4):1307\u20131340."
+  },
+  {
+    "heading": "Gerd Gigerenzer. 2021. Axiomatic rationality and",
+    "content": "ecological rationality. Synthese, 198(4):3547\u2013\n3564."
+  },
+  {
+    "heading": "T. Giv\u00f3n. 1993. Coherence in text, coherence in",
+    "content": "mind. Pragmatics & Cognition, 1(2):171\u2013227."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jacob Goldin and Daniel Reck. 2020. Revealed-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Preference Analysis with Framing Effects."
+  },
+  {
+    "heading": "Journal of Political Economy, 128(7):2759\u2013",
+    "content": "2795."
+  },
+  {
+    "heading": "T.L. Griffiths, N. Chater, and J.B. Tenenbaum.",
+    "content": "2024. Bayesian Models of Cognition: Reverse"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Engineering the Mind. MIT Press."
+  },
+  {
+    "heading": "Justin Grimmer, Margaret E. Roberts, and Bran-",
+    "content": "don M. Stewart. 2021. Machine Learning for"
+  },
+  {
+    "heading": "Social Science: An Agnostic Approach.",
+    "content": "An-\nnual Review of Political Science, 24(Volume 24,\n2021):395\u2013419."
+  },
+  {
+    "heading": "Unknown",
+    "content": "David Hall, Daniel Jurafsky, and Christopher D."
+  },
+  {
+    "heading": "Manning. 2008. Studying the history of ideas",
+    "content": "using topic models. In 2008 Conference on Em-\npirical Methods in Natural Language Process-\ning, EMNLP 2008, Proceedings of the Confer-\nence, 25-27 October 2008, Honolulu, Hawaii,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "USA, A meeting of SIGDAT, a Special Interest"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Group of the ACL, pages 363\u2013371. ACL."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Stuart Hall. 2021."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Race, the floating signifier:"
+  },
+  {
+    "heading": "Unknown",
+    "content": "What more is there to say about \u201crace\u201d? In Paul"
+  },
+  {
+    "heading": "Gilroy and Ruth Wilson Gilmore, editors, Se-",
+    "content": "lected Writings on Race and Difference, pages\n359\u2013373. Duke University Press, New York,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "USA."
+  },
+  {
+    "heading": "Abram Hindle, Christian Bird, Thomas Zimmer-",
+    "content": "mann, and Nachiappan Nagappan. 2015.\nDo\ntopics make sense to managers and developers?"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Empir. Softw. Eng., 20(2):479\u2013515."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Debby ten Hove, Terrence D. Jorgensen, and"
+  },
+  {
+    "heading": "L. Andries van der Ark. 2024. Updated guide-",
+    "content": "lines on selecting an intraclass correlation coef-\nficient for interrater reliability, with applications\nto incomplete observational designs."
+  },
+  {
+    "heading": "Psycho-",
+    "content": "logical Methods, 29(5):967\u2013979."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Alexander Miserlis Hoyle, Pranav Goel, Andrew"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hian-Cheong, Denis Peskov, Jordan L. Boyd-"
+  },
+  {
+    "heading": "Graber, and Philip Resnik. 2021. Is automated",
+    "content": "topic model evaluation broken?\nthe incoher-\nence of coherence. In Advances in Neural Infor-\nmation Processing Systems 34: Annual Confer-\nence on Neural Information Processing Systems\n2021, NeurIPS 2021, December 6-14, 2021, vir-\ntual, pages 2018\u20132033."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Alexander Miserlis Hoyle, Rupak Sarkar, Pranav"
+  },
+  {
+    "heading": "Goel, and Philip Resnik. 2022. Are neural topic",
+    "content": "models broken? In Findings of the Association\nfor Computational Linguistics: EMNLP 2022,"
+  },
+  {
+    "heading": "Abu Dhabi, United Arab Emirates, December",
+    "content": "7-11, 2022, pages 5321\u20135344. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hsiu-Fang Hsieh and Sarah E. Shannon. 2005."
+  },
+  {
+    "heading": "Three Approaches to Qualitative Content Anal-",
+    "content": "ysis. Qualitative Health Research, 15(9):1277\u2013\n1288. PMID: 16204405."
+  },
+  {
+    "heading": "Lynn Hunt. 2002. Against presentism. Perspec-",
+    "content": "tives on history, 40(5):7\u20139."
+  },
+  {
+    "heading": "Wolfgang Iser. 1978. The Act of Reading: A The-",
+    "content": "ory of Aesthetic Response. Johns Hopkins pa-\nperback. Johns Hopkins University Press."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Boaz Keysar and Dale J. Barr. 2002."
+  },
+  {
+    "heading": "Self-",
+    "content": "anchoring in conversation: Why language users\ndo not do what they \u201cshould\u201d."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In Thomas"
+  },
+  {
+    "heading": "Gilovich, Dale Griffin, and Daniel Kahneman,",
+    "content": "editors, Heuristics and Biases: The Psychol-\nogy of Intuitive Judgment, page 150\u2013166. Cam-\nbridge University Press."
+  },
+  {
+    "heading": "Alan Kingstone, Daniel Smilek, and John D. East-",
+    "content": "wood. 2008. Cognitive Ethology: A new ap-\nproach for studying human cognition. British"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Journal of Psychology, 99(3):317\u2013340."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jon Kleinberg,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jens Ludwig,"
+  },
+  {
+    "heading": "Sendhil Mul-",
+    "content": "lainathan, and Manish Raghavan. 2024. The In-\nversion Problem: Why Algorithms Should In-\nfer Mental State and Not Just Predict Behav-\nior."
+  },
+  {
+    "heading": "Perspectives on Psychological Science,",
+    "content": "19(5):827\u2013838. PMID: 38085919."
+  },
+  {
+    "heading": "K. Koffka. 1999. Principles of Gestalt Psychol-",
+    "content": "ogy. Cognitive psychology. Routledge."
+  },
+  {
+    "heading": "Terry K Koo and Mae Y Li. 2016. A guideline",
+    "content": "of selecting and reporting intraclass correlation\ncoefficients for reliability research. J. Chiropr."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Med., 15(2):155\u2013163."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Klaus Krippendorff. 2019. Content Analysis: An"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Introduction to Its Methodology, fourth edition."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SAGE Publications, Inc., Thousand Oaks."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Thomas Kuhn. 1962. The Structure of Scientific"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Revolutions. University of Chicago Press."
+  },
+  {
+    "heading": "Unknown",
+    "content": "G. Lakoff and M. Johnson. 2008. Metaphors We"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Live By. University of Chicago Press."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jey Han Lau, Karl Grieser, David Newman, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Timothy Baldwin. 2011."
+  },
+  {
+    "heading": "Automatic labelling",
+    "content": "of topic models. In The 49th Annual Meeting\nof the Association for Computational Linguis-\ntics: Human Language Technologies, Proceed-\nings of the Conference, 19-24 June, 2011, Port-\nland, Oregon, USA, pages 1536\u20131545. The As-\nsociation for Computer Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Zongxia Li,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Andrew Mao,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Daniel Stephens,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pranav Goel, Emily Walpole, Alden Dima, Juan"
+  },
+  {
+    "heading": "Fung, and Jordan Boyd-Graber. 2024. Beyond",
+    "content": "automated evaluation metrics: Evaluating topic\nmodels on practical social science content anal-\nysis tasks."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Falk Lieder. 2018. Beyond bounded rationality:"
+  },
+  {
+    "heading": "Reverse-engineering and enhancing human in-",
+    "content": "telligence. Phd thesis, UC Berkeley. Available\nat\nhttps://escholarship.org/uc/\nitem/0mh5z130."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Falk Lieder and Thomas L. Griffiths. 2020."
+  },
+  {
+    "heading": "Resource-rational analysis: Understanding hu-",
+    "content": "man cognition as the optimal use of limited\ncomputational resources. Behavioral and Brain"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sciences, 43:e1."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jia Peng Lim and Hady W. Lauw. 2024. Aligning"
+  },
+  {
+    "heading": "Human and Computational Coherence Evalua-",
+    "content": "tions. Computational Linguistics, pages 1\u201358."
+  },
+  {
+    "heading": "Alvi Mahadi, Karan Tongay, and Neil A. Ernst.",
+    "content": "2020. Cross-dataset design discussion mining."
+  },
+  {
+    "heading": "In 27th IEEE International Conference on Soft-",
+    "content": "ware Analysis, Evolution and Reengineering,"
+  },
+  {
+    "heading": "SANER 2020, London, ON, Canada, February",
+    "content": "18-21, 2020, pages 149\u2013160. IEEE."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amin Hosseiny Marani, Joshua Levine, and Eric"
+  },
+  {
+    "heading": "Unknown",
+    "content": "P. S. Baumer. 2022."
+  },
+  {
+    "heading": "One rating to rule them",
+    "content": "all?: Evidence of multidimensionality in human\nassessment of topic labeling quality."
+  },
+  {
+    "heading": "In Pro-",
+    "content": "ceedings of the 31st ACM International Con-\nference on Information & Knowledge Manage-\nment, Atlanta, GA, USA, October 17-21, 2022,\npages 768\u2013779. ACM."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Andrew"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kachites"
+  },
+  {
+    "heading": "McCallum.",
+    "content": "2002."
+  },
+  {
+    "heading": "Mal-",
+    "content": "let:\nA\nmachine\nlearning\nfor\nlanguage\ntoolkit. Http://mallet.cs.umass.edu/dist/mallet-\n2.0.8.tar.gz."
+  },
+  {
+    "heading": "Unknown",
+    "content": "David Mimno. 2023."
+  },
+  {
+    "heading": "Topic Modeling on Ab-",
+    "content": "stract Submissions to arXiv in the Computing\nand Language section (cs.CL) .\nhttps:\n//mimno.infosci.cornell.edu/\narxivcl/030223/."
+  },
+  {
+    "heading": "Accessed:",
+    "content": "21-July-\n2025."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Margaret Mitchell, Simone Wu, Andrew Zaldivar,"
+  },
+  {
+    "heading": "Parker Barnes, Lucy Vasserman, Ben Hutchin-",
+    "content": "son, Elena Spitzer, Inioluwa Deborah Raji, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Timnit Gebru. 2019."
+  },
+  {
+    "heading": "Model cards for model",
+    "content": "reporting."
+  },
+  {
+    "heading": "In Proceedings of the Conference",
+    "content": "on Fairness, Accountability, and Transparency,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "FAT* \u201919, page 220\u2013229, New York, NY, USA."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computing Machinery."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Carey K. Morewedge,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sendhil Mullainathan,"
+  },
+  {
+    "heading": "Haaya F. Naushan, Cass R. Sunstein, Jon Klein-",
+    "content": "berg, Manish Raghavan, and Jens O. Ludwig.\n2023. Human bias in algorithm design. Nature"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Human Behaviour, 7(11):1822\u20131824."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Fred Morstatter and Huan Liu. 2018. In Search of"
+  },
+  {
+    "heading": "Coherence and Consensus: Measuring the In-",
+    "content": "terpretability of Statistical Topics. Journal of"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Machine Learning Research, 18(169):1\u201332."
+  },
+  {
+    "heading": "Richard Netemeyer, William Bearden, and Sub-",
+    "content": "hash Sharma. 2003. Scaling Procedures: Issues\nand Applications. SAGE Publications."
+  },
+  {
+    "heading": "Unknown",
+    "content": "David Newman, Jey Han Lau, Karl Grieser, and"
+  },
+  {
+    "heading": "Timothy Baldwin. 2010. Automatic evaluation",
+    "content": "of topic coherence. In Human Language Tech-\nnologies: Conference of the North American"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chapter of the Association of Computational"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Linguistics, Proceedings, June 2-4, 2010, Los"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Angeles, California, USA, pages 100\u2013108. The"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Association for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Gustavo Novoa, Margaret Echelbarger, Andrew"
+  },
+  {
+    "heading": "Gelman, and Susan A. Gelman. 2023. Generi-",
+    "content": "cally partisan: Polarization in political commu-\nnication. Proceedings of the National Academy\nof Sciences, 120(47):e2309361120."
+  },
+  {
+    "heading": "Charles Kay Ogden and Ivor Armstrong Richards.",
+    "content": "1927."
+  },
+  {
+    "heading": "The Meaning of Meaning: A Study of",
+    "content": "the Influence of Language upon Thought and of\nthe Science of Symbolism, volume 29. K. Paul,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Trench, Trubner & Company, Limited."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jiaxin"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pei,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Aparna"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ananthasubramaniam,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Xingyao"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Wang,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Naitian"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Zhou,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Apostolos"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Dedeloudis,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jackson"
+  },
+  {
+    "heading": "Sargent,",
+    "content": "and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "David"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jurgens. 2022."
+  },
+  {
+    "heading": "POTATO: the portable text",
+    "content": "annotation tool. In Proceedings of the The 2022"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Conference on Empirical Methods in Natural"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Language Processing, EMNLP 2022 - System"
+  },
+  {
+    "heading": "Demonstrations, Abu Dhabi, UAE, December",
+    "content": "7-11, 2022, pages 327\u2013337. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ant\u00f4nio Pereira, Felipe Viegas, Marcos Andr\u00e9"
+  },
+  {
+    "heading": "Gon\u00e7alves, and Leonardo Rocha. 2023. Evalu-",
+    "content": "ating the limits of the current evaluation metrics\nfor topic modeling. In Proceedings of the 29th"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Brazilian Symposium on Multimedia and the"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Web, WebMedia \u201923, page 119\u2013127, New York,"
+  },
+  {
+    "heading": "NY, USA. Association for Computing Machin-",
+    "content": "ery."
+  },
+  {
+    "heading": "Uwe Peters, Alexander Krauss, and Oliver Bra-",
+    "content": "ganza. 2022."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Generalization Bias in Science."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Cognitive Science, 46(9):e13188."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Cristian Popa and Traian Rebedea. 2021. BART-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "TL: Weakly-supervised topic label generation."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In Proceedings of the 16th Conference of the"
+  },
+  {
+    "heading": "European Chapter of the Association for Com-",
+    "content": "putational Linguistics:"
+  },
+  {
+    "heading": "Main Volume, pages",
+    "content": "1418\u20131425, Online. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Mahima Pushkarna, Andrew Zaldivar, and Oddur"
+  },
+  {
+    "heading": "Kjartansson. 2022. Data cards: Purposeful and",
+    "content": "transparent dataset documentation for responsi-\nble ai. In Proceedings of the 2022 ACM Con-\nference on Fairness, Accountability, and Trans-\nparency, FAccT \u201922, page 1776\u20131826, New"
+  },
+  {
+    "heading": "Unknown",
+    "content": "York, NY, USA. Association for Computing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Machinery."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hamed Rahimi,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jacob Louis Hoover,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "David"
+  },
+  {
+    "heading": "Mimno, Hubert Naacke, Camelia Constantin,",
+    "content": "and Bernd Amann. 2023. Contextualized topic\ncoherence metrics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Hamed Rahimi,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "David Mimno,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jacob Louis"
+  },
+  {
+    "heading": "Hoover, Hubert Naacke, Cam\u00e9lia Constantin,",
+    "content": "and Bernd Amann. 2024. Contextualized topic\ncoherence metrics."
+  },
+  {
+    "heading": "In Findings of the Asso-",
+    "content": "ciation for Computational Linguistics: EACL\n2024, St. Julian\u2019s, Malta, March 17-22, 2024,\npages 1760\u20131773. Association for Computa-\ntional Linguistics."
+  },
+  {
+    "heading": "Lisa M Rhody. 2012. Topic modeling and figura-",
+    "content": "tive language. Journal of Digital Humanities,\n2(1)."
+  },
+  {
+    "heading": "Emil Rijcken, Floortje Scheepers, Kalliopi Zer-",
+    "content": "vanou, Marco Spruit, Pablo Mosteiro, and Uzay"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Kaymak. 2023."
+  },
+  {
+    "heading": "Towards interpreting topic",
+    "content": "models with chatgpt."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In The 20th World"
+  },
+  {
+    "heading": "Congress of the International Fuzzy Systems As-",
+    "content": "sociation."
+  },
+  {
+    "heading": "Christian P. Robert and George Casella. 2009. In-",
+    "content": "troducing Monte Carlo Methods with R (Use"
+  },
+  {
+    "heading": "Unknown",
+    "content": "R), 1st edition."
+  },
+  {
+    "heading": "Springer-Verlag, Berlin, Hei-",
+    "content": "delberg."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Margaret E. Roberts, Brandon M. Stewart, Dustin"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tingley,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Christopher Lucas,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Jetson Leder-"
+  },
+  {
+    "heading": "Luis, Shana Kushner Gadarian, Bethany Al-",
+    "content": "bertson, and David G. Rand. 2014."
+  },
+  {
+    "heading": "Struc-",
+    "content": "tural Topic Models for Open-Ended Survey Re-\nsponses. American Journal of Political Science,\n58(4):1064\u20131082."
+  },
+  {
+    "heading": "Stephen Robertson. 2008. A new interpretation of",
+    "content": "average precision. In Proceedings of the 31st"
+  },
+  {
+    "heading": "Annual International ACM SIGIR Conference",
+    "content": "on Research and Development in Information"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Retrieval, SIGIR \u201908, page 689\u2013690, New York,"
+  },
+  {
+    "heading": "NY, USA. Association for Computing Machin-",
+    "content": "ery."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Michael R\u00f6der, Andreas Both, and Alexander"
+  },
+  {
+    "heading": "Hinneburg. 2015. Exploring the space of topic",
+    "content": "coherence measures."
+  },
+  {
+    "heading": "Unknown",
+    "content": "In Proceedings of the"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Eighth ACM International Conference on Web"
+  },
+  {
+    "heading": "Search and Data Mining, WSDM 2015, Shang-",
+    "content": "hai, China, February 2-6, 2015, pages 399\u2013408."
+  },
+  {
+    "heading": "Unknown",
+    "content": "ACM."
+  },
+  {
+    "heading": "Shaurya Rohatgi, Yanxia Qin, Benjamin Aw, Ni-",
+    "content": "ranjana Unnithan, and Min-Yen Kan. 2023. The"
+  },
+  {
+    "heading": "ACL OCL corpus: Advancing open science in",
+    "content": "computational linguistics. In Proceedings of the\n2023 Conference on Empirical Methods in Nat-\nural Language Processing, EMNLP 2023, Sin-\ngapore, December 6-10, 2023, pages 10348\u2013\n10361. Association for Computational Linguis-\ntics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Sebastin Santy, Jenny Liang, Ronan Le Bras,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Katharina Reinecke, and Maarten Sap. 2023."
+  },
+  {
+    "heading": "NLPositionality: Characterizing design biases",
+    "content": "of datasets and models."
+  },
+  {
+    "heading": "In Proceedings of",
+    "content": "the 61st Annual Meeting of the Association for"
+  },
+  {
+    "heading": "Computational Linguistics (Volume 1: Long Pa-",
+    "content": "pers), pages 9080\u20139102, Toronto, Canada. As-\nsociation for Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amartya Sen. 1990. Rational behaviour. In John"
+  },
+  {
+    "heading": "Eatwell, Murray Milgate, and Peter Newman,",
+    "content": "editors, Utility and Probability, pages 198\u2013216."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Palgrave Macmillan UK, London."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Herbert A. Simon. 1955. A Behavioral Model of"
+  },
+  {
+    "heading": "Rational Choice. The Quarterly Journal of Eco-",
+    "content": "nomics, 69(1):99\u2013118."
+  },
+  {
+    "heading": "Herbert A. Simon. 1956. Rational choice and the",
+    "content": "structure of the environment. Psychological Re-\nview, 63(2):129\u2013138."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Dominik Stammbach, Vil\u00e9m Zouhar, Alexander"
+  },
+  {
+    "heading": "Hoyle, Mrinmaya Sachan, and Elliott Ash.",
+    "content": "2023. Revisiting Automated Topic Model Eval-\nuation with Large Language Models. In Pro-\nceedings of the 2023 Conference on Empiri-\ncal Methods in Natural Language Processing,\npages 9348\u20139357, Singapore. Association for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Computational Linguistics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Shelbie L. Sutherland, Andrei Cimpian, Sarah-"
+  },
+  {
+    "heading": "Jane Leslie, and Susan A. Gelman. 2015. Mem-",
+    "content": "ory Errors Reveal a Bias to Spontaneously"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Generalize to Categories."
+  },
+  {
+    "heading": "Cognitive Science,",
+    "content": "39(5):1021\u20131046."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amos Tversky and Daniel Kahneman. 1973."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Availability:"
+  },
+  {
+    "heading": "A heuristic for judging fre-",
+    "content": "quency and probability. Cognitive Psychology,\n5(2):207\u2013232."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amos Tversky and Daniel Kahneman. 1974."
+  },
+  {
+    "heading": "Judgment under Uncertainty: Heuristics and Bi-",
+    "content": "ases. Science, 185(4157):1124\u20131131."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Amos Tversky and Daniel Kahneman. 1981. The"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Framing of Decisions and the Psychology of"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Choice. Science, 211(4481):453\u2013458."
+  },
+  {
+    "heading": "Anton T\u00f6rnberg and Petter T\u00f6rnberg. 2016. Com-",
+    "content": "bining CDA and topic modeling: Analyzing\ndiscursive connections between Islamophobia\nand anti-feminism on an online forum."
+  },
+  {
+    "heading": "Dis-",
+    "content": "course & Society, 27(4):401\u2013422."
+  },
+  {
+    "heading": "Keyon Vafa, Suresh Naidu, and David M. Blei.",
+    "content": "2020. Text-based ideal points. In Proceedings\nof the 58th Annual Meeting of the Association\nfor Computational Linguistics, ACL 2020, On-\nline, July 5-10, 2020, pages 5345\u20135357. Asso-\nciation for Computational Linguistics."
+  },
+  {
+    "heading": "Edward Vul, Noah Goodman, Thomas L. Grif-",
+    "content": "fiths, and Joshua B. Tenenbaum. 2014. One and"
+  },
+  {
+    "heading": "Done? Optimal Decisions From Very Few Sam-",
+    "content": "ples. Cognitive Science, 38(4):599\u2013637."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ding Wang, Mark D\u00edaz, Alicia Parrish, Lora"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Aroyo, Chris Homan, Greg Serapio-Garc\u00eda,"
+  },
+  {
+    "heading": "Vinodkumar Prabhakaran, and Alex Taylor.",
+    "content": "2023."
+  },
+  {
+    "heading": "All that agrees is not gold: Evaluat-",
+    "content": "ing ground truth labels and dialogue content for\nsafety."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Lynn Weber. 2009. Understanding Race, Class,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Gender, and Sexuality, Second edition. Oxford"
+  },
+  {
+    "heading": "Unknown",
+    "content": "University Press."
+  },
+  {
+    "heading": "William Revelle. 2025.",
+    "content": "psych: Procedures for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Psychological, Psychometric, and Personality"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Research. Northwestern University, Evanston,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Illinois. R package version 2.5.3."
+  },
+  {
+    "heading": "Luwei Ying, Jacob M. Montgomery, and Bran-",
+    "content": "don M. Stewart. 2022. Topics, Concepts, and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Measurement: A Crowdsourced Procedure for"
+  },
+  {
+    "heading": "Validating Topics as Measures. Political Analy-",
+    "content": "sis, 30(4):570\u2013589."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Himanshu Zade,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Margaret Drouhard,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Bonnie"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Chinh, Lu Gan, and Cecilia R. Aragon. 2018."
+  },
+  {
+    "heading": "Conceptualizing disagreement in qualitative",
+    "content": "coding. In Proceedings of the 2018 CHI Con-\nference on Human Factors in Computing Sys-\ntems, CHI 2018, Montreal, QC, Canada, April\n21-26, 2018, page 159. ACM."
+  },
+  {
+    "heading": "Eva Zangerle and Christine Bauer. 2022. Evaluat-",
+    "content": "ing Recommender Systems: Survey and Frame-\nwork. ACM Comput. Surv., 55(8).\nA"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Pre-processing"
+  },
+  {
+    "heading": "We tokenized texts using the Spacy library with",
+    "content": "model \u201cen_core_web_sm\u201d10. We discarded docu-\nments with less than five words. We used Hoyle\net al. (2021)\u2019s library11 to do the pre-processing."
+  },
+  {
+    "heading": "Following (Vafa et al., 2020), we considered all",
+    "content": "the unigrams appearing in at least 0.1% and at\nmost 30% documents of the corpus. After pre-\nprocessing, the SENATE dataset had 17,573, the"
+  },
+  {
+    "heading": "DESGIN dataset had 174,416 and the ACL dataset",
+    "content": "had 71,736 documents.\nB"
+  },
+  {
+    "heading": "Prolific Recruitment Details",
+    "content": "B.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SENATE dataset"
+  },
+  {
+    "heading": "All the users were located in the USA, with an",
+    "content": "approval rate of 95-100, and at least 10 previous\nsubmissions with political spectrum: Conserva-\ntive, Moderate, Liberal.\nB.2"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DESIGN Dataset"
+  },
+  {
+    "heading": "Users with an approval rate of 95-100, and at least",
+    "content": "10 previous submissions with exposure to one of\nthe following industries:"
+  },
+  {
+    "heading": "Computer and Electronics Manufacturing, Re-",
+    "content": "search laboratories, Software, Telecommunica-\ntions, Video Games,\nand with knowledge of one or more of the follow-\ning software development techniques:"
+  },
+  {
+    "heading": "Cloud computing, Shell scripting, Background",
+    "content": "processing,"
+  },
+  {
+    "heading": "Search",
+    "content": "technologies,"
+  },
+  {
+    "heading": "Monitoring,",
+    "content": "caching, Version control, Virtualisation, Debug-\nging, Functional testing, Unit testing, Web servers,"
+  },
+  {
+    "heading": "Database management, Responsive design, UI de-",
+    "content": "sign, A/B testing, UX.\nC"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Task Details"
+  },
+  {
+    "heading": "For the SENATE dataset, we provided the follow-",
+    "content": "ing warning message:"
+  },
+  {
+    "heading": "You may come across content that may",
+    "content": "be offensive or distressing.\nYou\ncan withdraw from the study by using\n\u201cExit\u201d option at the bottom of the\npage."
+  },
+  {
+    "heading": "The following descriptions of datasets were pro-",
+    "content": "vided to the users:\n1. ACL:"
+  },
+  {
+    "heading": "These topics are inferred on",
+    "content": "scholarly research articles on the\n10https://spacy.io/models/en\n11https://github.com/ahoho/topics\nstudy of computational linguistics\nand natural language processing\n2. SENATE:"
+  },
+  {
+    "heading": "These topics are inferred",
+    "content": "on speeches in the 114th session\nof Congress (2015-2017) recorded\nin the bound and daily editions\nof the United States Congressional"
+  },
+  {
+    "heading": "Record.",
+    "content": "3. DESIGN:"
+  },
+  {
+    "heading": "These topics are inferred",
+    "content": "on Stack Overflow posts regarding\n\u201cSoftware Design\u201d.\nD"
+  },
+  {
+    "heading": "Unknown",
+    "content": "LLM based Coherence Rating"
+  },
+  {
+    "heading": "We use the coherence rating prompts from Stamm-",
+    "content": "bach et al. (2023) and modify them for our\ndatasets. We use the following Likert scales:\nD.1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Likert Scales"
+  },
+  {
+    "heading": "Let K denote the number of items in a Likert",
+    "content": "scale:\n1. K = 3"
+  },
+  {
+    "heading": "LS-3: \u201c1\u201d = not very related, \u201c2\u201d = moderately",
+    "content": "related, \u201c3\u201d = very related\n2. K = 5"
+  },
+  {
+    "heading": "LS-5: \u201c1\u201d = not very related, \u201c2\u201d = somewhat",
+    "content": "related, \u201c3\u201d = moderately related, \u201c4\u201d = re-\nlated, \u201c5\u201d = very related"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D.1.1"
+  },
+  {
+    "heading": "System prompts with a task and",
+    "content": "dataset description"
+  },
+  {
+    "heading": "Prompt 1. You are a helpful assistant evaluating",
+    "content": "the top words of a topic model output for a given\ntopic."
+  },
+  {
+    "heading": "Please rate how related the following words are",
+    "content": "to each other on a scale from 1 to {K} ({LS-K}).\n[dataset_details]"
+  },
+  {
+    "heading": "Reply with a single number, indicating the over-",
+    "content": "all appropriateness of the topic.\nwhere K \u22083, 5."
+  },
+  {
+    "heading": "Unknown",
+    "content": "D.1.2"
+  },
+  {
+    "heading": "Task and dataset details",
+    "content": "\u2022 ACL:"
+  },
+  {
+    "heading": "The topic modeling is based",
+    "content": "on the ACL Anthology corpus."
+  },
+  {
+    "heading": "The corpus consists of scholarly",
+    "content": "research articles on the study\nof computational linguistics and\nnatural language processing.\n\u2022 SENATE: The topic modeling is based\non the United States Congressional"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Record."
+  },
+  {
+    "heading": "The corpus consists of",
+    "content": "speeches from the 114th session\nof Congress (2015-2017) spoken\non the floor of each chamber of"
+  },
+  {
+    "heading": "Congress:",
+    "content": "the United States House\nof Representatives and the United"
+  },
+  {
+    "heading": "States Senate.",
+    "content": "\u2022 DESIGN: The topic modeling is based\non Stack Overflow posts regarding\n\u201cSoftware Design\u201d."
+  },
+  {
+    "heading": "Unknown",
+    "content": "D.1.3"
+  },
+  {
+    "heading": "System prompts without a task and",
+    "content": "dataset description"
+  },
+  {
+    "heading": "Prompt 2. You are a helpful assistant evaluating",
+    "content": "the top words of a topic model output for a given\ntopic."
+  },
+  {
+    "heading": "Please rate how related the following words are",
+    "content": "to each other on a scale from 1 to {K} ({LS-K})."
+  },
+  {
+    "heading": "Reply with a single number, indicating the over-",
+    "content": "all appropriateness of the topic.\nwhere K \u22083, 5."
+  },
+  {
+    "heading": "Unknown",
+    "content": "D.1.4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Implementation"
+  },
+  {
+    "heading": "We use the same hyperparameter settings12 as that",
+    "content": "of Stammbach et al. (2023) while using GPT. We\nprompt GPT (GPT-3.5-Turbo) five times and re-\nport the average score.\nE"
+  },
+  {
+    "heading": "Topic-Construct Agreement",
+    "content": "12https://github.com/dominiksinsaarland/\nevaluating-topic-model-output/\nblob/main/src-human-correlations/\nchatGPT_evaluate_topic_ratings.py\nC-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "A1:Logic",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "S1:Students",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "D1:MVC",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "A2:BERT",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "S2:Zika",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "D2:Memory",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "S3:Freedom",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "D3:Database",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "A4:Neural",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "S4:Women",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "D4:Threading",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "Agreement with",
+    "content": "construct"
+  },
+  {
+    "heading": "A5:Tweets",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "S5:Russia",
+    "content": "C-1(\u2191) C-2(\u2193) C-3(\u2191) C-4(\u2193) C-5(\u2191) C-6(\u2191) C-7(\u2191) C-8(\u2191) C-9(\u2191) C-10(\u2191)\n0\n25\n50\n75\n100"
+  },
+  {
+    "heading": "D5:Inheritance",
+    "content": "C-1: There is no jargon in this topic; even a novice can understand it (\u2191)\nC-2: I need to see the relevant documents to know what the topic is about (\u2193)"
+  },
+  {
+    "heading": "C-3: The words of this topic have a connected meaning (\u2191)",
+    "content": "C-4: This topic can be divided into subtopics for better understanding (\u2193)\nC-5: I can infer the situation and context in which these words are mentioned (\u2191)\nC-6: I can quickly \ufb01nd a Wikipedia article to help someone understand this topic (\u2191)"
+  },
+  {
+    "heading": "C-7: This topic is easy to label (\u2191)",
+    "content": "C-8: If I see this topic after some time, I don\u2019t think my label would change (\u2191)"
+  },
+  {
+    "heading": "C-9: Others will have similar interpretations (\u2191)",
+    "content": "C-10: I will arrive at the same interpretation, even if the order of words is shu\ufb04ed (\u2191)\nFigure 4: Mean and the coefficient of variation of agreement of users for each topic and construct pair.\nF"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Example Topic Card"
+  },
+  {
+    "heading": "Table 13 provides a Topic Card by a fictional interpreter.",
+    "content": "Topic 32 (TW ): shared code subtask hindi identification ensemble submitted\nteam teams detection participants subtasks submission mixed official track\ncharacter semeval submissions run preprocessing tamil runs competition\nvalidation\n\u2022 The task, purpose, goals, or research questions intended to address or achieve using topics\nDevelop a classification scheme for organizing research articles related\nto Computational Linguistics\n\u2022 User positionality\nI am a third-year female Ph.D. student at the University of XXX, USA.\nMy research interests lie at the intersection of Natural Language"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Processing and Social Science."
+  },
+  {
+    "heading": "I completed my undergraduate education",
+    "content": "in Electrical Engineering from Indian Institute XXX in 2020."
+  },
+  {
+    "heading": "I am",
+    "content": "proficient in Bengali, Hindi, and English."
+  },
+  {
+    "heading": "Unknown",
+    "content": "I have basic proficiency in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "French."
+  },
+  {
+    "heading": "I am a citizen of India.",
+    "content": "\u2022 Rationale behind topic interpretation and label for all the users\nThe topic is about \u201cShared Tasks for NLP in Indian Languages\u201d."
+  },
+  {
+    "heading": "There",
+    "content": "are many words (\u2018shared\u2019, \u2018subtask\u2019, \u2018track\u2019, \u2018semeval\u2019, etc.)\nabout\nshared tasks."
+  },
+  {
+    "heading": "However, the topic has the word \u201chindi\u201d in the 4th",
+    "content": "position and \u201ctamil\u201d in the 22nd position."
+  },
+  {
+    "heading": "Hindi and Tamil are widely",
+    "content": "spoken languages in India; hence I think related documents will be of\nparticipation of various teams in shared tasks on Indian Languages.\nI\ncould not find one reference that will discuss different shared tasks,\nbut I am pretty confident about my interpretation.\n\u2022 Utility of the topic\nA person interested in Indian languages can find the topic useful.\n\u2022 Details of prompts if LLMs are used while interpreting topics"
+  },
+  {
+    "heading": "I tried the following prompts with ChatGPT:",
+    "content": "\u2013 Prompt:"
+  },
+  {
+    "heading": "Please provide a topic label that best describes this group",
+    "content": "of words:\n[TW ]"
+  },
+  {
+    "heading": "ChatGPT: The best topic label for this group of words is:",
+    "content": "\u201cNatural Language Processing Competition\u201d"
+  },
+  {
+    "heading": "Unknown",
+    "content": "This label captures the context of language processing (e.g.,"
+  },
+  {
+    "heading": "Hindi, Tamil), competition (e.g., SemEval), and the various",
+    "content": "terms associated with participation and technical aspects (e.g.,\nsubmission, preprocessing, validation, ensemble).\n\u2013 Prompt:"
+  },
+  {
+    "heading": "Please find an intruder word from this group of words:",
+    "content": "[TW ]."
+  },
+  {
+    "heading": "Unknown",
+    "content": "ChatGPT: The intruder word in this group is \u201chindi\u201d."
+  },
+  {
+    "heading": "ChatGPT interpretation is not aligned with my interpretation",
+    "content": "\u2022 How sensitive are the end results with the interpretations"
+  },
+  {
+    "heading": "Unknown",
+    "content": "As I am from India, I know about Hindi and Tamil."
+  },
+  {
+    "heading": "If someone finds",
+    "content": "these two words as outliers or intruders they will arrive at different\ninterpretations and it can affect the classification of related\ndocuments."
+  },
+  {
+    "heading": "Table 13: A Topic Card for a topic by a fictional interpreter",
+    "content": "G"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic Labels"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic \u2192"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A1:Logic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A3:Parsing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A4:Neural"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A5:Tweets"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User \u2193"
+  },
+  {
+    "heading": "AI-0",
+    "content": "reasoning, infer-\nence, logical\ntransformer, bert,\nfine tuning\nparser,\ntree,treebank\nneural network,\nembedding, archi-\ntecture\nsocial media, user\nmessages"
+  },
+  {
+    "heading": "AI-1",
+    "content": "theory\npretrained lan-\nguage model"
+  },
+  {
+    "heading": "Parse tree",
+    "content": "deep learning\nsocial platform"
+  },
+  {
+    "heading": "AI-2",
+    "content": "science\nlanguage model\nsemantics\ndeep learning\nsocial media"
+  },
+  {
+    "heading": "AI-3",
+    "content": "language\nLLM\ndata\nattention\nzombie"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-4"
+  },
+  {
+    "heading": "Natural language",
+    "content": "inference"
+  },
+  {
+    "heading": "BERT",
+    "content": "dependency parser\nneural network"
+  },
+  {
+    "heading": "Social media",
+    "content": "(Twitter)"
+  },
+  {
+    "heading": "AI-5",
+    "content": "natural language\ninference\nfine-tuning pre-\ntrained large lan-\nguage models\ndependency pars-\ning\ndeep neural net-\nwork architecture\nsocial media"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Entailment and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Logical Reasoning"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Transformer-based"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Encoder Models"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Syntactic Parsing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Deep Learning"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Social Media"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Platform - Twitter"
+  },
+  {
+    "heading": "AI-7",
+    "content": "proof\npre-trained lan-\nguage model\nparse tree\ndeep learning\nsocial media"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-8"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Logical entailment"
+  },
+  {
+    "heading": "Unknown",
+    "content": "BERT"
+  },
+  {
+    "heading": "Dependency pars-",
+    "content": "ing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Neural Networks"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Twitter/X"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-9"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Logic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Natural Language"
+  },
+  {
+    "heading": "Processing",
+    "content": "\"parser\""
+  },
+  {
+    "heading": "Artificial Intelli-",
+    "content": "gence\nsocial media"
+  },
+  {
+    "heading": "AI-10",
+    "content": "predictive model-\ning"
+  },
+  {
+    "heading": "Large language",
+    "content": "models\nlinguistic\ndeep learning\nmodels\nsocial media"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-11"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Entailment Task"
+  },
+  {
+    "heading": "Transformer Lan-",
+    "content": "guage Models"
+  },
+  {
+    "heading": "Dependency Pars-",
+    "content": "ing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Neural Network"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Social Media"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Tools"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 14: Labels of ACL dataset topics provided by users"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic \u2192"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S1:Students"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S2:Zika"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S3:Freedom"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S4:Women"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User \u2193"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-0"
+  },
+  {
+    "heading": "Financial aid and",
+    "content": "student loan debt"
+  },
+  {
+    "heading": "Public funding",
+    "content": "for women\u2019s re-\nproductive health\nrelated to the Zika\nvirus"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Religious freedom"
+  },
+  {
+    "heading": "Equal rights for",
+    "content": "women"
+  },
+  {
+    "heading": "Unknown",
+    "content": "National security"
+  },
+  {
+    "heading": "SI-1",
+    "content": "student loan debt"
+  },
+  {
+    "heading": "Healthcare of",
+    "content": "pregnant women"
+  },
+  {
+    "heading": "Religious freedom",
+    "content": "in America and\nthe world"
+  },
+  {
+    "heading": "Equal rights of",
+    "content": "women in Amer-\nica"
+  },
+  {
+    "heading": "Unites States",
+    "content": "foreign relations"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-2"
+  },
+  {
+    "heading": "Student loan can-",
+    "content": "cellation"
+  },
+  {
+    "heading": "Abortion and birth",
+    "content": "control"
+  },
+  {
+    "heading": "The cuban missile",
+    "content": "crisis in America.\nequal rights in the\nworkplace"
+  },
+  {
+    "heading": "International se-",
+    "content": "curity between"
+  },
+  {
+    "heading": "NATO and its",
+    "content": "allies."
+  },
+  {
+    "heading": "SI-3",
+    "content": "issue of student\nloan debt and cost\nof education"
+  },
+  {
+    "heading": "US funding for",
+    "content": "public health\nrole of freedom\nof speech and\nreligious freedom\nsocial movements\nand advocacy in\nthe US\nthe state of US\nrelations with for-\neign governments"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Financial Aid for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "College Students"
+  },
+  {
+    "heading": "Pregnancy Issues",
+    "content": "in the United"
+  },
+  {
+    "heading": "Unknown",
+    "content": "States"
+  },
+  {
+    "heading": "Differences be-",
+    "content": "tween Cuba and\nthe United States"
+  },
+  {
+    "heading": "Unknown",
+    "content": "American Human"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rights"
+  },
+  {
+    "heading": "Ukraine and Rus-",
+    "content": "sian Conflict"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5"
+  },
+  {
+    "heading": "Student loan dis-",
+    "content": "cussions"
+  },
+  {
+    "heading": "Unknown",
+    "content": "African Aid"
+  },
+  {
+    "heading": "Talk about Cuban",
+    "content": "lifting embargo"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Women\u2019s rights"
+  },
+  {
+    "heading": "International rela-",
+    "content": "tions"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Student Loan"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Forgiveness"
+  },
+  {
+    "heading": "Zika women\u2019s",
+    "content": "health access"
+  },
+  {
+    "heading": "American Great-",
+    "content": "ness"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Inequality seen in"
+  },
+  {
+    "heading": "Unknown",
+    "content": "America"
+  },
+  {
+    "heading": "National Security",
+    "content": "and International"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Relations"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-7"
+  },
+  {
+    "heading": "Newly graduated",
+    "content": "college students\nand financial aid\nand debt."
+  },
+  {
+    "heading": "The health of",
+    "content": "pregnant women\nand epidemics."
+  },
+  {
+    "heading": "Religious freedom",
+    "content": "in the United"
+  },
+  {
+    "heading": "Unknown",
+    "content": "States."
+  },
+  {
+    "heading": "Pay equality for",
+    "content": "women and mi-\nnorities."
+  },
+  {
+    "heading": "The United States",
+    "content": "role in foreign\npolicy."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-8"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Desirable vs."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Undesirable"
+  },
+  {
+    "heading": "Health Emergen-",
+    "content": "cies"
+  },
+  {
+    "heading": "Random",
+    "content": "equal opportunity"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Assistance"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9"
+  },
+  {
+    "heading": "Student loans and",
+    "content": "financial aid"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Healthcare"
+  },
+  {
+    "heading": "International influ-",
+    "content": "ence"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Equal Rights"
+  },
+  {
+    "heading": "Foreign policy",
+    "content": "with Russia"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-10"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Student loans"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Healthcare access"
+  },
+  {
+    "heading": "Freedom of reli-",
+    "content": "gion in Cuba"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Civil rights"
+  },
+  {
+    "heading": "Foreign policy",
+    "content": "towards Russia\nand Ukraine"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-11"
+  },
+  {
+    "heading": "Students loan and",
+    "content": "state programs"
+  },
+  {
+    "heading": "Zika virus and",
+    "content": "women pre-\ngrenancy or abor-\ntion\nfreedom or reli-\ngion\nvote rights and\ndiscrimination"
+  },
+  {
+    "heading": "US and Ukraine",
+    "content": "conflict with rus-\nsia and China"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-12"
+  },
+  {
+    "heading": "University Stu-",
+    "content": "dent Loans and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Financial Aid"
+  },
+  {
+    "heading": "Health Issues (In-",
+    "content": "fectious Diseases\nand Abortion)"
+  },
+  {
+    "heading": "Religious Free-",
+    "content": "dom in American"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Government"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Equal Rights for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Women"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Foreign Policy"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-13"
+  },
+  {
+    "heading": "Federal student",
+    "content": "loan repayment"
+  },
+  {
+    "heading": "Zika virus and",
+    "content": "pregnancy"
+  },
+  {
+    "heading": "Spanish-American",
+    "content": "War"
+  },
+  {
+    "heading": "Feminist Move-",
+    "content": "ment"
+  },
+  {
+    "heading": "International rela-",
+    "content": "tions"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Table 15: Labels of SENATE dataset topics provided by users"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic \u2192"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D1:MVC"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D2:Memory"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D3:Database"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D4:Threading"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D5:Inheritance"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User \u2193"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-0"
+  },
+  {
+    "heading": "Software architec-",
+    "content": "ture and develop-\nment frameworks"
+  },
+  {
+    "heading": "Computer mem-",
+    "content": "ory, performance,\nand caching"
+  },
+  {
+    "heading": "Database man-",
+    "content": "agement (using"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SQL)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Multithreading"
+  },
+  {
+    "heading": "Object oriented",
+    "content": "programming and\ninheritance"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-1"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Design patterns"
+  },
+  {
+    "heading": "Memory manage-",
+    "content": "ment"
+  },
+  {
+    "heading": "SQL database",
+    "content": "multithreading"
+  },
+  {
+    "heading": "Inheritance in",
+    "content": "OOP"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-2"
+  },
+  {
+    "heading": "Software arhitec-",
+    "content": "tual patterns such\nas MVC, MVVM\nand MVP"
+  },
+  {
+    "heading": "Performance op-",
+    "content": "timization and\nmemory manage-\nment"
+  },
+  {
+    "heading": "Creating, labeling",
+    "content": "and designing"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SQL databases."
+  },
+  {
+    "heading": "Concurrency con-",
+    "content": "trol, database\nmanagment and\ntransaction pro-\ncessing."
+  },
+  {
+    "heading": "Object oriented",
+    "content": "programming con-\ncepts, such as how\nclass inheritance\nworks"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-3"
+  },
+  {
+    "heading": "MVC related",
+    "content": "questions"
+  },
+  {
+    "heading": "Chaching data to",
+    "content": "improve perfor-\nmance"
+  },
+  {
+    "heading": "Understanding",
+    "content": "database opera-\ntions and queries"
+  },
+  {
+    "heading": "Using threads",
+    "content": "correctly"
+  },
+  {
+    "heading": "Defining classes",
+    "content": "and subclasses"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-4"
+  },
+  {
+    "heading": "Design Patterns",
+    "content": "for UI dev"
+  },
+  {
+    "heading": "Computer memory",
+    "content": "and performance"
+  },
+  {
+    "heading": "Relational",
+    "content": "databases and\nSQL"
+  },
+  {
+    "heading": "Concurrency",
+    "content": "and Processes"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Management"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Object-oriented"
+  },
+  {
+    "heading": "Programming",
+    "content": "OOP"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-5"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Web Development"
+  },
+  {
+    "heading": "Memory and per-",
+    "content": "formance opti-\nmazation"
+  },
+  {
+    "heading": "Database manage-",
+    "content": "ment with SQL"
+  },
+  {
+    "heading": "Multithreaded",
+    "content": "programming"
+  },
+  {
+    "heading": "Object-oriented",
+    "content": "programming"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Web development"
+  },
+  {
+    "heading": "Computer Archi-",
+    "content": "tecture"
+  },
+  {
+    "heading": "Unknown",
+    "content": "MySQL"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Operating Systems"
+  },
+  {
+    "heading": "Object oriented",
+    "content": "programming"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-7"
+  },
+  {
+    "heading": "Unknown",
+    "content": "MVC Architecture"
+  },
+  {
+    "heading": "Database Perfor-",
+    "content": "mance Optimiza-\ntion"
+  },
+  {
+    "heading": "Database Manage-",
+    "content": "ment Commands"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Concurrency"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Control in Multi-"
+  },
+  {
+    "heading": "Threaded Systems",
+    "content": "OOP"
+  },
+  {
+    "heading": "DI-8",
+    "content": "software architec-\nture MVC/MVM"
+  },
+  {
+    "heading": "Performance opti-",
+    "content": "mization\nSQL\nmulti-threading\nobject-oriented\nprogramming"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-9"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Introduction to"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Object-Oriented"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Programming"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Concepts"
+  },
+  {
+    "heading": "Software Perfor-",
+    "content": "mance Optimiza-\ntion"
+  },
+  {
+    "heading": "Database Opti-",
+    "content": "mization"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Locking and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Transaction"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Management in"
+  },
+  {
+    "heading": "Computer Pro-",
+    "content": "gramming"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Object-Oriented"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Programming"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Concepts"
+  },
+  {
+    "heading": "Table 16: Labels of DESIGN dataset topics provided by users",
+    "content": "H"
+  },
+  {
+    "heading": "Rationales of Topic Interpretations",
+    "content": "ID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Familiarity effects for AI-10"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A2:BERT"
+  },
+  {
+    "heading": "Large language",
+    "content": "models\nthe topic is easy to understand what it is \"about\", as it seems to capture relevant key-\nwords to LLMs. Seems the terms convey a cohesive topic, I wouldn\u2019t change my la-\nbeling even if I spend more time looking at these terms. That said, providing top doc-\numents could change labeling and make it more specific. Topic can be dividied to sub\ntopics, such as modeling, data preporcessing for llms, etc."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic"
+  },
+  {
+    "heading": "A3:Parsing",
+    "content": "linguistic\nthis topic for sure is less familar to me. looking at top terms sicj as parser, tree, head,\ndependecy, I said ok it is about linguistic. but going further down the list the terms\nbecame less familiar to me. so perhaps if I would look down the list first (the order\nwas suffled) I would arrive at different answers. I think dividing it to two topics would\nmake one topic that is so familar to me (lingusitics) and another one that I wouldn\u2019t be\nfamiliar to me (Penn, attachment, projective, constituency)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Context effect: Topic D4:Threading"
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-6"
+  },
+  {
+    "heading": "Operating Systems",
+    "content": "Threads, mutex, locking, process are big hints. A subject I had in Uni was called \"Op-\nerating Systems\" that also covered this topic. I\u2019m sure there is a better label such as\nmulti-threaded programming but I decided to go for a more general one."
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-2"
+  },
+  {
+    "heading": "Concurrency con-",
+    "content": "trol, database man-\nagment and trans-\naction processing.\nThere is plenty of jargon, a novice without at least some background knowledge\nwouldn\u2019t understand the topic. The situation and context depends on the order of the\nwords, its a bit of a broad topic. The meaning of the words vary a lot but are centered\naround the same topic. The topic is very broad so I don\u2019t need to see any relevant doc-\numents. The topic would require more than a wikipedia article to understand, but there\nare plenty of other sources on the internet that help. I provided that label because the\nwords such as \"lock\", \"thread\", \"time\", \"multiple\", and \"transaction\" reminded me of\nit the most. Its hard to label because the order of the words could shift my interpreta-\ntion. The words are really specific so I don\u2019t think my label would change. I think the\ninterpretations would vary a little but would probably be similar because the topic is\nso specific. If the order is shuffled I might think of another similar label. Its a complex\ntopic, it has a couple words that are based on some subtopics (such as \"read\" \"write\"\n\"access\")."
+  },
+  {
+    "heading": "Unknown",
+    "content": "C. Memory based fallback effect: Topic A3:Parsing"
+  },
+  {
+    "heading": "AI-3",
+    "content": "data\nkey word: dependency, tree, treebank Maybe data structure? I\u2019m not sure"
+  },
+  {
+    "heading": "AI-9",
+    "content": "parser\nNot familiar with this topic, but chose parser because I\u2019ve used \"parser\"."
+  },
+  {
+    "heading": "Unknown",
+    "content": "D. Ordering effect: Topic A1:Logic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-6"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Entailment and"
+  },
+  {
+    "heading": "Logical Reasoning",
+    "content": "The topic is not easy to label because there seems to be a mixture of multiple topics\nlike entailment (NLI), logical reasoning, logic formulae, and predicates. However,\nentailment is a little more dominant sub-topic because of word like \"entailment\", \"nli\",\n\"hypothesis\". These words would appear as a jargon to anyone who is a novice to\nNLP. As there is a mixture of multiple sub-topics in this topic, others are likely to\nhave little different interpretation and even my own label may change if I see this topic\nagain after a long time. The order of words is not playing much role in reducing the\nlabelling confusion of this topic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-8"
+  },
+  {
+    "heading": "Logical",
+    "content": "entailment\nThe first two words (logical entailment) suggested the topic for me and the other\nwords seemed to align. I might have gone for NLI if that term appeared at the top.\nTable 17: Examples of topic interpretations showing the effect of differential salience of words\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-4 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Ukraine and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Russian"
+  },
+  {
+    "heading": "Conflict",
+    "content": "All the words have to do with countries that have some influence over the current con-\nflict between Russia and Ukraine, as well as points of contention throughout the war\n(economic and security impacts, for example). This label does require some background\nknowledge on current events (so not everyone would come to the same conclusion), but\ngiven the context of the label the words seem related, easily understandable without ex-\ntra context, can be subdivided (because there are so many aspects of the war that can be\nexamined), and easily looked up on places like Wikipedia. However, without this knowl-\nedge, others might not have as easy of a time labeling hence the lower score there. I\nthink because there are certain anchor words that hint at war like \"allies\" that my label is\nunlikely to change if I saw this topic after a period of time or if the words were shuffled."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-8 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "Assistance",
+    "content": "II labeled this section as assistance because ever since the Russians war against Ukraine\nhas started the United states role has been providing assistance to Ukraine. The words\nthat make the topic clear to me are of course Ukraine, allies, and relations. In my pro-\ncess of deciding whether I agreed or not I with a little bit hesitant because I\u2019m not sure\nWikipedia is the right source for this topic so I was considering not suggesting that to\nsomeone that to someone but I realized the question is asking if I could not if I should.]"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S1:Students"
+  },
+  {
+    "heading": "Student loan",
+    "content": "discussions\nWords like students, financial, loans, and banks make me think the speech was about the\nrecent rates of student loans and how they need to be fixed. Perhaps a bill was introduced\nduring the speech."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S2:Zika"
+  },
+  {
+    "heading": "Healthcare",
+    "content": "The words could be grouped into multiple different yet more specific labels. For exam-\nple: women, abortion, planned, parenthood, womens, control, babies, pregnant. All these\nwords remind me on the increasing national regulation on women\u2019s healthcare rights.\nWords: zika, virus, ebola, disease; are more related to international healthcare issues.\nTable 18: Example topic interpretations with presentism effect\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Stereotypes"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S2:Zika"
+  },
+  {
+    "heading": "African Aid",
+    "content": "Things like, abortion, zika, ebola, are all indicative of ongoing African societal and med-\nical issues. This speech could be about aid to countries in Africa."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S3:Freedom"
+  },
+  {
+    "heading": "International",
+    "content": "influence\nUnclear if these words are to represent the separation of church and state (freedom, re-\nligious, religion, faith) or represent USA\u2019s involvement with spreading democracy into\nother countries (Cuba, freedom, history, united, states, human, liberty, war, state, free,\nnations, democracy, political, cuban)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Levels of Abstraction: Topic A2:BERT"
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-8"
+  },
+  {
+    "heading": "BERT",
+    "content": "The topic seems to be specifically about training and fine-tuning large language models\nlike bert and roberta, and seems to reflect snippets common in recent NLP papers around\nusing pretrained large language models and fine-tuning them. The order of the words do\nlend credence to fine-tuning in particular, otherwise I might have considered this topic\nto be about large language models in particular. The fact that roberta is mentioned and\ntransformer also appears makes it see to me that it is more about LLMs in general and\nnot just bert, but I cannot be sure."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-10"
+  },
+  {
+    "heading": "Large language",
+    "content": "models\nthe topic is easy to understand what it is \"about\", as it seems to capture relevant key-\nwords to LLMs. Seems the terms convey a cohesive topic, I wouldn\u2019t change my label-\ning even if I spend more time looking at these terms. That said, providing top documents\ncould change labeling and make it more specific. Topic can be dividied to sub topics,\nsuch as modeling, data preporcessing for llms, etc."
+  },
+  {
+    "heading": "Unknown",
+    "content": "C. Generalization for Topic A1:Logic"
+  },
+  {
+    "heading": "AI-2",
+    "content": "science\nI think a person requires some experience in the sciences to understand these terms.\nEven though the terms are related, they seem to be overly broad. It is very difficult to\nlabel these terms under a label that has a narrower scope. I believe that this topic can\nbe split into a topic that encompasses the mathematical terms such as proof, formula,\nexpressions, etc, and another topic that focuses on logical reasoning such as rule, entail-\nment, predicate, etc."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-9"
+  },
+  {
+    "heading": "Logic",
+    "content": "I can roughly guess the content because I\u2019ve learned these concepts in a course, such as\nfirst-order logic, but I can\u2019t recall the name, as I used \"logic\" as the topic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "AI-4"
+  },
+  {
+    "heading": "Natural lan-",
+    "content": "guage inference\nI am really hesitating between logics and nli as \"entailment\", \"semantic\", and \"inference\"\nare more related to NLI while the first word is \"logical\"\nTable 19: Examples of topic interpretations showing the effect of Stereotyping and Generalization\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Topic label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Gestalt principle: Closure"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-11 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "S5:Russia"
+  },
+  {
+    "heading": "US and Ukraine",
+    "content": "conflict with russia\nand China\nVery hard topic to understand without the context or representative documents. It\ncould be easily considred as the recent war between Ukraine and Russia, but if I\nrecall correctly the corpus is formed between 2015-2017. My guess is this topic is\nabout the Ukrain joining Nato struggle and conflicts with Russia with China and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "US being involved."
+  },
+  {
+    "heading": "Unknown",
+    "content": "DI-4 for"
+  },
+  {
+    "heading": "Unknown",
+    "content": "D4:Threading"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Concurrency and"
+  },
+  {
+    "heading": "Processes Manage-",
+    "content": "ment\nFor me the words: \"thread\", \"process\", \"shared\", \"mutex\", and \"lock\" all are re-\nlated on how different processes or units of execution access the same resources\navaliable. \"transaction\", \"update\", \"block\", and \"locked\" \u2212> are words for me\nthat focus more on the integrity of the data, makes me think of atomic operations"
+  },
+  {
+    "heading": "Unknown",
+    "content": "B. Gestalt principle: Figure and Ground for Topic S4:Women"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-4"
+  },
+  {
+    "heading": "Unknown",
+    "content": "American Human"
+  },
+  {
+    "heading": "Rights",
+    "content": "There are words having to do with different categories of people (women, men,\nblack), words having to do with rights (equality, amendment, fair, justice, civil),\nand words that are about America specifically (maryland, americans). Based on\nthis, I decided on the label \"American Human Rights\" because that phrase seems\nto capture the idea of keeping \"justice\" for all the rights specified above. This la-\nbel was a little tricky to decide on because of the specific words about America\nbeing interspersed with civil rights language. However, the words still seem, on\na whole, related to each other given the label, and could be further researched on\nWikipedia. For a better label, however, I\u2019d need to see more related documents.\nShuffling/seeing this label after a long time may possibly affect my label, espe-\ncially if more America-centric words were included earlier in the shuffle. This is\nwhy I think others would have a different label. And because there are so many\naspects to civil and human rights, this topic can easily be subdivided for better\nunderstanding."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-5"
+  },
+  {
+    "heading": "Women\u2019s rights",
+    "content": "Things like equality, Black, women, rights, discrimination all point to a speech\nabout Women\u2019s rights and the struggles women have historically faced in society."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-9"
+  },
+  {
+    "heading": "Equal Rights",
+    "content": "After looking at the first few words \"women\",\"rights\",\"act\",\"equal\" all of these\nrelated towards the movement for equality between women and men. As I read\nfurther down the list, there continued to words of a similar theme (discrimination,\nmen, fair) or repeated words (equality, womens).\nTable 20: Topic interpretations showing effects of Gestalt principles\nS3:Freedom: freedom religious american history rights government united states americans human nation world america\nreligion cuba liberty war state free faith nations democracy society political cuban\nID"
+  },
+  {
+    "heading": "Unknown",
+    "content": "User\u2019s Label"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Rationale"
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-12"
+  },
+  {
+    "heading": "Religious Free-",
+    "content": "dom in Amer-\nican Govern-\nment\nGiven the context of the corpus (U.S. Senate speeches), this topic is fairly coherent but rather\ngeneral. It contains many words about American government and politics (ex: government,\nunited, states, america, nation, world), and also includes several words related to religion (re-\nligious, religion, faith). Since \"religious\" and \"freedom\" are the top two words, I would guess\nthat this topic is more specifically referring to religious freedom in American government,\nbut I\u2019m not sure \u2013 I would need to see documents to confirm this. Also, it isn\u2019t clear to me\nwhether \"cuba\" and \"cuban\" belong in this topic."
+  },
+  {
+    "heading": "Unknown",
+    "content": "SI-13"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Spanish-"
+  },
+  {
+    "heading": "American",
+    "content": "War\nWords like Cuban, America, war, and freedom indicated to me that the topic is about the\nSpanish-American War, which primarily revolved around Cuban independence. The words\nrelated to religion/faith threw me off the most, which led me to lowering my confidence-\nrelated scores. I\u2019d need to see the document. I think the document might be about the role of\nreligion in Spanish-American War, which would explain the topic better.\nTable 21: Examples of topic interpretations based on anchoring-and-adjustment heuristic."
+  }
+]

@@ -22,7 +22,7 @@ class Settings(pydantic_settings.BaseSettings):
     minio_console_port: int = Field(default=9003, description="Minio console port", env="MINIO_CONSOLE_PORT")
     minio_access_key: str = Field(default="minioadmin", description="Minio access key", env="MINIO_ACCESS_KEY")
     minio_secret_key: str = Field(default="minioadmin123", description="Minio secret key", env="MINIO_SECRET_KEY")
-    minio_bucket_name: str = Field(default="ara_demo", description="Minio bucket name", env="MINIO_BUCKET_NAME")
+    minio_bucket_name: str = Field(default="ara-demo", description="Minio bucket name", env="MINIO_BUCKET_NAME")
     minio_use_ssl: bool = Field(default=False, description="Minio use SSL", env="MINIO_USE_SSL")
 
     # API Configuration

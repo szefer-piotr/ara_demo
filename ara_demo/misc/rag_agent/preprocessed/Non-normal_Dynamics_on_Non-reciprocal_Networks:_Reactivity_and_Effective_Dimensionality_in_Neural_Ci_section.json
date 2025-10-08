@@ -1,0 +1,638 @@
+[
+  {
+    "heading": "Unknown",
+    "content": "Non-normal Dynamics on Non-reciprocal Networks:"
+  },
+  {
+    "heading": "Reactivity and Effective Dimensionality in Neural Circuits",
+    "content": "Anna Poggialini,1, 2, 3, \u2217Serena Di Santo,4, 5 Pablo Villegas,6, 5 Andrea Gabrielli,7, 6, 8 and Miguel A. Mu\u00f1oz4, 5\n1Dipartimento di Fisica Universit\u00e0 \u201cSapienza\u201d, P.le A. Moro, 2, I-00185 Rome, Italy.\n2\u2018Enrico Fermi\u2019 Research Center (CREF), Via Panisperna 89A, 00184 - Rome, Italy.\n3Dipartimento di Scienze Biomediche, Universit\u00e1 di Padova, Padova 35131, Italy.\n4Departamento de Electromagnetismo y F\u00edsica de la Materia, Universidad de Granada, Granada 18071, Spain\n5Instituto Carlos I de F\u00edsica Te\u00f3rica y Computacional, Univ. de Granada, E-18071, Granada, Spain.\n6\u2018Enrico Fermi\u2019 Research Center (CREF), Via Panisperna 89A, 00184 - Rome, Italy\n7Dipartimento di Ingegneria Civile, Informatica e delle Tecnologie Aeronautiche,\nUniversit\u00e0 degli Studi \u201cRoma Tre\u201d, Via Vito Volterra 62, 00146 - Rome, Italy."
+  },
+  {
+    "heading": "8Istituto dei Sistemi Complessi (ISC) - CNR, Rome, Italy.",
+    "content": "Non-reciprocal interactions are a defining feature of many complex systems, biological, ecological,\nand technological, often pushing them far from equilibrium and enabling rich dynamical responses.\nThese asymmetries can arise at multiple levels: locally, in the dynamics of individual units, and\nglobally, in the topology of their interactions. In this work, we investigate how these two forms of\nnon-reciprocity interact in networks of neuronal populations. At the local level, each population\nis modeled by a non-reciprocally coupled set of excitatory and inhibitory neural populations ex-\nhibiting transient amplification and reactivity. At the network level, these populations are coupled\nvia directed, asymmetric connections that introduce structural non-normality. Since non-reciprocal\ninteractions generically lead to non-normal linear operators, we frame both local and global asymme-\ntries in terms of non-normal dynamics. Using a modified Wilson\u2013Cowan framework, we analyze how\nthe interplay between these two types of non-normality shapes the system\u2019s behavior. We show that\ntheir combination leads to emergent collective dynamics, including fluctuation-driven transitions,\ndimensionality reduction, and novel nonequilibrium steady states. Our results provide a minimal\nyet flexible framework to understand how multi-scale non-reciprocities govern complex dynamics in\nneural and other interconnected systems.\nI."
+  },
+  {
+    "heading": "Unknown",
+    "content": "INTRODUCTION"
+  },
+  {
+    "heading": "Non-reciprocity has recently emerged as a powerful or-",
+    "content": "ganizing principle in the study of complex systems far\nfrom equilibrium. It describes the asymmetric, directed\nnature of interactions between components, whereby the\ninfluence of unit A on unit B is not necessarily matched\nby the reverse influence of B on A. This asymmetry un-\nderlies many forms of rich and often unexpected behav-\nior across a broad range of domains, from active matter\nand synthetic meta-materials to neural circuits and eco-\nlogical webs [2, 8, 9]. Non-reciprocal interactions break\ndetailed balance and time-reversal symmetry at the mi-\ncroscopic level, enabling new types of collective dynam-\nics \u2014 including, among others, spontaneous oscillations,\ntraveling waves, and fluctuation-amplified responses \u2014\nthat do not exist in symmetric, equilibrium-like systems\n[4, 5, 10, 11]."
+  },
+  {
+    "heading": "In this paper, we aim to bring together and clarify",
+    "content": "two distinct, but often coexisting, manifestations of non-\nreciprocity in complex systems, both of which can be\nnaturally interpreted through the lens of non-normality:\na mathematical property of matrices where eigenvectors\nare non-orthogonal, allowing for transient amplification\nof perturbations. While non-normality provides a techni-\ncal language to describe these effects, we emphasize that\n\u2217anna.poggialini@uniroma1.it\nit is the underlying physical non-reciprocity \u2014 whether\nin the local dynamics or the network architecture \u2014 that\ndrives the phenomena of interest."
+  },
+  {
+    "heading": "The first form we address is dynamical non-normality,",
+    "content": "which arises at the level of the internal dynamics of indi-\nvidual units or subsystems. When the local Jacobian or\nstability matrix is non-normal, even stable fixed points\ncan exhibit large transient responses to small perturba-\ntions, especially in the presence of noise [12, 13]. In neu-\nral circuits, for instance, populations of excitatory and\ninhibitory neurons often operate near critical balance,\nleading to strongly non-normal dynamics that transiently\namplify fluctuations in input, contributing to fast sig-\nnal processing, selectivity, and flexible population coding\n[14\u201316]. These effects are intrinsically linked to asym-\nmetries in the internal coupling and can be viewed as a\nform of microscopic non-reciprocity between excitatory\nand inhibitory neurons."
+  },
+  {
+    "heading": "The second form is what we term structural non-",
+    "content": "normality, which stems from the network-level asymme-\ntry in the way local populations are connected at a larger\nscale. In many real-world systems, especially biological\nand engineered networks, the connectivity matrix that\ngoverns inter-unit influences is inherently non-reciprocal."
+  },
+  {
+    "heading": "Neural circuits, for example, are not fully bidirectional:",
+    "content": "higher-order cortical areas send feedback to early sensory\nregions, but not necessarily with equal weight or latency\n[17\u201319]. Similarly, ecological and social systems often ex-\nhibit trophic or influence hierarchies, where some magni-\narXiv:2507.19127v1  [physics.bio-ph]  25 Jul 2025\n2\ntude flows in preferred directions [20]. When such asym-\nmetries are strong, the overall network becomes struc-\nturally non-normal, leading to directional instabilities,\nlong-range correlations, waves, and flow-like dynamics."
+  },
+  {
+    "heading": "The central hypothesis we aim to explore is whether",
+    "content": "the interplay between local dynamical non-normality and\nglobal structural non-normality gives rise to qualitatively\nnew collective behaviors, beyond what either form could\nproduce in isolation. In other words, when locally non-\nreciprocal units (e.g., excitatory/inhibitory local neural\npopulations) are embedded in a globally non-reciprocal\nnetwork (e.g., feedforward/feedback cortical circuits), the\nsystem exhibits emergent properties that are not cap-\ntured by standard linear response theory or symmet-\nric interaction models."
+  },
+  {
+    "heading": "These might include enhanced",
+    "content": "stochastic amplification, novel transient modes, and se-\nlective propagation of fluctuations and signals across the\nnetwork."
+  },
+  {
+    "heading": "As a test of this hypothesis, here we analyze a mini-",
+    "content": "mal yet general neural model consisting of multiple inter-\nacting dynamical units, each described by a non-normal\nlocal system, coupled through a network, that in gen-\neral is non-reciprocal. Using tools from linear stability\nanalysis, stochastic dynamics, and spectral theory, we\nexplore how the composition of non-reciprocities across\nscales governs the system\u2019s susceptibility to noise, its ca-\npacity to transmit signals, and its repertoire of emergent\ndynamical states."
+  },
+  {
+    "heading": "While our focus is primarily on neural systems \u2014",
+    "content": "where both forms of non-reciprocity are particularly\nnotorious\u2014 the conceptual framework we propose is\nbroadly applicable to other domains, including active\nmaterials, biological networks, and collective decision-\nmaking systems. In all these contexts, non-reciprocity\nserves as a dynamical and structural engine for complex-\nity, and understanding its layered manifestations is key\nto unlocking the behavior of high-dimensional, complex\nsystems."
+  },
+  {
+    "heading": "A theoretical neuroscience perspective:",
+    "content": "II."
+  },
+  {
+    "heading": "Unknown",
+    "content": "WILSON-COWAN MODEL FOR NEURAL"
+  },
+  {
+    "heading": "Unknown",
+    "content": "POPULATIONS"
+  },
+  {
+    "heading": "Dynamical non-normal effects at a single re-",
+    "content": "gion"
+  },
+  {
+    "heading": "We consider the classical Wilson-Cowan model [6],",
+    "content": "which describes the dynamics of a large neural popula-\ntion composed of homogeneously interconnected excita-\ntory and inhibitory neurons [7, 13, 21, 22]. The system of\ndifferential equations governing the dynamical evolution\nof the model is given by:\ndx(t)\ndt\n= \u2212\u03b1x(t) + (1 \u2212x(t))f(s)\ndy(t)\ndt\n= \u2212\u03b1y(t) + (1 \u2212y(t))f(s),\n(1)\nwhere x(t) and y(t) are the activation levels of the exci-\ntatory and inhibitory neuronal populations, respectively."
+  },
+  {
+    "heading": "The parameter \u03b1 represents the rate of spontaneous ac-",
+    "content": "tivity decay, while s denotes the net incoming current,\ns(t) = \u03b3\u00b5x(t) \u2212\u03b3\u03bdy(t) + h, which is simply the sum of all\nsynaptic excitatory and inhibitory inputs, weighted by\ntheir respective synaptic strengths \u2014-(\u03b3\u00b5 for excitation\nand \u03b3\u03bd for inhibition\u2014 plus a constant external input\ncurrent, h. To reduce the dimensionality of the parame-\nter space, all synaptic weights of a given type have been\nset to the same value."
+  },
+  {
+    "heading": "Finally f(s) is a sigmoid non-",
+    "content": "negative response function. The system displays two dis-\ntinct dynamical regimes: a quiescent (inactive) phase,\nwhere \u00afx = \u00afy = 0, and an active phase \u00afx = \u00afy > 0, char-\nacterized by nonzero steady-state activity with excita-\ntion dominating the response (\u00afx, \u00afy \u0338= 0). These phases\nare separated by a bifurcation that occurs at the criti-\ncal point \u03b3\u00b5 = \u03b3\u03bd + \u03b1: below this threshold, the system\nremains in the quiescent state, while above it, activity\nbecomes self-sustained (see below)."
+  },
+  {
+    "heading": "In the deterministic limit, using variables \u03a3 = (x +",
+    "content": "y)/2 and \u2206= (x \u2212y)/2, linearization around the active-\nstate fixed point (\u00af\u03a3, \u00af\u2206\u0338= 0) yields a non-normal Jacobian\nmatrix:\nJ =\n\u0012\n\u2212\u03bb1\n\u03c9ff\n0\n\u2212\u03bb2\n\u0013\n,\n(2)\nwhere the eigenvalues are given by \u03bb1 = \u03b1 + f(\u00afs) + (1 \u2212\n\u00af\u03a3)\u03c90f \u2032(\u00afs) and \u03bb2 = \u03b1 + f(\u00afs), with \u00afs = \u03c90 \u00af\u03a3 + h. The\nfeedforward term \u03c9ff = (1 \u2212\u00af\u03a3)(\u03b3\u00b5 + \u03b3\u03bd)f \u2032(\u00afs) governs\nthe asymmetric influence of \u03a3 on \u2206, while the parameter\n\u03c90 = \u03b3\u00b5 \u2212\u03b3\u03bd quantifies the difference between excitatory\nand inhibitory couplings."
+  },
+  {
+    "heading": "A key feature of this struc-",
+    "content": "ture is that the eigenvectors of J are non-orthogonal and\ntend to become nearly parallel under the balance con-\ndition \u03b6 \u2261\n\u03b3\u00b5\u2212\u03b3\u03bd\n\u03b3\u00b5+\u03b3\u03bd \u22480."
+  },
+  {
+    "heading": "In this regime, the eigenbasis",
+    "content": "poorly spans the full phase space: directions orthogonal\nto the dominant eigenvectors are underrepresented, and\nany perturbation with a component in these directions\nrequires large contributions from the available (nearly\naligned) eigenvectors. As a result, even small imbalances\nalong \u2206can lead to disproportionately large transient ex-\ncursions in \u03a3, despite the presence of negative eigenvalues\nand overall linear stability. This reflects the hallmark of\nnon-normal dynamics: strong directional sensitivity and\ntransient amplification that escape standard eigenvalue-\nbased stability analysis."
+  },
+  {
+    "heading": "This type of structure has important consequences,",
+    "content": "especially in the presence of stochasticity. In fact, Be-\nnayoun et al. introduced stochastic effects into the Wil-\nson\u2013Cowan framework by deriving it from a microscopic\nmodel with a finite population of N neurons [13, 23, 24]."
+  },
+  {
+    "heading": "This approach leads to a system of coupled Langevin",
+    "content": "equations\u2014interpreted in the Ito sense\u2014that captures\nthe impact of intrinsic fluctuations arising from finite-\n3\nsize effects:\ndx(t)\ndt\n= \u2212\u03b1x + (1 \u2212xf(s) +\np\n\u03b1x + (1 \u2212x)f(s)\u03b7x(t)\ndy(t)\ndt\n= \u2212\u03b1y + (1 \u2212y)f(s) +\np\n\u03b1y + (1 \u2212y)f(s)\u03b7y(t)\n(3)\nwhere \u03b7x,y are uncorrelated Gaussian white noises, with\namplitude \u03c3 that depends on the network-size \u03c3 \u221d1/\n\u221a\nN\nand some time dependencies have been omitted for sim-\nplicity in the notation."
+  },
+  {
+    "heading": "A key insight is that even when the deterministic dy-",
+    "content": "namics converge to a non-trivial stable fixed point (i.e.,\nan active state), the presence of non-orthogonal, nearly\ndegenerate eigenvectors can undermine this stability in\nthe presence of noise [7, 13, 25] . Specifically, the poor\nrepresentation of orthogonal directions in the eigen-basis\nmakes the system highly sensitive to certain perturba-\ntions, allowing stochastic fluctuations to push it away\nfrom the active state and trap it near the quiescent\none. As a consequence, the dynamics becomes intermit-\ntent, exhibiting avalanche-like activity: transient, noise-\ndriven excursions of variable amplitude into higher ac-\ntivity states. This illustrates how non-normality, when\ncombined with intrinsic stochasticity, can give rise to rich\ndynamical regimes that are entirely absent in the purely\ndeterministic system (see [7, 13] and Section III B for fur-\nther discussion)."
+  },
+  {
+    "heading": "Structural",
+    "content": "non-normal\neffects:\nfeedfor-\nward and feedback network motifs."
+  },
+  {
+    "heading": "To investigate",
+    "content": "how non-normal dynamics generalize from individual\nexcitatory-inhibitory (x/y) units to interconnected cir-\ncuits, we now analyze simple network motifs composed of\nmultiple coupled x/y populations. Our goal is to under-\nstand how the non-normal effects identified at the single-\nunit level are shaped by the architecture of inter-unit\ninteractions."
+  },
+  {
+    "heading": "We focus on a minimal yet informative motif compris-",
+    "content": "ing three local x/y populations, as illustrated in Fig.1."
+  },
+  {
+    "heading": "Inter-population connectivity is mediated exclusively by",
+    "content": "excitatory neurons: these not only project to excitatory\nneurons in other units but also to inhibitory neurons\nacross populations. In contrast, inhibitory neurons act\nonly locally within each population, consistent with bio-\nlogical observations [26]. Because inter-population cou-\npling is purely excitatory, we summarize the global archi-\ntecture using the 3 \u00d7 3 adjacency matrix A, which cap-\ntures the excitatory-to-excitatory connectivity pattern:\nA =\n\uf8eb\n\uf8ed\n1 \u03f5 0\n0 1 \u03f5\nc 0 1\n\uf8f6\n\uf8f8\n(4)"
+  },
+  {
+    "heading": "The parameter 0 \u2264c \u2264\u03f5 interpolates between a sym-",
+    "content": "metric cycle (c = \u03f5) and a purely feedforward structure\n(c = 0), thus controlling the degree of non-normality."
+  },
+  {
+    "heading": "The full 6 \u00d7 6 adjacency matrix, which includes both ex-",
+    "content": "citatory and inhibitory neurons, is not shown explicitly."
+  },
+  {
+    "heading": "However, it consists of this 3 \u00d7 3 excitatory submatrix",
+    "content": "duplicated in the excitatory-to-inhibitory blocks, while\nthe inhibitory subnetwork remains purely diagonal, since\ninhibition is strictly local.\nY\nY\nX\nX\nX\nY\n\u03a3\n\u0394\n\u03a3\n\u0394\n1\n2\n3\n1\n3\n2\n\u03b5\n\u03b5\n0 \u2264 c \u2264 \u03b5\na)\nb)\n\u03a3\n\u0394"
+  },
+  {
+    "heading": "Unknown",
+    "content": "FIG. 1."
+  },
+  {
+    "heading": "Inter-populations interactions.",
+    "content": "a) Schematic\nrepresentation of the generic non-reciprocal motif. X and Y\nrespectively stand for the fraction of active excitatory and\ninhibitory populations. Excitatory couplings are represented\nin dark red, while inhibitory interactions are shown in dark\ngreen."
+  },
+  {
+    "heading": "Interactions between populations are illustrated by",
+    "content": "light green arrows. Two of these inter-population connections\nare modulated by the parameter \u03f5, while only one is modu-\nlated by the parameter 0 \u2264c \u2264\u03f5, according to Eq. 4. This\nallows us to control the behavior of the system between the\nhomogeneous loop and the feed-forward case. b) Schematic\nrepresentation of the model following from the transformation\n(\u03a3 = x+y, \u2206= x-y). The inter-populations interactions are\ndrawn in orange for the cyclic setup and in red for the feed-\nforward one."
+  },
+  {
+    "heading": "The full set of coupled Langevin equations that we",
+    "content": "consider is then:\n\u02d9xi = \u2212\u03b1xi + (1 \u2212xi)f\n\u0012\nh + Ai,i(\u03b3\u00b5xi \u2212\u03b3\u03bdyi)\n+ \u03b3\u2113\nX\nj\u0338=i"
+  },
+  {
+    "heading": "Ai,jxj",
+    "content": "\u0013\n\u02d9yi = \u2212\u03b1yi + (1 \u2212yi)f\n\u0012\nh + Ai,i(\u03b3\u00b5xi \u2212\u03b3\u03bdyi)\n+ \u03b3\u2113\nX\nj\u0338=i"
+  },
+  {
+    "heading": "Ai,jxj",
+    "content": "\u0013\n,\n(5)\nwhere \u03b3\u2113sets the excitatory coupling strength be-\ntween\nunits.\nTo\nfix\nthe\nideas\nwe\nwill\nconsider\nf(s)\n=\n\u0398(s) tanh s,\nwhere\n\u0398(s)\nis\nthe"
+  },
+  {
+    "heading": "Heavi-",
+    "content": "side function, or its derivable counterpart f\u03be(s)\n=\n1\n2\n\u0010\n1 + 2\n\u03c0 arctan\n\u0010\ns\n\u03be\n\u0011\u0011\ntanh s, with for \u03be << 1)."
+  },
+  {
+    "heading": "We focus primarily on motifs composed of three x/y",
+    "content": "populations, which already capture rich and nontrivial\ndynamical behavior. Generalization to n coupled popu-\nlations is presented in the Supplemental Material (SM)."
+  },
+  {
+    "heading": "The Jacobian of this set of equations develops com-",
+    "content": "plex eigenvalues when three or more coupled units are\n4\nconsidered, as detailed in Sec.III B, allowing us one to ac-\ncount for more interesting transient and time-dependent\nbehaviors such as noise-induced oscillations [27]. The pa-\nper is organized as follows: in Section III A we analyze\nthe steady state of Eq. (5) for the cyclic and feedfor-\nward motifs; in Section III B we perform linear analysis\nto gain insight on the features of the orbits around the\nstable fixed point; in Section III C we examine the reac-\ntivity properties and in Section III D we relate them to\nthe behavior of the stochastic system."
+  },
+  {
+    "heading": "Unknown",
+    "content": "III."
+  },
+  {
+    "heading": "RESULTS",
+    "content": "A."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Steady state analysis"
+  },
+  {
+    "heading": "First, we analyze the type of bifurcation that the deter-",
+    "content": "ministic system undergoes near the zero fixed point, i.e.\nwhen it shifts from inhibition-dominated to excitation-\ndominated, focusing on the comparison between the two\nlimit architectures introduced above. Then, we study the\ncontrollability of the system, by quantifying how rapidly\nthe network escapes from the inactive phase using the\nexcitatory coupling \u03b3\u00b5 as a control parameter."
+  },
+  {
+    "heading": "For the sake of simplicity, let us start by discussing the",
+    "content": "decoupled setup (\u03b3\u2113= 0), studied in [7, 13]. In this case,\nthe units are trivially just copies of the same system,\ni.e. xi = xj, yi = yj for all couples of indices i, j. More\ninterestingly, the equilibrium points satisfy the identities:\n\u00afxi = \u00afyi, as anticipated above."
+  },
+  {
+    "heading": "We now would like to",
+    "content": "extend the validity of these equalities for a certain region\naround the fixed points. As we will discuss in detail in"
+  },
+  {
+    "heading": "Section III B, the system is strongly non-normal and both",
+    "content": "eigenvectors of the Jacobian align along the bisector of\nthe xi \u2212yi plane."
+  },
+  {
+    "heading": "This allows us to suppose that for",
+    "content": "t >> \u221e, xi(t) \u223cyi(t). Therefore, the dynamical system\nreduces to a one-dimensional single equation."
+  },
+  {
+    "heading": "The normal form around the bifurcation point x = 0,",
+    "content": "with h = 0, can be written as\n\u02d9x = (\u2212\u03b1 + \u03b3\u00b5 \u2212\u03b3\u03bd)x \u2212(\u03b3\u00b5 \u2212\u03b3\u03bd)x2 + O(x3),\n(6)\nwhich is the normal form for a transcritical bifurcation\n[28]. Then, the non-zero solution of this equation is\n\u00afx \u223c\u03b3\u00b5 \u2212\u03b3\u03bd \u2212\u03b1\n\u03b3\u00b5 \u2212\u03b3\u03bd\n.\n(7)\nand the bifurcation occurs at \u03b3c\n\u00b5 = \u03b3\u03bd + \u03b1. Then, lin-\nearizing around this bifurcation point we get the scaling\n\u00afx \u223c1\n\u03b1\n\u0000\u03b3\u00b5 \u2212\u03b3c\n\u00b5\n\u0001\n."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Cyclic coupling"
+  },
+  {
+    "heading": "In the cyclic architecture (c = \u03f5), the system\u2019s symme-",
+    "content": "try ensures that the equations for each node are exactly\nthe same. Then, the equilibrium condition \u00afxi = \u00afxj is\nvalid for all couple of indices i, j. Moreover, with a rea-\nsoning analogous to the one in [13], it is easy to show\nthat also in this case the excitatory and inhibitory activ-\nities reach the same steady state \u00afxi = \u00afyi. Then, as in\nthe decoupled case, the system allows a one-dimensional\ndescription."
+  },
+  {
+    "heading": "The generalization of the decoupled system to the",
+    "content": "cyclic one turns out to be straightforward: it is sufficient\nto substitute \u03b3\u00b5 with \u03b3\u00b5 + \u03b3\u2113. Therefore, it follows that\n\u03b3c,\u03f5\n\u00b5\n= \u03b3\u03bd + \u03b1 \u2212\u03b3\u2113, and the scaling of the non-null solu-\ntion becomes \u00afx \u223c1\n\u03b1\n\u0000\u03b3\u00b5 \u2212\u03b3c,\u03f5\n\u00b5\n\u0001\n. Fig. 2(a) and (b) report\nthe bifurcation diagram for the population x1 and the\nscaling of the fixed point around the bifurcation, show-\ning that the curve for the cyclic systems as a function\nof \u03b3\u00b5 coincides with the curve for the decoupled system,\nonce adequately shifted. Moreover, in Fig. 2 we show\nthe scaling of x1, as a function of the distance to the bi-\nfurcation point. Our numerical analyses reveal that the\nscaling exponent seems to hold not only for the cyclic and\ndecoupled system, but also for a broad range of values of\nc < \u03f5, i.e. for architectures that are not perfect cycles,\nthat we will refer to as \u2018weak-feedback systems\u2019."
+  },
+  {
+    "heading": "This suggests that the cyclic interactions do not fun-",
+    "content": "damentally alter the physics of the system, provided that\nfeedback into x3 is preserved. Thus, our bifurcation anal-\nysis suggests that the cyclic and decoupled models obey\nthe same physics."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Feed-forward coupling"
+  },
+  {
+    "heading": "In the feedforward system, the units are organized in a",
+    "content": "chain. To fix the ideas, we label the different populations\nas follows: x3 is the initial node of the chain and does not\nreceive any input from other units, x2 is in the middle\nof the chain receiving input from x3 and projecting onto\nx1, and x1 does not project to any other units, being the\nfinal node of the chain (see Fig. 1 a)). The population\nx3 trivially behaves as a decoupled unit, thus becoming\nactive at the bifurcation point \u03b3\u00b5 = \u03b3c\n\u00b5. For smaller val-\nues of \u03b3\u00b5, x2 receives no input from x3 and therefore also\nx2 stays inactive. The same is true also for x1, therefore\nthe whole system is inactive for \u03b3\u00b5 < \u03b3c\n\u00b5, while it gets\ntriggered by the activation of x3, whose input cascades\nonto the rest of the chain. More formally, around the\nbifurcation point, we find:\n\u02d9xi =(1 \u2212\u00afxi+1)\u00aff \u2212\u03b1xi \u2212\u00affxi + \u00aff\u2032(\u03b3\u00b5 \u2212\u03b3\u03bd)xi+\n\u2212\u00aff\u2032(\u03b3\u00b5 \u2212\u03b3\u03bd)x2\ni \u22121\n2\n\u00aff\u2032\u2032(\u03b3\u00b5 \u2212\u03b3\u03bd)2x2\ni + O(x3),\n(8)\nwhere now f and its derivatives are no longer calculated at\nzero but in \u03f5\u03b3\u2113\u00afxi+1, where \u00afxi+1 is an external parameter\nnot affected by \u00afxi. Let us manipulate Eq. (8), to write\nit in the form \u02d9xi = c + bxi + ax2\ni + O(x3), by defining\n\u03b4 \u2261\u03b3\u00b5 \u2212\u03b3c\n\u00b5, b = \u03b4, c = \u03b3\u03bd\n\u03b1 \u03b4 = O(1) and a = \u03b3\u03bd\n\u03b1 \u03b4(\u03b4 +\n\u03b1)2 \u2212(\u03b4 + \u03b1) = O(1). It follows that for \u03b3\u00b5 > \u03b3\u03bd + \u03b1,"
+  },
+  {
+    "heading": "Eq. (8) is formally equal to",
+    "content": "\u02d9xi = (1\u2212\u00afxi+1)\u00aff \u2212\u00aff\u2032(\u03b3\u00b5\u2212\u03b3\u03bd)x2\ni \u22121\n2\n\u00aff\u2032\u2032(\u03b3\u00b5\u2212\u03b3\u03bd)2x2\ni +O(x3),\n(9)\n5\n0.5\n0.5\nb)\nc)\n\u223c1\nd)\n\u223c1\n0.5\n0.5\ne)\n\u223c1\nFIG. 2. Bifurcation diagram and scaling of the fixed points. Panel a) shows the bifurcation diagram for basal population\nx1 obtained via Runge-Kutta integration. The parameters \u03b1 = 0.1, \u03b3\u03bd = 0.35 and \u03b3\u2113= 0.2 have been used for several setups."
+  },
+  {
+    "heading": "The orange line confirms the bifurcation point at \u03b3\u00b5 = \u03b3c,\u03f5",
+    "content": "\u00b5\n= 0.25 for the cyclic system."
+  },
+  {
+    "heading": "The decoupled diagram, with",
+    "content": "bifurcation point predicted at \u03b3\u00b5 = \u03b3c\n\u00b5 = 0.45, is shifted to make \u03b3c,\u03f5\n\u00b5\n= \u03b3c\n\u00b5. Remarkably, the cyclic and the decoupled lines\ncoincide over the whole curve. Eventually, several values of c are evaluated, up to c = 0 (feed-forward setup), with expected\nbifurcation point \u03b3c,0\n\u00b5\n= 0.45. In the other panels, the scaling of the fixed point around the bifurcation. The behavior for\nc = \u03f5/2 in panels c), d) and e) shows how the linear scaling extends beyond c = \u03f5 with reduced but reliable approximation for\neach population of the cyclic setup. Panel b) refers to the feed-forward case.\nwith solutions \u00afx \u223c\u00b1p c\na. This is the normal form for a\nsaddle-node bifurcation [28]."
+  },
+  {
+    "heading": "Furthermore, using \u00afx3 = 1",
+    "content": "\u03b1\n\u0000\u03b3\u00b5 \u2212\u03b3c\n\u00b5\n\u0001\n+ O(\u03b32\n\u00b5), we can\nverify that the bifurcation for x2 occurs exactly at \u03b3\u00b5 =\n\u03b3c\n\u00b5, given \u00aff \u223c\u03f5\u03b3\u2113\u00afx3 and moreover\n\u00afx2 \u223c\n\u221a\u03f5\u03b3\u2113\n\u03b1\np\u03b3\u00b5 \u2212\u03b3c\u00b5.\n(10)"
+  },
+  {
+    "heading": "Then, by using Eq. (10), we can obtain the results for",
+    "content": "x1: again we can verify that the bifurcation occurs at \u03b3c\n\u00b5,\nand the scaling reads\n\u00afx1 \u223c(\u03f5\u03b3\u2113)3/4\n\u03b1\n4p\u03b3\u00b5 \u2212\u03b3c\u00b5\n(11)"
+  },
+  {
+    "heading": "Figure 2 (panels (a) and (c)) depicts the bifurcation dia-",
+    "content": "gram and the fixed points scaling, in agreement with our\nanalytic findings. When we compare the scaling in the\nfeedforward and cyclic cases, we can conclude that the\nfixed point of the feed-forward setup is more sensitive to\n\u03b3\u00b5 variations compared to the cyclic setup.\nB."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Non-normal dynamics in non-reciprocal motifs"
+  },
+  {
+    "heading": "In this section, first we focus on the calculation of",
+    "content": "eigenvectors of the Jacobian near the equilibrium points;\nnext, we characterize the non-normality by defining a pa-\nrameter that quantifies the angle between eigenvectors."
+  },
+  {
+    "heading": "This step will be key towards understanding the phe-",
+    "content": "nomenology of the stochastic regime. Again, we will fo-\ncus on highlighting the differences between the cyclic and\nfeedforward architectures."
+  },
+  {
+    "heading": "Non-normal matrices (i.e. matrices that do not com-",
+    "content": "mute with their adjoint) typically have non-orthogonal\neigenvectors and the angle between such eigenvectors is\nrelated to the non-normality of the system: the smaller\nthe angle between two eigenvectors, the more prominent\nthe effects of the non-normality."
+  },
+  {
+    "heading": "Before proceeding with the linear analysis, it is useful",
+    "content": "to rewrite the system in terms of the following variables:\n\u03a3i = xi + yi\n\u2206i = xi \u2212yi.\n(12)"
+  },
+  {
+    "heading": "Since the solution will always be of the form xi = yi",
+    "content": "\u2200i, the equilibrium coordinate for the second variable will\nbe \u00af\u2206i = 0. Then, breaking down \u03a3i and \u2206i into the\nequilibrium and perturbation components, \u03a3i = \u00af\u03a3i + \u03c3i\nand \u2206i = \u00af\u2206i + \u03b4i, we can rewrite the linear expansion of\n6\nthe equations as follows\n\u02d9\u03c3i = \u2212\u03b1\u03c3i \u2212\u03c3\u00aff + 1\n2(2 \u2212\u00af\u03a3i)\u00aff\u2032\n\u0014\n\u03c3(\u03b3\u00b5 \u2212\u03b3\u03bd) + \u03b4(\u03b3\u00b5 + \u03b3\u03bd)+\n+ \u03f5\u03b3\u2113\n\u03c3 + \u03b4\n2\n\u0015\n\u02d9\u03b4i = \u2212\u03b1\u03b4i \u2212\u03b4\u00aff\n(13)"
+  },
+  {
+    "heading": "We observe that, in the new coordinate system, the Jaco-",
+    "content": "bian associated with the linear dynamics takes an upper\ntriangular form. This change of basis, originally proposed\nin [13] for symmetry considerations in the decoupled sys-\ntem, effectively implements the Schur transformation of\nthe Jacobian of 5, ensuring its upper triangular structure\nin the new variables."
+  },
+  {
+    "heading": "The Jacobian matrices are calculated for generic",
+    "content": "fixed points since we are interested in the derivation of\nnon-normality measures in generic regimes."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Cyclic couplings"
+  },
+  {
+    "heading": "Let\u2019s begin with the study of",
+    "content": "the cyclic system (c = \u03f5)."
+  },
+  {
+    "heading": "The Jacobian of the cyclic",
+    "content": "model has a block circulant matrix shape and thus it\ncan be block diagonalized according to the circulant\nmatrix theorem [29], as shown in SM. It is interesting\nto note that the block diagonalization leads to the basis\n(\u03a3i, \u2206i). The same result can be achieved by a Schur\ntransformation in the complex field."
+  },
+  {
+    "heading": "A generic circulant matrix is diagonalized by a special",
+    "content": "unitary matrix known as the discrete Fourier transform\nmatrix, which has (r, s) element equal to exp(\u22122\u03c0i(r \u2212\n1)(s\u22121)/n). In our model, one can write the diagonalized"
+  },
+  {
+    "heading": "Jacobian for the cyclic J(D)",
+    "content": "c\n= SJcS\u22121 as follows:"
+  },
+  {
+    "heading": "J(D)",
+    "content": "c\n=\n\uf8eb\n\uf8ec\n\uf8ec\n\uf8ec\n\uf8ec\n\uf8ed\n\u03a6 + \u03f5\u03a8\n0\n0\n0\n\u03a6 \u2212\u03f5\u03a8\n\u0012\n1\n2 \u2212i\n\u221a\n3\n2\n\u0013\n0\n0\n0\n\u03a6 \u2212\u03f5\u03a8\n\u0012\n1\n2 + i\n\u221a\n3\n2\n\u0013\n\uf8f6\n\uf8f7\n\uf8f7\n\uf8f7\n\uf8f7\n\uf8f8\n(14)\nwhere\n\u03a6 =\n\u0012\n\u2212\u03b1 \u2212\u00aff + 1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032(\u03b3\u00b5 \u2212\u03b3\u03bd)\n1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032(\u03b3\u00b5 + \u03b3\u03bd)\n0\n\u2212\u03b1 \u2212\u00aff\n\u0013\n,\n\u03c8 =\n\u0012 1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032\u03b3\u2113\n1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032\u03b3\u2113\n0\n0\n\u0013\n(15)"
+  },
+  {
+    "heading": "Therefore, according to this base, the graph can be",
+    "content": "remapped into three disjoint feedforward graphs as de-\npicted in Fig. 1b. Exploiting the upper triangular shape\nof the sub-matrices, we can read the eigenvalues in the\ndiagonal elements:\n\u03bb(1)\ni\n= \u2212\u03b1 \u2212\u00aff\n\u03bb(2)\ni\n= \u2212\u03b1 \u2212\u00aff + 1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032(\u03b3\u00b5 + ki\u03b3\u2113\u2212\u03b3\u03bd)\n(16)\nwhere ki =\n\u001a\n\u03f5, \u03f5\n\u0012\n\u22121\n2 + i\n\u221a\n3\n2\n\u0013\n, \u03f5\n\u0012\n\u22121\n2 \u2212i\n\u221a\n3\n2\n\u0013\u001b\n, i =\n1, 2, 3. We identify two complex and four real eigenvalues,\nwherein global stability is constrained by the inequality\n\u2212\u03b1 \u2212\u00aff + 1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032(\u03b3\u00b5 + \u03f5\u03b3\u2113\u2212\u03b3\u03bd) < 0. In particular the\nnull fixed point loses its stability when \u03b3\u00b5 = \u03b3\u03bd + \u03b1, as\nalready proved in Sec. III A."
+  },
+  {
+    "heading": "We are now ready to calculate the form of the eigen-",
+    "content": "vectors. The full derivation, including a generalization\nto n populations, can be found in SM. From the form\nof the eigenvectors\u2019 elements, it becomes evident that\n\u03be = |\u03b3\u03bd \u2212\u03b3\u00b5 \u2212\u03f5\u03b3\u2113|/(\u03b3\u00b5 + \u03b3\u03bd + \u03f5\u03b3\u2113) controls the angle\nbetween two of the six eigenvectors. These two eigen-\nvectors encompass contributions of excitatory and inhi-\nhbitory neurons across all populations; in particular one\nof them is defined by \u03a3i = 1, \u2206i = 0 \u2013i.e. lies in the\ndirection where all excitatory and inhibitory populations\nhave the same firing rate\u2013 and the other one is defined\nby \u03a3i = 1, \u2206i = \u03be."
+  },
+  {
+    "heading": "Thus, by tuning the parameter \u03be one can directly mod-",
+    "content": "ulate the angle between these two eigenvectors, which de-\ntermines the degree of the non-normality in the system."
+  },
+  {
+    "heading": "In the asymptotic limit \u03be \u2192\u221ethe eigenvectors be-",
+    "content": "come orthogonal and the system becomes normal. Con-\nversely, when \u03be = 0, J(D)\nc\nbecomes defective, as the\ntwo eigenvectors collapse into one."
+  },
+  {
+    "heading": "In this limit, non-",
+    "content": "normality emerges from a single structural mechanism,\ncontrolled exclusively by the parameter \u03be."
+  },
+  {
+    "heading": "In other",
+    "content": "words, \u03be is the sole parameter through which the eigen-\nvector collapse occurs. This parameter \u03be can be seen as\na generalization of the parameter \u03b6 = \u03b3\u03bd \u2212\u03b3\u00b5/(\u03b3\u00b5 + \u03b3\u03bd)\ncontrolling non-normality in the decoupled system [7]."
+  },
+  {
+    "heading": "Furthermore, the degenerate eigenvector defined by \u03a3i =",
+    "content": "1, \u2206i = 0 extends the corresponding structure found in\nthe decoupled system."
+  },
+  {
+    "heading": "Once again, by reabsorbing \u03f5\u03b3\u2113into \u03b3\u00b5 the cyclic",
+    "content": "system maps onto the decoupled one."
+  },
+  {
+    "heading": "Feed-forward",
+    "content": "couplings"
+  },
+  {
+    "heading": "Let\u2019s move on to the",
+    "content": "feedforward case by setting c = 0."
+  },
+  {
+    "heading": "Now the Jacobian",
+    "content": "matrix takes the form:"
+  },
+  {
+    "heading": "Jf =",
+    "content": "\uf8eb\n\uf8ed\n\u03a61 \u03a81\u03f5\n0\n0\n\u03a62\n\u03a82\u03f5\n0\n0\n\u03a63\n\uf8f6\n\uf8f8,\n(17)\nwhere the subscripts indicate that the 2x2 matrices \u03a6k\n(respectively \u03a8k) share the same structure, but are eval-\nuated at different equilibrium points, since each unit of\nthe chain reaches a different steady state. However, as\nstated above, the equilibrium point of the excitatory and\ninhibitory sub-populations within each unit, remains ho-\nmogeneous (i.e. \u00afxi = \u00afyi). The upper diagonal form of"
+  },
+  {
+    "heading": "Jf allows to read directly the eigenvalues on the diagonal",
+    "content": "(see SM), i.e.:\n{\u2212\u03b1 \u2212\u00affi, 1\n2(2 \u2212\u00af\u03a3i)\u00aff\u2032\ni(\u03b3\u00b5 \u2212\u03b3\u03bd)}, i = 1, 2, 3.\n(18)"
+  },
+  {
+    "heading": "Again, the complete form of the eigenvectors, along with",
+    "content": "their derivation and a generalization to n populations,\nare provided in SM."
+  },
+  {
+    "heading": "Unknown",
+    "content": "7"
+  },
+  {
+    "heading": "Interestingly, both the elements of the eigenvectors",
+    "content": "and the eigenvectors themselves exhibit a structured\npattern that reflects a recursive-like organization, ex-\nplicitly highlighting the directionality of signal propa-\ngation along the chain."
+  },
+  {
+    "heading": "Moreover, in this case, the",
+    "content": "non-normality parameter has two contributions.\nThe\nfirst, encoding the so-called inner non-normality, is given\nby \u03b6 = |\u03b3\u03bd \u2212\u03b3\u00b5|/(\u03b3\u00b5 + \u03b3\u03bd) which coincides with the\nnon-normality parameter of the decoupled system [7]."
+  },
+  {
+    "heading": "The second contribution, representing the outer non-",
+    "content": "normality, is associated with the directionality of the flow\nalong the chain, and coincides with the coupling param-\neter \u03b3\u2113."
+  },
+  {
+    "heading": "Similar to the cyclic setup, Jf becomes defective for",
+    "content": "\u03b6 \u21920 and normal for \u03b6 = \u221e. Additionally, in the feed-\nforward system, the non-normality can also be influenced\nby \u03b3\u2113. In this case, the Jacobian becomes defective also\nwhen \u03b3\u2113\u2192\u221e, while \u03b3\u2113is not able to alter the inner\nnon-normality."
+  },
+  {
+    "heading": "The parameters that we derived here to tune the an-",
+    "content": "gle between the eigenvectors, do not coincide with the"
+  },
+  {
+    "heading": "Henrici measure, commonly used to quantify the strength",
+    "content": "of the non-normality [12]. A full comparison is discussed\nin SM.\nC."
+  },
+  {
+    "heading": "Unknown",
+    "content": "Reactivity"
+  },
+  {
+    "heading": "Reactivity is one of the distinctive markers of non-",
+    "content": "normality since it only arises in its presence. However,\nthe reverse is not always true, i.e. not all non-normal\nsystems exhibit reactivity. A reactive system is one in\nwhich, during a transient phase the system moves away\nfrom the steady state, following a perturbation. More\nspecifically, at small time scales the 2-norm of a vari-\nable is enhanced before exponentially decaying back to\nthe equilibrium point. Formally, reactivity occurs only\nwhen the maximum eigenvalue of the Hermitian part of\nthe Jacobian, known as numerical abscissa m, is positive:\nm(J) = sup \u03c3 [(J + J\u2217) /2] ,\n(19)\nwhere \u03c3(J) denotes the spectrum of the matrix J and"
+  },
+  {
+    "heading": "Unknown",
+    "content": "J\u2217is its conjugate transpose."
+  },
+  {
+    "heading": "The growth during the",
+    "content": "transient is proportional to the magnitude of m(J) (as\nlong as m(J) > 0)."
+  },
+  {
+    "heading": "In the cyclic network, the numerical abscissa can be",
+    "content": "evaluated analytically."
+  },
+  {
+    "heading": "In particular, we find that for",
+    "content": "the relevant portion of parameter space \u03b3\u00b5, \u03b3\u03bd > 0, we\nobtain:\nm =1\n2(\u22122\u03b1 \u22122\u00aff + 1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032(\u03b3\u00b5 + \u03f5\u03b3\u2113\u2212\u03b3\u03bd))+\n1\n2(2 \u2212\u00af\u03a3)\u00aff\u2032q\n(\u03b3\u00b5 + \u03f5\u03b3\u2113\u2212\u03b3\u03bd)2 + (\u03b3\u00b5 + \u03f5\u03b3\u2113+ \u03b3\u03bd)2\n(20)"
+  },
+  {
+    "heading": "The results are summarized in Fig. 3, where we present",
+    "content": "the level curves of m for several values of \u03b3\u2113and for\nc = 0, \u03f5. Notably, panel f) indicates that the behavior of\nthe feed-forward system as a function of m \u2013whose an-\nalytic calculation is much more involved\u2013 qualitatively\nmatches with that of the cyclic case, shown in panel\ne). This observation suggests that Eq.20 may serve as\na qualitative reference even for intermediate configura-\ntions with 0 < c < \u03f5."
+  },
+  {
+    "heading": "Interestingly, it turns out that reactivity is governed by",
+    "content": "two distinct quantities: \u03b3\u00b5 + \u03f5\u03b3\u2113\u2212\u03b3\u03bd and \u03b3\u00b5 + \u03f5\u03b3\u2113+ \u03b3\u03bd,\nwith the absolute value of their ratio being the non-\nnormality parameter. This implies that, although non-\nnormality is needed to trigger reactivity, a fixed non-\nnormality level does not correspond to a single level of\nreactivity."
+  },
+  {
+    "heading": "In other words, the ratio of \u03b3\u00b5 + \u03f5\u03b3\u2113\u2212\u03b3\u03bd",
+    "content": "and \u03b3\u00b5 + \u03f5\u03b3\u2113+ \u03b3\u03bd can remain constant while adjusting\nboth numerator and denominator to enhance m. This is\nshown explicitly in Fig. 3 panels e) and f), where the\nlines representing constant values of \u03be or \u03b6 cross the level\ncurves of m, i.e., while moving along a line with con-\nstant non-normality, multiple values of reactivity can be\nachieved."
+  },
+  {
+    "heading": "Moreover, from Eq. 20 we define \u0393 \u2261\u03b3\u00b5 + \u03f5\u03b3\u2113+ \u03b3\u03bd,",
+    "content": "i.e. the sum of all coupling constants. In what follows\nwe fix the non-normality and distinguish between two\nregimes: one with weak interactions and weak reactivity\n(\u0393, m \u226a1, illustrated in Fig. 3 panels c), e)) and one\nof strong interactions and strong reactivity (\u0393, m \u226b1,\nillustrated in panels d), f))."
+  },
+  {
+    "heading": "In the right dashed region, we show the time-evolution",
+    "content": "of the total activity \u03c1(t) =\npP\ni x2\ni + y2\ni , starting from\nan initial condition close to the bisector, where Eq. 20\nholds. In the first row, parameters are chosen so that\nthe inner systems are all equivalent, and in particular,\nthe non-normality parameter of the inner systems, \u03b6, is\nkept constant. We want to compare the evolution of the\nnorm \u03c1(t) when the reactivity is small (panel c)) with a\ncase in which reactivity is large (panel d)). As expected\nwe observe that, when the reactivity is large, the system\nmoves away from the fixed point in 0 before relaxing."
+  },
+  {
+    "heading": "From these plots, the cyclic system seems to be more",
+    "content": "reactive than the decoupled system, and that reactivity\nincreases further as c approaches \u03f5."
+  },
+  {
+    "heading": "However, the reactivity may appear larger for the cou-",
+    "content": "pled systems, simply because the coupling itself increases\nthe non-normality, which has an effect in the reactivity."
+  },
+  {
+    "heading": "To isolate the effects of reactivity, in the lower row, we",
+    "content": "fix the non-normality of each system to the same value."
+  },
+  {
+    "heading": "In particular we choose parameters in the cyclic system",
+    "content": "such that \u03be = \u03b6, i.e. we adjust \u03b3\u00b5 to compensate for the\nintroduction of \u03b3\u2113."
+  },
+  {
+    "heading": "Again, the left panel, panel e) is for small values of re-",
+    "content": "activity, and the right panel, panel f) is for larger values\nof the reactivity, showing larger excursions away from the\nfixed point. Two main messages emerge from these plots:\nfirst, we verify that the cyclic system can be reduced to\nthe decoupled case merely through coupling parameter\nshifts; second, we show that the feedforward system un-\ndergoes a genuine increase in reactivity when internal\nnon-normality is held constant.\n8\nc)\nD\nf)\ne)\n               \u03b6 , increasing m\n \n              \u03b6=\u03be, increasing m"
+  },
+  {
+    "heading": "Constant",
+    "content": "\u03c1(t)\n\u03c1(t)\n\u03c1(t)\n\u03c1(t)\na)\nm =\nb)\nm =\n\u03be=0\n\u03b6=0\n\u03be=0\nm =\nm =\nm =\nm =\nm =\nm =\nd)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Cyclic"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Feed-forward"
+  },
+  {
+    "heading": "Constant",
+    "content": "FIG. 3. Reactivity and comparison of numerical abscissa and non-normality parameters. On the right \u03c1(t) (panels\nc), d), e) and f)) trajectories under reactivity. Reactivity increases from left to right with the numerical abscissa m. Here\n\u03b6 represents the non-normality parameter for the binary system. Top row panels c) and d): In each panel the couplings are\nchosen for the decoupled system and remain unchanged over the setups. From c) and d) \u03be keeps fixed. Bottom row panels e)\nand f): As the setup changes, the non-normality of both the feedforward and cyclic systems is adjusted to maintain a consistent\nlevel across all configurations in each panel. With this change, only the feedforward system exhibits a significant increase in\nreactivity. On the left (panels a) and b)), the level curves of m for different values of \u03b3\u2113are evaluated at the inactive phase.\nThe colored areas correspond to the subspace where the level curves are meaningful. The straight lines correspond to the\nportions of the plane with fixed non-normality (\u03b6 = cont or \u03be = cont). The cyclic and the feedforward setups are respectively\naddressed in panels a) and b). In both cases, it can be observed that increasing \u03b3\u2113means shifting the m level curves to the\nleft. Then, for each set (\u03b3\u03bd,\u03b3\u00b5) m is enhanced. As a final remark, there it appears clear how all the possible values of m can\nbe obtained while still fixing the non-normality parameter."
+  },
+  {
+    "heading": "For the feedforward system, instead, we do not have",
+    "content": "a unique global parameter to quantify the total non-\nnormality and summing the parameters for inner and\nouter non-normality would be an arbitrary choice.\nA\nspecific choice of the couplings that makes the reactiv-\nity coincide surely exists, but estimating it is not easy."
+  },
+  {
+    "heading": "The point that we want to make here is that the external",
+    "content": "source of non-normality enhances the reactivity."
+  },
+  {
+    "heading": "In conclusion, the feed-forward network actually in-",
+    "content": "creases reactivity compared to the decoupled system. In\ncontrast, in the cyclic system the enhancement of reac-\ntivity can be fully accounted for by equalizing the level\nof non-normality.\nD."
+  },
+  {
+    "heading": "Analysis of the stochastic evolution of the",
+    "content": "dynamics"
+  },
+  {
+    "heading": "As shown in [7, 13], the microscopic underlying sys-",
+    "content": "tem shows very strong finite-size effects. In particular\nit was shown in [7] using Eq. 3, that the demographic\nnoise induces a minimum of the effective potential is the\norigin, thus generating a bistability in the system.\nIn\npresence of strong non-normality, the shear flow along\nthe diagonal, associated with the two nearly-collapsing\neigenvectors, facilitates the jumps between the two fixed\npoints and the dynamics resembles the avalanching be-\nhaviors observed in neural system, where the global ac-\ntivity undergoes large irregular fluctuations between a\nlow-activity and a high-activity state."
+  },
+  {
+    "heading": "Here we want to explore the behavior of the coupled",
+    "content": "system in response to noise. We then couple three mean-\nfield dynamics, where each obeys the system size expan-\nsion as in [13]:\ndxi\ndt = \u2212\u03b1xi + (1 \u2212xi)f(si) +\np\n\u03b1xi + (1 \u2212xi)f(si)\u03b7xi\ndyi\ndt = \u2212\u03b1yi + (1 \u2212yi)f(si) +\np\n\u03b1yi + (1 \u2212yi)f(si)\u03b7yi.\n(21)"
+  },
+  {
+    "heading": "Also in this case, the introduction of noise induces a",
+    "content": "new stable equilibrium point in zero for all parameter\nchoices, given that h is kept small."
+  },
+  {
+    "heading": "Again, when the",
+    "content": "9\ndeterministic stable point bifurcates from zero, bistabil-\nity appears. Bistability is not a sufficient ingredient to\nobserve avalanching behavior: a high non-normality is\nneeded [7]."
+  },
+  {
+    "heading": "However, for too high values of \u03be and \u03b6",
+    "content": "the system tends to be trapped in the active minimum."
+  },
+  {
+    "heading": "Since we are interested in how the activity propagates",
+    "content": "across populations, we used the fraction of active excita-\ntory neurons to visualize the trajectories, Fig. 4. Thanks\nto the non-normality, similar plots could be obtained for\ninhibitory activities."
+  },
+  {
+    "heading": "For low values of the inner non-normality, the system",
+    "content": "easily gets stuck in its minimum, and excursions between\nthe two minima are not likely."
+  },
+  {
+    "heading": "Once a sufficiently large non-normality level is set, we",
+    "content": "can distinguish between two separate behaviours, one\nwhere the trajectories are incoherent and one where the\nsystem shows dynamical patterns, as a function of the\nparameter \u03b3\u2113. When \u03b3\u2113<< \u03b3\u00b5, \u03b3\u03bd the system lies in an\nincoherent phase (Fig. 4 panels b) and d)), while when\n\u03b3\u2113\u223c\u03b3\u00b5, \u03b3\u03bd the behavior is more coherent (Fig. 4 panels\na) and c)). When the connectivity among units is large\nenough and the architecture is cyclic, the activation be-\ntween units is highly correlated (Fig. 4a)). Instead, in\nthe feed-forward case, when the connectivity among units\nis large enough, the units are activated sequentially. To\nfix the ideas, let us take two adjacent populations, where\nthe bottom one projects input to \u2013but does not receive\nany input from\u2013 the top one. When the bottom popu-\nlation transits to the active minimum, it activates also\nthe upper population. The process propagates along the\nchain, giving rise to the step-like trajectories we observe\nin Fig. 4c). A discussion about the effective potential in-\nduced by the noise and the external couplings is detailed\nin SM.\nIV."
+  },
+  {
+    "heading": "Unknown",
+    "content": "DISCUSSION AND CONCLUSIONS"
+  },
+  {
+    "heading": "Firstly, through the analysis of bifurcations and reac-",
+    "content": "tivity, we find that systems with feedback are more con-\ntrollable, meaning that changes in parameter settings \u2013 or\nchanges in physiological conditions \u2013 result in smoother\nalterations of network responses compared to purely feed-\nforward systems. This enhanced controllability implies\nthat the activation patterns of neurons \u2013which are the\nsubstrate for neural representation of the stimulus\u2013 are\nmore robust to perturbations when feedback is present."
+  },
+  {
+    "heading": "Similarly, it has been proposed that when stimuli become",
+    "content": "consciously reportable, they elicit an \u2018ignition process\u2019,\nwhich causes information about a brief stimulus to be-\ncome sustained and broadcasted across many brain areas\n[30]. Our work suggests, in an extremely simplified setup,\nthat the presence of feedback might be a key ingredi-\nent in such process. More specifically, our model reveals\nthat the introduction of feedback into the system plays a\ncritical role in generating coherence between processing\nstages. This observation aligns with experimental find-\nings of \u2018zero-lag interaction\u2019 between layers during per-"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Cyclic"
+  },
+  {
+    "heading": "Feed-forward",
+    "content": "b)\na)\nd)\nc)"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Contant \u03b6,\u03be decreasing \u03b3\u2113"
+  },
+  {
+    "heading": "FIG. 4. Comparison of cyclic and feedforward setups",
+    "content": "in the stochastic regime."
+  },
+  {
+    "heading": "The top panels illustrate the",
+    "content": "cyclic configuration, while the bottom ones refer to the feed-\nforward setup. The comparison between the left and the right\ncolumns shows how the system can be driven from an inco-\nherent regime (on the right, panels b) and d)) to a coherent\nphase in THE cyclic setup (panel a)) and to step-like trajecto-\nries in the feed-forward one (panel c)). Parameter choices are\nas follows: a) \u03b3\u2113= 1.13 and b) \u03b3\u2113= 0.13; for both \u03be = 0.004.\nc) \u03b3\u2113= 1.13 and d) \u03b3\u2113= 0.07; for both \u03b6 = 0.005.\nception and visual working memory [31, 32]. These are\nfrequently attributed to either common external inputs or\nspecific network motifs [31, 33]. Interestingly, our model\nsuggests that feedback alone might suffice to produce this\nsynchrony, even in the absence of external modulation."
+  },
+  {
+    "heading": "Exploring the influence of time-lagged feedback would",
+    "content": "be a valuable future direction to test the validity of this\nhypothesis."
+  },
+  {
+    "heading": "Additionally, our model shows that in a purely feed-",
+    "content": "forward setup, the stochastic dynamics exhibits a greater\ndegree of variability and complexity in the system\u2019s re-\nsponse patterns, compared to the cyclic setup. In the ab-\nsence of feedback, the neural activity is more distributed\nacross a broader range of activation patterns, reflecting\na more diverse set of responses to sensory inputs."
+  },
+  {
+    "heading": "Remarkably, when the inter-unit connectivity is weak,",
+    "content": "coherent representations are completely lost, both for\nfeedforward and cyclic networks."
+  },
+  {
+    "heading": "A priori, we chose n = 3 to investigate the potential",
+    "content": "role of complex eigenvalues and to explore whether the\nsystem could sustain quasi-cycles under the influence of\nnoise."
+  },
+  {
+    "heading": "However, our analysis reveals that, despite the",
+    "content": "theoretical presence of complex eigenvalues, no oscilla-\ntory behavior emerges in practice. As n increases, the\nfrequency of the oscillation decreases, and the quasi-cycle\ndynamics potentially predicted by the mathematical for-\n10\nmalism might be observable for larger n. This could be\ninvestigated with numerical simulations of systems with\nn > 3, but is beyond the scope of the present work."
+  },
+  {
+    "heading": "This study contributes to the growing body of litera-",
+    "content": "ture suggesting that feedback plays a pivotal role in the\nneural dynamics underlying perception. Our model pro-\nvides new insights into how feedback mechanisms could\ninherently promote synchrony and robustness in neural\nnetworks, even in the absence of common input.\n[1] A. Dinelli, J. O\u2019Byrne, A. Curatolo, Y. Zhao, P. Sollich,\nand J. Tailleur, Nature Communications 14, 7035 (2023).\n[2] C. Coulais, D. Sounas, and A. Alu, Nature 542, 461\n(2017).\n[3] F. Aguirre-L\u00f3pez, Journal of Physics A: Mathematical\nand Theoretical 57, 345002 (2024).\n[4] S. Nicoletti, N. Zagli, D. Fanelli, R. Livi, T. Carletti, and"
+  },
+  {
+    "heading": "G. Innocenti, Physical Review E 98, 032214 (2018).",
+    "content": "[5] G. Hennequin, T. P. Vogels, and W. Gerstner, Phys. Rev."
+  },
+  {
+    "heading": "E 86, 011909 (2012).",
+    "content": "[6] H. R. Wilson and J. D. Cowan, Biophysical journal 12,\n1 (1972).\n[7] S. Di Santo, P. Villegas, R. Burioni, and M. A. Mu\u00f1oz,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "Journal of Statistical Mechanics:"
+  },
+  {
+    "heading": "Theory and Experi-",
+    "content": "ment 2018, 073402 (2018).\n[8] M. Fruchart, R. Hanai, P. B. Littlewood, and V. Vitelli,"
+  },
+  {
+    "heading": "Nature 592, 363 (2021).",
+    "content": "[9] C. Martorell, R. Calvo, A. Annibale, and M. A. Mu\u00f1oz,"
+  },
+  {
+    "heading": "Chaos, Solitons & Fractals 182, 114809 (2024).",
+    "content": "[10] M. Asllani, R. Lambiotte, and T. Carletti, Science ad-\nvances 4, eaau9403 (2018).\n[11] S. A. Loos and S. H. Klapp, New Journal of Physics 22,\n123051 (2020).\n[12] L. N. Trefethen, (2020).\n[13] M. Benayoun, J. D. Cowan, W. van Drongelen, and"
+  },
+  {
+    "heading": "E. Wallace, PLoS computational biology 6, e1000846",
+    "content": "(2010).\n[14] G. Hennequin, T. P. Vogels, and W. Gerstner, Neuron\n82, 1394 (2014).\n[15] V. Buend\u00eda, P. Villegas, S. Di Santo, A. Vezzani, R. Buri-\noni, and M. A. Mu\u00f1oz, Scientific reports 9, 15183 (2019).\n[16] G. Baggio and S. Zampieri, IEEE Transactions on Con-\ntrol of Network Systems 8, 1846 (2021).\n[17] C. D. Gilbert and W. Li, Nature reviews neuroscience\n14, 350 (2013).\n[18] K. Friston, Philosophical transactions of the Royal Soci-\nety B: Biological sciences 360, 815 (2005).\n[19] J. D. Semedo, A. I. Jasper, A. Zandvakili, A. Krishna,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "A. Aschner, C. K. Machens, A. Kohn, and B. M. Yu,"
+  },
+  {
+    "heading": "Nature communications 13, 1099 (2022).",
+    "content": "[20] S. Johnson, V. Dom\u00ednguez-Garc\u00eda, L. Donetti, and M. A."
+  },
+  {
+    "heading": "Munoz, Proceedings of the National Academy of Sciences",
+    "content": "111, 17923 (2014).\n[21] J. D. Cowan, J. Neuman, and W. van Drongelen, The"
+  },
+  {
+    "heading": "Journal of Mathematical Neuroscience 6, 1 (2016).",
+    "content": "[22] H. R. Wilson and J. D. Cowan, Biological cybernetics\n115, 643 (2021).\n[23] N. G. Van Kampen, Stochastic processes in physics and\nchemistry, Vol. 1 (Elsevier, 1992).\n[24] C. W. Gardiner, Springer series in synergetics (1985).\n[25] B. K. Murphy and K. D. Miller, Neuron 61, 635 (2009).\n[26] E. R. Kandel, J. H. Schwartz, T. M. Jessell, S. Siegel-\nbaum, A. J. Hudspeth, S. Mack, et al., Principles of neu-\nral science, Vol. 4 (McGraw-hill New York, 2000).\n[27] D. Fanelli, F. Ginelli, R. Livi, N. Zagli, and C. Zankoc,"
+  },
+  {
+    "heading": "Physical Review E 96, 062313 (2017).",
+    "content": "[28] S. H. Strogatz, Nonlinear dynamics and chaos: with ap-\nplications to physics, biology, chemistry, and engineering\n(CRC press, 2018).\n[29] Circulant matrices, Vol. 2 (1979).\n[30] B. Van Vugt, B. Dagnino, D. Vartak, H. Safaai, S. Panz-\neri, S. Dehaene, and P. R. Roelfsema, Science 360, 537\n(2018).\n[31] A. Tauste Campo, Y. V\u00e1zquez, M. \u00c1lvarez, A. Zainos,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "R. Rossi-Pool, G. Deco, and R. Romo, Proceedings of the"
+  },
+  {
+    "heading": "National Academy of Sciences 116, 7513 (2019).",
+    "content": "[32] R. Salazar, N. Dotson, S. Bressler, and C. Gray, Science\n338, 1097 (2012).\n[33] L. L. Gollo, C. Mirasso, O. Sporns, and M. Breakspear,"
+  },
+  {
+    "heading": "Unknown",
+    "content": "PLoS computational biology 10, e1003548 (2014)."
+  }
+]
