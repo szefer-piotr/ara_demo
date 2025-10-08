@@ -5,9 +5,42 @@ ara_demo/ara_demo/.env
 ara_demo/ara_demo/env
 ara_demo/.env
 ara_demo/env/
+ara_demo/temp_dir/
 .vscode/
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# Python virtual environments
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Temporary files
+temp_dir/
+*.tmp
+*.bak
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing and coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+*.cover
+*.py,cover
+.hypothesis/
