@@ -1,231 +1,181 @@
-from sre_parse import SUCCESS
-from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header, APIRouter
+"""FastAPI Main Application - Synchronous"""
+
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import asyncio
+from sqlalchemy.orm import Session
+from contextlib import contextmanager
 import logging
-from contextlib import asynccontextmanager
-import redis.asyncio as redis
-from minio import Minio
-from minio.error import S3Error
-import asyncpg
 from datetime import datetime
 
-
-
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Header
-from sqlalchemy.ext.asyncio import AsyncSession
-import asyncio
-import logging
-
-from app.database import get_db
+from app.config import settings
+from app.models.api_models import ApiResponse, UploadResponse, AnalyzeResponse
+from app.database import init_db, get_db, check_database_connection, close_db
 from app.services.storage_service import storage_service
 from app.services.file_service import FileService
 from app.utils.file_utils import robust_read_csv
-from app.models.api_models import UploadResponse, AnalyzeResponse
-from app.config import settings
-from app.models.api_models import ApiResponse, UploadResponse
-from app.database import init_db, check_database_connection, close_db
-from app.utils.file_utils import robust_read_csv
 
+# Configure logging
 logging.basicConfig(
     level=getattr(logging, settings.log_level.upper()),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-
-router = APIRouter()
 logger = logging.getLogger(__name__)
 
-redis_client = None
-minio_client = None
-db_pool = None
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan manager for startup and shutdown events"""
-
-    # Startup
-    logger.info("Starting ARA Demo API...")
-
-    try:
-        # Initialize database
-        logger.info(" Initializing database connection...")
-        await init_db()
-        if await check_database_connection():
-            logger.info(" Database connection established")
-        else:
-            logger.warning(" Database connection check failed")
-        
-        logger.info(" Initializing Redis connection...")
-        global redis_client
-        redis_client = redis.from_url(settings.computed_redis_url)
-        await redis_client.ping()
-        logger.info(" Redis connection established")
-
-        logger.info("Initializing MinIO connection...")
-        global minio_client
-        minio_client = Minio(
-            settings.minio_host + ":" + str(settings.minio_port),
-            access_key=settings.minio_access_key,
-            secret_key=settings.minio_secret_key,
-            secure=settings.minio_use_ssl
-        )
-
-        bucket_name = settings.minio_bucket_name
-        if not minio_client.bucket_exists(bucket_name):
-            minio_client.make_bucket(bucket_name)
-            logger.info(f" Created a MinIO bucket: {bucket_name}")
-        else:
-            logger.info(f" MinIO bucket exists: {bucket_name}")
-
-        logger.info("Initializing PostgreSQL connection..")
-        global db_pool
-        db_pool = await asyncpg.create_pool(
-            settings.computed_database_url,
-            min_size=1,
-            max_size=10,
-            command_timeout=60
-        )
-
-        async with db_pool.acquire() as conn:
-            await conn.fetchval('SELECT 1')
-        logger.info(" PostgreSQL connection established")
-        logger.info(" ARA Demo API startup complete!")
-
-    except Exception as e:
-        logger.error(f" Startup failed: {e}")
-        raise
-
-    yield
-
-    logger.info("Shutting down ARA Demo API...")
-
-    try:
-        # Close database connections
-        logger.info(" Closing database connections...")
-        await close_db()
-        logger.info(" Database connections closed")
-        
-        if redis_client:
-            await redis_client.close()
-            logger.info(" Redis connection closed")
-        if db_pool:
-            await db_pool.close()
-            logger.info(" PostgreSQL connection pool closed")
-
-        logger.info(" Shutdown complete")
-
-    except Exception as e:
-        logger.error(f" Shutdown error: {e}")
-
-
+# Create FastAPI application
 app = FastAPI(
-    title=settings.api_title,
+    title=settings.app_name,
     version=settings.api_version,
     description=settings.api_description,
     debug=settings.debug,
-    lifespan=lifespan
+    contact={
+        "name": settings.api_contact_name,
+        "email": settings.api_contact_email,
+    },
+    openapi_tags=[
+        {
+            "name": "files",
+            "description": "File upload and management operations",
+        },
+        {
+            "name": "analysis",
+            "description": "Data analysis operations",
+        },
+        {
+            "name": "health",
+            "description": "Health check and system status",
+        },
+    ]
 )
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
-# Root endpoint
+
+@app.on_event("startup")
+def startup_event():
+    """Application startup event"""
+    logger.info("Starting ARA Demo API...")
+    
+    try:
+        # Initialize database
+        logger.info(" Initializing database connection...")
+        init_db()
+        if check_database_connection():
+            logger.info(" Database connection established")
+        else:
+            logger.warning(" Database connection check failed")
+        
+        logger.info(" ARA Demo API startup complete!")
+        
+    except Exception as e:
+        logger.error(f" Startup failed: {e}")
+        raise
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    """Application shutdown event"""
+    logger.info("Shutting down ARA Demo API...")
+    
+    try:
+        # Close database connections
+        logger.info(" Closing database connections...")
+        close_db()
+        logger.info(" Database connections closed")
+        logger.info(" Shutdown complete")
+        
+    except Exception as e:
+        logger.error(f" Shutdown error: {e}")
+
+
 @app.get("/", response_model=ApiResponse)
-async def root():
+def root():
     """Root endpoint with API information"""
     return ApiResponse(
         success=True,
+        message="ARA Demo API is running",
         data={
-            "message": "ARA Demo API",
+            "name": settings.app_name,
             "version": settings.api_version,
-            "title": settings.api_title
+            "description": settings.api_description,
+            "debug": settings.debug,
+            "endpoints": {
+                "docs": "/docs",
+                "redoc": "/redoc",
+                "openapi": "/openapi.json"
+            }
         }
     )
 
-# Health check endpoint
-@app.get("/health", response_model=ApiResponse)
-async def health_check():
+
+@app.get("/health", response_model=ApiResponse, tags=["health"])
+def health_check():
     """Health check endpoint"""
-    health_status = {
-        "status": "healthy",
-        "version": settings.api_version,
-        "services": {}
-    }
-    
-    try:
-        # Check Redis
-        if redis_client:
-            await redis_client.ping()
-            health_status["services"]["redis"] = "healthy"
-        else:
-            health_status["services"]["redis"] = "unavailable"
-    except Exception as e:
-        health_status["services"]["redis"] = f"unhealthy: {str(e)}"
-    
-    try:
-        # Check MinIO
-        if minio_client:
-            minio_client.list_buckets()
-            health_status["services"]["minio"] = "healthy"
-        else:
-            health_status["services"]["minio"] = "unavailable"
-    except Exception as e:
-        health_status["services"]["minio"] = f"unhealthy: {str(e)}"
-    
-    try:
-        # Check PostgreSQL
-        if db_pool:
-            async with db_pool.acquire() as conn:
-                await conn.fetchval('SELECT 1')
-            health_status["services"]["postgresql"] = "healthy"
-        else:
-            health_status["services"]["postgresql"] = "unavailable"
-    except Exception as e:
-        health_status["services"]["postgresql"] = f"unhealthy: {str(e)}"
-    
-    # Determine overall health
-    all_healthy = all(
-        status == "healthy" 
-        for status in health_status["services"].values()
-    )
-    
-    if not all_healthy:
-        return JSONResponse(
-            status_code=503,
-            content=ApiResponse(
-                success=False,
-                data=health_status,
-                error="Some services are unhealthy"
-            ).model_dump()
-        )
+    db_status = "connected" if check_database_connection() else "disconnected"
     
     return ApiResponse(
         success=True,
-        data=health_status
+        message="System is healthy",
+        data={
+            "status": "healthy",
+            "services": {
+                "database": db_status,
+            }
+        }
     )
 
 
-@router.post("/files", response_model=UploadResponse, tags=["files"])
-async def upload_file(
+@app.get("/info", response_model=ApiResponse, tags=["health"])
+def api_info():
+    """API information endpoint"""
+    return ApiResponse(
+        success=True,
+        message="API information",
+        data={
+            "app_name": settings.app_name,
+            "version": settings.api_version,
+            "description": settings.api_description,
+            "contact": {
+                "name": settings.api_contact_name,
+                "email": settings.api_contact_email,
+            },
+            "debug_mode": settings.debug,
+            "allowed_origins": settings.allowed_origins,
+            "max_file_size": settings.max_file_size,
+            "upload_path": settings.upload_path,
+            "log_level": settings.log_level
+        }
+    )
+
+
+@app.post("/files", response_model=UploadResponse, tags=["files"])
+def upload_csv_file(
     file: UploadFile = File(...),
     session_id: str = Header(..., alias="X-Session-ID"),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
-    Upload a file to storage
+    Upload and process a CSV file
     
     Headers:
     - X-Session-ID: Session identifier
     """
     try:
-        # Read file content
-        content = await file.read()
+        # Validate file type
+        if not file.filename.lower().endswith('.csv'):
+            raise HTTPException(400, "Only CSV files allowed")
+        
+        # Read file content (synchronous in FastAPI)
+        content = file.file.read()
         
         if len(content) == 0:
             raise HTTPException(400, "Empty file")
@@ -236,49 +186,67 @@ async def upload_file(
                 f"File too large. Max size: {settings.max_file_size} bytes"
             )
         
-        # Save to MinIO
-        file_id, storage_path = await storage_service.save_file(
+        # Parse CSV with encoding detection (synchronous)
+        df, encoding, delimiter = robust_read_csv(content, file.filename)
+        
+        # Save to MinIO storage
+        file_id, storage_path = storage_service.save_file(
             file_content=content,
             session_id=session_id,
             filename=file.filename,
-            content_type=file.content_type or "application/octet-stream"
+            content_type="text/csv"
         )
         
-        # Save metadata to database
-        file_record = await FileService.create_file(
+        # Save metadata to PostgreSQL database
+        file_record = FileService.create_file(
             db=db,
             file_id=file_id,
             session_id=session_id,
             filename=file.filename,
             storage_path=storage_path,
             file_size=len(content),
-            file_type=file.content_type or "application/octet-stream"
+            file_type="text/csv",
+            extra_metadata={
+                "encoding": encoding,
+                "delimiter": delimiter,
+                "rows": len(df),
+                "columns": len(df.columns),
+                "column_names": list(df.columns)
+            }
         )
         
-        logger.info(f"File uploaded: {file_id} ({file.filename})")
+        logger.info(f"CSV uploaded: {file_id} ({len(df)} rows, {len(df.columns)} cols)")
         
+        # Return response
         return UploadResponse(
             file_id=file_id,
-            message="File uploaded successfully",
             file_name=file.filename,
             file_size=len(content),
-            file_type=file.content_type,
-            upload_timestamp=file_record.created_at
+            file_type=file.content_type or "text/csv",
+            upload_timestamp=datetime.utcnow(),
+            metadata={
+                "encoding": encoding,
+                "delimiter": delimiter,
+                "rows": len(df),
+                "columns": len(df.columns)
+            }
         )
         
+    except UnicodeDecodeError as e:
+        raise HTTPException(400, f"Failed to decode CSV file: {str(e)}")
     except Exception as e:
-        logger.error(f"File upload failed: {e}")
-        raise HTTPException(500, f"File upload failed: {str(e)}")
+        logger.error(f"CSV upload failed: {e}")
+        raise HTTPException(500, f"CSV upload failed: {str(e)}")
 
 
-@router.post("/files/analyze", response_model=AnalyzeResponse, tags=["files"])
-async def upload_and_analyze_csv(
+@app.post("/files/analyze", response_model=AnalyzeResponse, tags=["files"])
+def analyze_csv_file(
     file: UploadFile = File(...),
     session_id: str = Header(..., alias="X-Session-ID"),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
-    Upload and analyze a CSV file
+    Analyze a CSV file without saving
     
     Headers:
     - X-Session-ID: Session identifier
@@ -289,24 +257,10 @@ async def upload_and_analyze_csv(
             raise HTTPException(400, "Only CSV files are supported")
         
         # Read file content
-        content = await file.read()
+        content = file.file.read()
         
         # Parse CSV
-        loop = asyncio.get_event_loop()
-        df, encoding, delimiter = await loop.run_in_executor(
-            None,
-            robust_read_csv,
-            content,
-            file.filename
-        )
-        
-        # Save to MinIO
-        file_id, storage_path = await storage_service.save_file(
-            file_content=content,
-            session_id=session_id,
-            filename=file.filename,
-            content_type="text/csv"
-        )
+        df, encoding, delimiter = robust_read_csv(content, file.filename)
         
         # Prepare column information
         columns = []
@@ -319,27 +273,10 @@ async def upload_and_analyze_csv(
                 "unique_values": int(df[col].nunique())
             })
         
-        # Save metadata to database
-        await FileService.create_file(
-            db=db,
-            file_id=file_id,
-            session_id=session_id,
-            filename=file.filename,
-            storage_path=storage_path,
-            file_size=len(content),
-            file_type="text/csv",
-            extra_metadata={
-                "encoding": encoding,
-                "delimiter": delimiter,
-                "rows": len(df),
-                "columns": len(df.columns)
-            }
-        )
-        
-        logger.info(f"CSV analyzed: {file_id} ({len(df)} rows, {len(df.columns)} cols)")
+        logger.info(f"CSV analyzed: {file.filename} ({len(df)} rows, {len(df.columns)} cols)")
         
         return AnalyzeResponse(
-            file_id=file_id,
+            file_id="",  # Not saved, so no file_id
             columns=columns,
             summary={
                 "total_rows": len(df),
@@ -361,13 +298,13 @@ async def upload_and_analyze_csv(
         raise HTTPException(500, f"CSV analysis failed: {str(e)}")
 
 
-@router.get("/files/{file_id}", tags=["files"])
-async def get_file_info(
+@app.get("/files/{file_id}", tags=["files"])
+def get_file_info(
     file_id: str,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """Get file metadata"""
-    file_record = await FileService.get_file(db, file_id)
+    file_record = FileService.get_file(db, file_id)
     
     if not file_record:
         raise HTTPException(404, "File not found")
@@ -382,14 +319,14 @@ async def get_file_info(
     }
 
 
-@router.delete("/files/{file_id}", tags=["files"])
-async def delete_file(
+@app.delete("/files/{file_id}", tags=["files"])
+def delete_file(
     file_id: str,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """Delete a file"""
     # Get file metadata
-    file_record = await FileService.get_file(db, file_id)
+    file_record = FileService.get_file(db, file_id)
     
     if not file_record:
         raise HTTPException(404, "File not found")
@@ -398,26 +335,47 @@ async def delete_file(
     storage_service.delete_file(file_record.storage_path)
     
     # Delete from database
-    await FileService.delete_file(db, file_id)
+    FileService.delete_file(db, file_id)
     
     return {"message": "File deleted successfully"}
-# Dependency to get Redis client
-async def get_redis():
-    """Dependency to get Redis client"""
-    if not redis_client:
-        raise HTTPException(status_code=503, detail="Redis not available")
-    return redis_client
 
-# Dependency to get MinIO client
-def get_minio():
-    """Dependency to get MinIO client"""
-    if not minio_client:
-        raise HTTPException(status_code=503, detail="MinIO not available")
-    return minio_client
 
-# Dependency to get database pool
-async def get_db():
-    """Dependency to get database connection"""
-    if not db_pool:
-        raise HTTPException(status_code=503, detail="Database not available")
-    return db_pool
+# Exception handlers
+@app.exception_handler(HTTPException)
+def http_exception_handler(request, exc):
+    """Handle HTTP exceptions"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "message": exc.detail,
+            "error": exc.detail,
+            "status_code": exc.status_code
+        }
+    )
+
+
+@app.exception_handler(Exception)
+def general_exception_handler(request, exc):
+    """Handle general exceptions"""
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "message": "Internal server error",
+            "error": str(exc) if settings.debug else "Internal server error"
+        }
+    )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=settings.debug,
+        log_level=settings.log_level.lower()
+    )

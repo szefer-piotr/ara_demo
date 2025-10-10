@@ -26,10 +26,10 @@ class StorageService:
         """Ensure the bucket exists, create if not"""
         try:
             if not self.client.bucket_exists(self.bucket_name):
-                self.client.make_buket(self.bucket_name)
+                self.client.make_bucket(self.bucket_name)
                 logger.info(f"Created MinIO bucket: {self.bucket_name}")
         except S3Error as e:
-            logger.error(f"Error checking/creatinf bucket: {e}")
+            logger.error(f"Error checking/creating bucket: {e}")
             raise
 
     def generate_file_id(self) -> str:
@@ -40,18 +40,19 @@ class StorageService:
         safe_filename = filename.replace('/', '_').replace('\\', '_')
         return f"sessions/{session_id}/files/{file_id}/{safe_filename}"
 
-    async def save_file(
+    def save_file(
         self,
         file_content: bytes,
         session_id: str,
         filename: str,
         content_type: str = "application/octet-stream"
     ) -> Tuple[str, str]:
+        """Save file to MinIO storage - Synchronous"""
         from io import BytesIO
         file_id = self.generate_file_id()
         storage_path = self.generate_storage_path(session_id, file_id, filename)
         try:
-            self.clint.put_object(
+            self.client.put_object(
                 bucket_name=self.bucket_name,
                 object_name=storage_path,
                 data=BytesIO(file_content),

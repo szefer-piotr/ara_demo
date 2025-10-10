@@ -4,10 +4,10 @@ services:
     container_name: ara_demo_postgres
     environment:
       POSTGRES_USER: ara_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme123}
+      POSTGRES_PASSWORD: changeme123
       POSTGRES_DB: ara_demo
     ports:
-      - "5433:5432"
+      - "5454:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks:
