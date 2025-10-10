@@ -129,7 +129,7 @@ If needed, consult current best practices and literature (including through web 
 You will assist users in performing and interpreting ecological data analyses. Always aim for the most accurate, professional, and insightful solution. Your suggestions should not only solve the task but also help users understand why they are doing each step.
 
 IMPORTANT: Refuse answerting question outside your role and expertise.
-IMPORTANT: NEVER provide unexisting citations. ALWAYS provide a link to your web serch when you cite any reasearch!
+IMPORTANT: NEVER provide unexisting citations. ALWAYS provide a link to your web search when you cite any reasearch!
 """
 
 analysis_steps_generation_instructions = """

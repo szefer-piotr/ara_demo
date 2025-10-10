@@ -1,5 +1,7 @@
 """FastAPI Main Application - Synchronous"""
 
+from ara_demo_api.app.services import llm_service
+from ara_demo_api.app.services.llm_service import get_llm_service
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,6 +13,7 @@ from datetime import datetime
 from app.config import settings
 from app.models.api_models import ApiResponse, UploadResponse, AnalyzeResponse
 from app.database import init_db, get_db, check_database_connection, close_db
+from app.database.models import Session as SessionModel
 from app.services.storage_service import storage_service
 from app.services.file_service import FileService
 from app.utils.file_utils import robust_read_csv
@@ -157,6 +160,38 @@ def api_info():
     )
 
 
+@app.post("/sessions", tags=["sessions"])
+def create_session(
+    session_id: str = Header(..., alias="X-Session-ID"),
+    db: Session = Depends(get_db)
+):
+    """Create a new session"""
+    existing = db.query(SessionModel).filter(
+        SessionModel.session_id == session_id
+    ).first()
+
+    if existing:
+        return {
+            "message": "Session already exists",
+            "session_id": session_id,
+            "created_at": existing.created_at
+        }
+
+    new_session = SessionModel(
+        session_id=session_id,
+        data={}
+    )
+    db.add(new_session)
+    db.commit()
+    db.refresh(new_session)
+
+    return {
+        "message": "Session created",
+        "session_id": session_id,
+        "created_at": new_session.created_at
+    }
+
+
 @app.post("/files", response_model=UploadResponse, tags=["files"])
 def upload_csv_file(
     file: UploadFile = File(...),
@@ -188,6 +223,8 @@ def upload_csv_file(
         
         # Parse CSV with encoding detection (synchronous)
         df, encoding, delimiter = robust_read_csv(content, file.filename)
+
+        llm_service = get_llm_service()
         
         # Save to MinIO storage
         file_id, storage_path = storage_service.save_file(
