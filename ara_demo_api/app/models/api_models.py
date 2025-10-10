@@ -26,6 +26,14 @@ class ApiResponse(BaseModel):
         }
 
 
+class FileInfo(BaseModel):
+    """File information (not the file itself)"""
+    filename: str
+    content_type: str
+    size: int
+    file_id: Optional[str] = None
+
+
 # File Upload Models
 class UploadResponse(BaseModel):
     """Response after file upload"""
