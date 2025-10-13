@@ -1,6 +1,7 @@
 import os
 import io
 import logging
+import pandas as pd
 from typing import List, Dict, Optional, Tuple, Any
 from datetime import datetime
 
@@ -269,12 +270,35 @@ class LLMService:
                 summary["missing_values"][col] = int(df[col].isna().sum())
             
             # Infer column descriptions if requested (no hypothesis needed)
+            # if infer_descriptions:
+            #     logger.info("Inferring column descriptions...")
+            #     column_descriptions = self.infer_column_descriptions(
+            #         data_summary=summary,
+            #         df=df
+            #     )
+                
+            #     # Add descriptions to columns
+            #     for col_info in summary["columns"]:
+            #         col_name = col_info["name"]
+            #         if col_name in column_descriptions:
+            #             col_info["description"] = column_descriptions[col_name]
+                
+            #     summary["column_descriptions"] = column_descriptions
+            
+    
+
+            # In summarize_dataframe, around line 273-286
             if infer_descriptions:
                 logger.info("Inferring column descriptions...")
-                column_descriptions = self.infer_column_descriptions(
-                    data_summary=summary,
-                    df=df
-                )
+                try:
+                    column_descriptions = self.infer_column_descriptions(
+                        data_summary=summary,
+                        df=df
+                    )
+                    logger.info(f"✅ Got {len(column_descriptions)} descriptions")
+                except Exception as e:
+                    logger.error(f"❌ Description inference failed: {e}", exc_info=True)
+                    column_descriptions = {}
                 
                 # Add descriptions to columns
                 for col_info in summary["columns"]:
@@ -284,9 +308,12 @@ class LLMService:
                 
                 summary["column_descriptions"] = column_descriptions
             
+            else:
+                summary["column_descriptions"] = {}
+                
             logger.info(f"Generated summary for dataset: {len(df)} rows, {len(df.columns)} columns")
             return summary
-            
+
         except Exception as e:
             logger.error(f"Failed to summarize DataFrame: {e}")
             raise

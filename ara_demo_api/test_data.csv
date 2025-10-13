@@ -1,4 +1,9 @@
-name,age,city
-Alice,30,NY
-Bob,25,LA
-Charlie,35,CH
+species_name,observation_count,habitat_type,temperature_celsius,rainfall_mm
+Oak Tree,45,Forest,18.5,850.2
+Pine Tree,32,Forest,16.3,920.5
+Grass Species A,120,Grassland,22.1,450.8
+Grass Species B,98,Grassland,21.8,445.3
+Reed Plant,67,Wetland,19.2,1250.7
+Water Lily,23,Wetland,20.5,1300.2
+Urban Bird,156,Urban,23.7,520.1
+Park Squirrel,89,Urban,24.2,515.8

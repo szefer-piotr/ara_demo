@@ -1,7 +1,5 @@
 """FastAPI Main Application - Synchronous"""
 
-from ara_demo_api.app.services import llm_service
-from ara_demo_api.app.services.llm_service import get_llm_service
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -16,6 +14,7 @@ from app.database import init_db, get_db, check_database_connection, close_db
 from app.database.models import Session as SessionModel
 from app.services.storage_service import storage_service
 from app.services.file_service import FileService
+from app.services.llm_service import get_llm_service
 from app.utils.file_utils import robust_read_csv
 
 # Configure logging
@@ -203,8 +202,27 @@ def upload_csv_file(
     
     Headers:
     - X-Session-ID: Session identifier
+
+    Returns:
+    - file_id: Use this to get summary later
+    - Basic metadata: encoding, delimiter, row/column counts
     """
     try:
+
+        # Auto-create session if it doesn't exist
+        existing_session = db.query(SessionModel).filter(
+            SessionModel.session_id == session_id
+        ).first()
+
+        if not existing_session:
+            logger.info(f"Auto-creating session: {session_id}")
+            new_session = SessionModel(
+                session_id=session_id,
+                data={"auto_created": True, "created_via": "file_upload"}
+            )
+            db.add(new_session)
+            db.flush() # Make session available immediately
+        
         # Validate file type
         if not file.filename.lower().endswith('.csv'):
             raise HTTPException(400, "Only CSV files allowed")
@@ -223,9 +241,7 @@ def upload_csv_file(
         
         # Parse CSV with encoding detection (synchronous)
         df, encoding, delimiter = robust_read_csv(content, file.filename)
-
-        llm_service = get_llm_service()
-        
+     
         # Save to MinIO storage
         file_id, storage_path = storage_service.save_file(
             file_content=content,
@@ -252,8 +268,8 @@ def upload_csv_file(
             }
         )
         
-        logger.info(f"CSV uploaded: {file_id} ({len(df)} rows, {len(df.columns)} cols)")
-        
+        logger.info(f"CSV uploaded: {file_id} ({len(df)} rows, {len(df.columns)} cols)")        
+
         # Return response
         return UploadResponse(
             file_id=file_id,
@@ -265,7 +281,8 @@ def upload_csv_file(
                 "encoding": encoding,
                 "delimiter": delimiter,
                 "rows": len(df),
-                "columns": len(df.columns)
+                "columns": len(df.columns),
+                "column_names": list(df.columns)
             }
         )
         
@@ -354,6 +371,55 @@ def get_file_info(
         "created_at": file_record.created_at,
         "extra_metadata": file_record.extra_metadata
     }
+
+
+@app.get("/files/{file_id}/summary", tags=["files", "analysis"])
+def get_file_summary(
+    file_id: str,
+    infer_descriptions: bool = True,
+    db: Session = Depends(get_db)
+):
+    """
+    Get data summary for a file with optional LLM-inferred column descriptions
+    
+    Query Parameters:
+    - infer_descriptions: Whether to use LLM to infer column descriptions (default: True)
+    """
+    try:
+        # Get file metadata
+        file_record = FileService.get_file(db, file_id)
+        
+        if not file_record:
+            raise HTTPException(404, "File not found")
+        
+        # Load file content from MinIO
+        content = storage_service.get_file(file_record.storage_path)
+        
+        # Parse CSV
+        df, encoding, delimiter = robust_read_csv(content, file_record.filename)
+        
+        # Generate summary with LLM service
+        llm_service = get_llm_service(tier="lower")
+        summary = llm_service.summarize_dataframe(
+            df=df,
+            infer_descriptions=infer_descriptions
+        )
+        
+        # Add file metadata to response
+        summary["file_metadata"] = {
+            "file_id": file_record.file_id,
+            "filename": file_record.filename,
+            "file_size": file_record.file_size,
+            "encoding": encoding,
+            "delimiter": delimiter
+        }
+        
+        logger.info(f"Generated summary for file {file_id}")
+        return summary
+        
+    except Exception as e:
+        logger.error(f"Failed to generate file summary: {e}")
+        raise HTTPException(500, f"Failed to generate summary: {str(e)}")
 
 
 @app.delete("/files/{file_id}", tags=["files"])
