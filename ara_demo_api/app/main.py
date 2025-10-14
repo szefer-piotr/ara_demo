@@ -1,5 +1,6 @@
 """FastAPI Main Application - Synchronous"""
 
+from app.services import session_service
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -15,6 +16,7 @@ from app.database.models import Session as SessionModel
 from app.services.storage_service import storage_service
 from app.services.file_service import FileService
 from app.services.llm_service import get_llm_service
+from app.services.session_service import get_session_service
 from app.utils.file_utils import robust_read_csv
 
 # Configure logging
@@ -24,6 +26,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+session_service = None
+llm_service = None
 
 # Create FastAPI application
 app = FastAPI(
@@ -65,6 +69,8 @@ app.add_middleware(
 @app.on_event("startup")
 def startup_event():
     """Application startup event"""
+    global session_service, llm_service
+
     logger.info("Starting ARA Demo API...")
     
     try:
@@ -75,7 +81,27 @@ def startup_event():
             logger.info(" Database connection established")
         else:
             logger.warning(" Database connection check failed")
-        
+
+        # Initialize Session Service
+        logger.info(" Initializing Session Service")
+        session_service = get_session_service()
+        session_health = session_service.health_check()
+        if session_health.get('redis'):
+            logger.info(" Redis cache connected")
+        else:
+            logger.warning(" Redis unavailable - using database only")
+
+        logger.info(" Initializing LLM Service...")
+        llm_service = get_llm_service(tier='lower')
+        logger.info(" LLM Service ready")
+
+        logger.info(" Testing MinIO storage...")
+        try:
+            storage_service.health_check()
+            logger.info(" MinIO storage connected")
+        except Exception as e:
+            logger.warning(f" MinIO connection issue: {e}")
+
         logger.info(" ARA Demo API startup complete!")
         
     except Exception as e:
@@ -123,7 +149,23 @@ def root():
 def health_check():
     """Health check endpoint"""
     db_status = "connected" if check_database_connection() else "disconnected"
+
+    redis_status = "disconnected"
+    cache_enabled = False
+    if session_service:
+        session_health = session_service.health_check()
+        redis_status = "connected" if session_health.get("redis") else "disconnected"
+        cache_enabled = session_health.get("using_cache", False)
     
+    storage_status = "unknown"
+    try:
+        storage_service.health_check()
+        storage_status = "connected"
+    except Exception:
+        storage_status = "disconnected"
+
+    llm_status = "ready" if llm_service else "not initialized"
+
     return ApiResponse(
         success=True,
         message="System is healthy",
@@ -131,6 +173,10 @@ def health_check():
             "status": "healthy",
             "services": {
                 "database": db_status,
+                "redis": redis_status,
+                "cache_enabled": cache_enabled,
+                "storage": storage_status,
+                "llm_service": llm_status
             }
         }
     )

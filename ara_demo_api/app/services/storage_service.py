@@ -92,6 +92,19 @@ class StorageService:
         except S3Error:
             return False
 
+    def health_check(self) -> bool:
+        """Check MinIO connection health"""
+        try:
+            # Try to check if bucket exists as a health check
+            self.client.bucket_exists(self.bucket_name)
+            return True
+        except S3Error as e:
+            logger.error(f"MinIO health check failed: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"MinIO health check error: {e}")
+            raise
+
 
 # Global instance
 storage_service = StorageService()
